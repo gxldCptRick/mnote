@@ -1,6 +1,8 @@
 package application;
 
 import javafx.application.Application;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Group;
@@ -114,8 +116,33 @@ public class Main extends Application {
 		header.setFont(new Font(300));
 		
 		mainDrawingCanvas = new Canvas(2000, 500);
+		
+		
+		
 		mainDrawingCanvas.widthProperty().bind(primaryStage.widthProperty());
 		mainDrawingCanvas.heightProperty().bind(primaryStage.heightProperty());
+		
+		mainDrawingCanvas.widthProperty().addListener(new ChangeListener<Number>(){
+
+			@Override
+			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+				
+				mainDrawingCanvas.getGraphicsContext2D().restore();
+				
+			}
+			
+		});
+		
+		mainDrawingCanvas.heightProperty().addListener(new ChangeListener<Number>(){
+
+			@Override
+			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+				
+				mainDrawingCanvas.getGraphicsContext2D().restore();
+				
+			}
+			
+		});
 		
 		setUpDrawing();
 		mainGroup.getChildren().addAll(header, mainDrawingCanvas, buttonLine);
@@ -162,7 +189,7 @@ public class Main extends Application {
 			public void handle(MouseEvent event) {
 
 				mainDrawingCanvas.getGraphicsContext2D().closePath();
-
+				mainDrawingCanvas.getGraphicsContext2D().save();
 			}
 
 		};
