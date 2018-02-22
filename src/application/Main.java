@@ -1,5 +1,8 @@
 package application;
 
+import java.awt.Toolkit;
+import java.util.Arrays;
+
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -26,6 +29,7 @@ public class Main extends Application {
 	private Label header;
 	private EventHandler<MouseEvent>[] drawableMouseEvents;
 	private double lineWidth = .5;
+	private double lineWidthIncrease = .1;
 	private Label currentSize;
 	private Color currentColor;
 
@@ -61,7 +65,7 @@ public class Main extends Application {
 			@Override
 			public void handle(ActionEvent event) {
 				
-				lineWidth+=.1;
+				lineWidth += lineWidthIncrease;
 				
 				updateSize();
 				
@@ -75,7 +79,7 @@ public class Main extends Application {
 			@Override
 			public void handle(ActionEvent event) {
 				
-				lineWidth -=.1;
+				lineWidth -= lineWidthIncrease;
 				updateSize();
 			}
 			
@@ -103,11 +107,28 @@ public class Main extends Application {
 			
 		});
 	
+		ComboBox<Double> increaseSizes = new ComboBox<Double>();
+		
+		
+		increaseSizes.getItems().addAll(Arrays.asList(.1,.2,.3,.4,.5,.6,.7,.8,.9,1.0,10.0,100.0));
+		
+		
+		increaseSizes.setOnAction(new EventHandler<ActionEvent>() {
+
+			@Override
+			public void handle(ActionEvent event) {
+				
+				ComboBox<Double> doubleBox = (ComboBox) event.getSource();
+ 				
+				lineWidthIncrease = doubleBox.getValue();
+				
+			}
+			
+		});
 		
 		HBox buttonLine = new HBox();
 		
-		buttonLine.getChildren().addAll(eraserButton,increaseLineSize, decreaseLineSize, currentSize, colorList);
-		
+		buttonLine.getChildren().addAll(eraserButton, increaseSizes, increaseLineSize, decreaseLineSize, currentSize, colorList);
 		
 		setUpMouseEvents();
 		
@@ -115,12 +136,11 @@ public class Main extends Application {
 		
 		header.setFont(new Font(300));
 		
-		mainDrawingCanvas = new Canvas(2000, 500);
+		
+		mainDrawingCanvas = new Canvas(Toolkit.getDefaultToolkit().getScreenSize().width, Toolkit.getDefaultToolkit().getScreenSize().height);
 		
 		
 		
-		mainDrawingCanvas.widthProperty().bind(primaryStage.widthProperty());
-		mainDrawingCanvas.heightProperty().bind(primaryStage.heightProperty());
 		
 		mainDrawingCanvas.widthProperty().addListener(new ChangeListener<Number>(){
 
@@ -147,8 +167,8 @@ public class Main extends Application {
 		setUpDrawing();
 		mainGroup.getChildren().addAll(header, mainDrawingCanvas, buttonLine);
 		
-		Scene mainScene = new Scene(mainGroup);
-
+		Scene mainScene = new Scene(mainGroup, 1750, 500);
+		
 		primaryStage.setScene(mainScene);
 
 		primaryStage.setTitle("MNote");
