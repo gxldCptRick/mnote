@@ -23,14 +23,16 @@ import javafx.scene.paint.Color;
 
 public class DrawableCanvas extends VBox {
 
+	@SuppressWarnings("unused")
 	private static final double MAX_WIDTH;
+	@SuppressWarnings("unused")
 	private static final double MAX_HEIGHT;
-	
+
 	static {
 		MAX_WIDTH = Toolkit.getDefaultToolkit().getScreenSize().getWidth() * 2;
 		MAX_HEIGHT = Toolkit.getDefaultToolkit().getScreenSize().getHeight() * 2;
 	}
-	
+
 	private Canvas mainDrawingCanvas;
 	private Color currentColor;
 	private double lineWidth;
@@ -46,6 +48,7 @@ public class DrawableCanvas extends VBox {
 	public DrawableCanvas(double width, double height) {
 		super();
 
+		System.out.println(width+ " w," + height + " h");
 		this.setSpacing(5);
 		lines = new ArrayList<>();
 		currentLine = new ArrayList<>();
@@ -58,26 +61,57 @@ public class DrawableCanvas extends VBox {
 
 		mainDrawingCanvas = generateCanvas(width, height);
 		setUpToolBar();
-		setUpCanvasScroll();
+		initializeScrollPane();
 
 	}
 
-	private void setUpCanvasScroll() {
+	private void initializeScrollPane() {
 		canvasContainer = new ScrollPane();
-
+		
 		canvasContainer.setContent(mainDrawingCanvas);
 		
-		canvasContainer.prefWidthProperty().bind(this.prefWidthProperty().multiply(.9));
+		setupScrollPaneSize();
 		
-		canvasContainer.prefHeightProperty().bind(this.prefHeightProperty().multiply(.8));
+		setupScrollPaneMousePanEvents();
+		
+		setupScrollPaneEventFilters();
+		
+		this.getChildren().add(canvasContainer);
+
+	}
+
+	private void setupScrollPaneEventFilters() {
 		
 		canvasContainer.addEventFilter(InputEvent.ANY, (event) -> {
 			if (event.getEventType().toString() == "SCROLL")
 				event.consume();
 		});
-
-		this.getChildren().add(canvasContainer);
 		
+	}
+
+	private void setupScrollPaneMousePanEvents() {
+		canvasContainer.setOnMousePressed(event -> {
+
+			if (event.isSecondaryButtonDown())
+				canvasContainer.setPannable(true);
+
+		});
+
+		canvasContainer.setOnMouseReleased(event -> {
+
+			canvasContainer.setPannable(false);
+
+		});
+
+		
+	}
+
+	private void setupScrollPaneSize() {
+
+		canvasContainer.prefWidthProperty().bind(this.prefWidthProperty().multiply(.9));
+
+		canvasContainer.prefHeightProperty().bind(this.prefHeightProperty().multiply(.8));
+
 	}
 
 	private Canvas generateCanvas(double width, double height) {
@@ -102,22 +136,22 @@ public class DrawableCanvas extends VBox {
 		GraphicsContext gc = mainDrawingCanvas.getGraphicsContext2D();
 
 		gc.clearRect(0, 0, mainDrawingCanvas.getWidth(), mainDrawingCanvas.getHeight());
-		
+
 		boolean first = true;
-		
+
 		for (List<Point2D> thing : lines) {
 			gc.beginPath();
-			
+
 			for (Point2D point2d : thing) {
-				if(first) {
+				if (first) {
 					first = false;
 
 					gc.moveTo(point2d.getX(), point2d.getY());
-				
-				}else {
-					
+
+				} else {
+
 					gc.lineTo(point2d.getX(), point2d.getY());
-				
+
 				}
 			}
 			first = true;
@@ -126,7 +160,7 @@ public class DrawableCanvas extends VBox {
 			gc.closePath();
 
 		}
-		
+
 		gc.beginPath();
 		for (Point2D point2d : currentLine) {
 			gc.lineTo(point2d.getX(), point2d.getY());
@@ -232,84 +266,54 @@ public class DrawableCanvas extends VBox {
 
 	private void setUpMouseEvents(Canvas canvas) {
 		drawableMouseEvents[0] = (event) -> {
-			checkIfInbound(event);
-			
-			GraphicsContext gc = canvas.getGraphicsContext2D();
+			if (event.isPrimaryButtonDown()) {
+				checkIfInbound(event);
 
-			currentLine.add(new Point2D(event.getX(), event.getY()));
+				GraphicsContext gc = canvas.getGraphicsContext2D();
 
-			gc.lineTo(event.getX(), event.getY());
+				currentLine.add(new Point2D(event.getX(), event.getY()));
 
-			gc.stroke();
+				gc.lineTo(event.getX(), event.getY());
+
+				gc.stroke();
+			}
 
 		};
 
 		drawableMouseEvents[1] = (event) -> {
 
-			GraphicsContext gc = canvas.getGraphicsContext2D();
-			currentLine.add(new Point2D(event.getX(), event.getY()));
-			gc.lineTo(event.getX(), event.getY());
-			gc.closePath();
+			if (currentLine != null && !lines.contains(currentLine)) {
+				GraphicsContext gc = canvas.getGraphicsContext2D();
+				currentLine.add(new Point2D(event.getX(), event.getY()));
+				gc.lineTo(event.getX(), event.getY());
+				gc.closePath();
 
-			lines.add(currentLine);
+				lines.add(currentLine);
+			}
 		};
 
 		drawableMouseEvents[2] = (event) -> {
 
-			currentLine = new ArrayList<>();
-			GraphicsContext gc = canvas.getGraphicsContext2D();
-			gc.beginPath();
-			gc.setLineWidth(lineWidth);
-			gc.setStroke(currentColor);
-			currentLine.add(new Point2D(event.getX(), event.getY()));
-			gc.moveTo(event.getX(), event.getY());
+			if (event.isPrimaryButtonDown()) {
+				currentLine = new ArrayList<>();
+				GraphicsContext gc = canvas.getGraphicsContext2D();
+				gc.beginPath();
+				gc.setLineWidth(lineWidth);
+				gc.setStroke(currentColor);
+				currentLine.add(new Point2D(event.getX(), event.getY()));
+				gc.moveTo(event.getX(), event.getY());
+			}
 
 		};
 
 	}
-	
 
 	private void checkIfInbound(MouseEvent event) {
 		System.out.println(event.getX() + " , " + event.getY());
-		System.out.println(this.canvasContainer.getVmax() + " vertical max, "+  this.canvasContainer.getVmin() + " vertical min");
-		System.out.println(this.canvasContainer.getViewportBounds().getHeight() + "viewport height ");
-		if (event.getX() > this.mainDrawingCanvas.getWidth()) {
+		System.out.println(this.canvasContainer.getViewportBounds().getHeight() + " viewport height ");
 
-			double newWidth =this.mainDrawingCanvas.getWidth() + (event.getX() - this.mainDrawingCanvas.getWidth());
-			
-			newWidth = newWidth > MAX_WIDTH ? MAX_WIDTH: newWidth;
-			
-			this.mainDrawingCanvas.setWidth(newWidth);
-			
-			canvasContainer.setHvalue(this.canvasContainer.getHmax());
-			
-		}else if(event.getX() > this.canvasContainer.getWidth()) {
-			
-			this.canvasContainer.setHvalue(this.canvasContainer.getHvalue() + .1);
-			
-		}
-
-		if (event.getY() > this.mainDrawingCanvas.getHeight()) {
-
-			double newHeight = this.mainDrawingCanvas.getHeight() + (event.getY() - this.mainDrawingCanvas.getHeight());
-			
-			newHeight = newHeight > MAX_HEIGHT ? MAX_HEIGHT: newHeight;
-			
-			this.mainDrawingCanvas.setHeight(newHeight);
-			
-			this.canvasContainer.setVvalue(this.canvasContainer.getVmax());
-			
-		}else if(event.getY() > this.canvasContainer.getHeight()) {
-			
-			this.canvasContainer.setVvalue(this.canvasContainer.getVvalue() + .1);
-			
-		}else if(event.getY() < this.canvasContainer.getMinHeight()) {
-			this.canvasContainer.setVvalue(this.canvasContainer.getVvalue() - .1);
-		}
-		
 	}
-	
-	
+
 	private void updateSize() {
 
 		currentSize.setText("Current Line Width: " + lineWidth);
