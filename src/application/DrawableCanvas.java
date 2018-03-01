@@ -309,9 +309,12 @@ public class DrawableCanvas extends VBox {
 	}
 
 	private void checkIfInbound(MouseEvent event) {
-		System.out.println(event.getX() + " , " + event.getY());
+		
+/*		System.out.println(event.getX() + " , " + event.getY());
 		System.out.println(this.canvasContainer.getViewportBounds().getHeight() + " viewport height ");
-
+*/
+		System.out.println(this.canvasContainer.getVvalue() * this.mainDrawingCanvas.getHeight() + " vertical * height");
+		
 	}
 
 	private void updateSize() {
