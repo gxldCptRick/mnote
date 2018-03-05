@@ -22,7 +22,7 @@ public class Main extends Application {
 		
 		mainLayout = new VBox();
 
-		mainLayout.getChildren().addAll(tools, drawSurface);
+		mainLayout.getChildren().addAll(tools, drawSurface.getLayout());
 	
 		Scene mainScene = new Scene(mainLayout, 1500, 500);
 
@@ -31,8 +31,9 @@ public class Main extends Application {
 
 		primaryStage.setTitle("MNote");
 
-		drawSurface.prefWidthProperty().bind(primaryStage.widthProperty().multiply(.95));
-		drawSurface.prefHeightProperty().bind(primaryStage.heightProperty());
+		drawSurface.getLayout().prefWidthProperty().bind(primaryStage.widthProperty().multiply(.95));
+		
+		drawSurface.getLayout().prefHeightProperty().bind(primaryStage.heightProperty());
 
 		
 		primaryStage.show();

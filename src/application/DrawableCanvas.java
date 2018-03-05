@@ -1,14 +1,13 @@
 package application;
 
 import java.awt.Toolkit;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
-import javafx.geometry.Point2D;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
@@ -19,11 +18,18 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.input.InputEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import models.CanvasLines;
+import models.SavablePoint2D;
 
-public class DrawableCanvas extends VBox {
-	
+public class DrawableCanvas implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID;
 	private static final double MAX_WIDTH;
 	private static final double MAX_HEIGHT;
 
@@ -31,63 +37,78 @@ public class DrawableCanvas extends VBox {
 	private static final double STANDARD_DEVATION_X;
 
 	static {
-		
+
+		serialVersionUID = generateID("420 BLAZE IT");
 		MAX_WIDTH = Toolkit.getDefaultToolkit().getScreenSize().getWidth() * 3;
 		MAX_HEIGHT = Toolkit.getDefaultToolkit().getScreenSize().getHeight() * 3;
-		STANDARD_DEVATION_Y = .018311;
-		STANDARD_DEVATION_X = .010121;
-	
+
+		STANDARD_DEVATION_Y = .018310648;
+		STANDARD_DEVATION_X = .00796156;
+
 	}
 
-	private Canvas mainDrawingCanvas;
-	private Color currentColor;
-	private double lineWidth;
-	private double lineWidthIncrease;
-	private Label currentSize;
-	private ScrollPane canvasContainer;
-	private double offsetY;
-	private double offsetX;
+	private static long generateID(String input) {
+		
+		long counter = 0;
+		char[] inputs = input.toCharArray();
+		for (int i = 0; i <  inputs.length; i++) {
 
-	private EventHandler<MouseEvent>[] drawableMouseEvents;
-	private List<List<Point2D>> lines;
-	private List<Point2D> currentLine;
+			counter += inputs[i] + i;
+
+		}
+
+		return counter;
+	}
+
+	private CanvasLines lines;
+	private Toolbar toolbar;
+	
+	private transient final VBox layout;
+	private transient Canvas mainDrawingCanvas;
+	private transient ScrollPane canvasContainer;
+	private transient double offsetY;
+	private transient double offsetX;
+
+	private transient EventHandler<MouseEvent>[] drawableMouseEvents;
 
 	@SuppressWarnings("unchecked")
 	public DrawableCanvas(double width, double height) {
-		super();
 
-		this.setSpacing(5);
-		lines = new ArrayList<>();
-		currentLine = new ArrayList<>();
+		layout = new VBox();
+		layout.setSpacing(5);
+		lines = new CanvasLines();
+		toolbar = new Toolbar();
+		
 		drawableMouseEvents = new EventHandler[3];
-
-		lineWidth = .5;
-		lineWidthIncrease = .1;
-		currentSize = new Label("Current Line Width : " + lineWidth);
-		currentColor = Color.BLACK;
 
 		mainDrawingCanvas = generateCanvas(width, height);
 
-		setUpToolBar();
+	
 		initializeScrollPane();
 
 		updateOffsetY();
 		updateOffsetX();
 
+		layout.getChildren().addAll(toolbar.getLayout(), canvasContainer);
+
+	}
+
+	public Pane getLayout() {
+		return this.layout;
 	}
 
 	private void updateOffsetY() {
 
-		offsetY = ((1 + STANDARD_DEVATION_Y) * mainDrawingCanvas.getHeight())
-				- canvasContainer.getViewportBounds().getHeight();
+		offsetY = ((1 + STANDARD_DEVATION_Y) * mainDrawingCanvas.getHeight()) - canvasContainer.getHeight();
 
 	}
 
 	private void updateOffsetX() {
 
-		offsetX = ((1 + STANDARD_DEVATION_X) * mainDrawingCanvas.getWidth())
-				- canvasContainer.getViewportBounds().getWidth();
+		offsetX = ((1 + STANDARD_DEVATION_X) * mainDrawingCanvas.getWidth()) - canvasContainer.getWidth();
+		System.out.println("Offset x updated");
 		System.out.println(offsetX);
+		System.out.println(canvasContainer.getWidth());
 	}
 
 	private void initializeScrollPane() {
@@ -110,9 +131,6 @@ public class DrawableCanvas extends VBox {
 			updateOffsetY();
 
 		});
-	
-
-		this.getChildren().add(canvasContainer);
 
 	}
 
@@ -143,9 +161,9 @@ public class DrawableCanvas extends VBox {
 
 	private void setupScrollPaneSize() {
 
-		canvasContainer.prefWidthProperty().bind(this.prefWidthProperty().multiply(.75));
+		canvasContainer.prefWidthProperty().bind(layout.prefWidthProperty().multiply(.75));
 
-		canvasContainer.prefHeightProperty().bind(this.prefHeightProperty().multiply(.75));
+		canvasContainer.prefHeightProperty().bind(layout.prefHeightProperty().multiply(.75));
 
 	}
 
@@ -171,109 +189,24 @@ public class DrawableCanvas extends VBox {
 
 	}
 
-	private void setUpToolBar() {
-
-		ColorPicker colorList = generateColorPicker();
-
-		ComboBox<Double> increaseSizes = generateIncreaseSizeComboBox();
-
-		HBox toolBar = new HBox();
-
-		toolBar.setSpacing(10);
-
-		toolBar.getChildren().addAll(currentSize, colorList, increaseSizes);
-
-		setButtons(toolBar);
-
-		this.getChildren().add(toolBar);
-	}
+	
 
 	private double calculateTrueYPosition(double originalYPos) {
 
-		
 		double yPos = originalYPos - Math.round(offsetY * canvasContainer.getVvalue()) + 1;
-		System.out.println(offsetY * canvasContainer.getVvalue());
+
 		return yPos;
 	}
 
 	private double calculateTrueXPosition(double originalXPos) {
 
 		double xPos = originalXPos - Math.round(offsetX * canvasContainer.getHvalue()) + 1;
-		
-		System.out.println(offsetX * canvasContainer.getHvalue());
-		
+
+		System.out.println(originalXPos);
+		System.out.println(offsetX);
+		System.out.println(Math.round(offsetX * canvasContainer.getHvalue()) + 1d);
+		System.out.println(canvasContainer.getHvalue());
 		return xPos;
-	}
-
-	private void setButtons(HBox toolBar) {
-
-		Button clearButton = new Button("Clear"), increaseLineSize = new Button("+"),
-				decreaseLineSize = new Button("-");
-
-		clearButton.setOnAction((ActionEvent event) -> {
-			this.lines = new ArrayList<>();
-			this.currentLine = new ArrayList<>();
-			mainDrawingCanvas.getGraphicsContext2D().clearRect(0, 0, mainDrawingCanvas.getWidth(),
-					mainDrawingCanvas.getHeight());
-		});
-
-		increaseLineSize.setOnAction((ActionEvent event) -> {
-			lineWidth += lineWidthIncrease;
-			updateSize();
-		});
-
-		decreaseLineSize.setOnAction((ActionEvent event) -> {
-			lineWidth -= lineWidthIncrease;
-			updateSize();
-		});
-
-		toolBar.getChildren().addAll(clearButton, increaseLineSize, decreaseLineSize);
-
-	}
-
-	private ColorPicker generateColorPicker() {
-
-		ColorPicker colorList = new ColorPicker();
-		colorList.setValue(Color.BLACK);
-		colorList.setOnAction((event) -> {
-
-			Object source = event.getSource();
-
-			if (source instanceof ColorPicker) {
-
-				ColorPicker picker = ColorPicker.class.cast(source);
-
-				currentColor = picker.getValue();
-
-				System.out.println(picker.getValue());
-			}
-		});
-
-		return colorList;
-	}
-
-	private ComboBox<Double> generateIncreaseSizeComboBox() {
-
-		ComboBox<Double> increaseSizes = new ComboBox<Double>();
-
-		increaseSizes.getItems().addAll(Arrays.asList(.1, .2, .3, .4, .5, .6, .7, .8, .9, 1.0, 10.0, 100.0));
-
-		increaseSizes.setValue(.1);
-
-		increaseSizes.setOnAction((ActionEvent event) -> {
-
-			Object sauce = event.getSource();
-			if (sauce instanceof ComboBox<?>) {
-
-				@SuppressWarnings("unchecked")
-				ComboBox<Double> comboBox = (ComboBox<Double>) sauce;
-
-				lineWidthIncrease = comboBox.getValue();
-
-			}
-		});
-
-		return increaseSizes;
 	}
 
 	private void setUpDrawing(Canvas canvas) {
@@ -296,7 +229,7 @@ public class DrawableCanvas extends VBox {
 
 				GraphicsContext gc = canvas.getGraphicsContext2D();
 
-				currentLine.add(new Point2D(event.getX(), event.getY()));
+				lines.addNextPoint(new SavablePoint2D(event.getX(), event.getY()));
 
 				gc.lineTo(event.getX(), event.getY());
 
@@ -307,27 +240,31 @@ public class DrawableCanvas extends VBox {
 
 		drawableMouseEvents[1] = (event) -> {
 
-			if (currentLine != null && !lines.contains(currentLine)) {
+			if (lines.isLineStarted()) {
+
 				GraphicsContext gc = canvas.getGraphicsContext2D();
-				currentLine.add(new Point2D(event.getX(), event.getY()));
+
+				lines.addNextPoint(new SavablePoint2D(event.getX(), event.getY()));
+
 				gc.lineTo(event.getX(), event.getY());
+
 				gc.closePath();
 
-				lines.add(currentLine);
+				lines.endLine();
+
 			}
 		};
 
 		drawableMouseEvents[2] = (event) -> {
 
 			if (event.isPrimaryButtonDown()) {
-				// System.out.println(event.getX() + " event x");
-				// System.out.println(this.canvasContainer.getHvalue() + " horizontal value");
-				currentLine = new ArrayList<>();
+
+				lines.startNewLine();
 				GraphicsContext gc = canvas.getGraphicsContext2D();
 				gc.beginPath();
-				gc.setLineWidth(lineWidth);
-				gc.setStroke(currentColor);
-				currentLine.add(new Point2D(event.getX(), event.getY()));
+				gc.setLineWidth(toolbar.getLineWidth());
+				gc.setStroke(toolbar.getCurrentColor());
+				lines.addNextPoint(new SavablePoint2D(event.getX(), event.getY()));
 				gc.moveTo(event.getX(), event.getY());
 
 			}
@@ -390,11 +327,6 @@ public class DrawableCanvas extends VBox {
 		double jumpSize = currentSize + (sizeOfView / sizeOfObject) * .1 * direction;
 
 		return jumpSize;
-	}
-
-	private void updateSize() {
-
-		currentSize.setText("Current Line Width: " + lineWidth);
 	}
 
 }
