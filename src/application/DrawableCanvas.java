@@ -2,25 +2,16 @@ package application;
 
 import java.awt.Toolkit;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
 
-import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.Button;
-import javafx.scene.control.ColorPicker;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.input.InputEvent;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import models.CanvasLines;
 import models.SavablePoint2D;
 
@@ -68,7 +59,6 @@ public class DrawableCanvas implements Serializable {
 	private transient ScrollPane canvasContainer;
 	private transient double offsetY;
 	private transient double offsetX;
-
 	private transient EventHandler<MouseEvent>[] drawableMouseEvents;
 
 	@SuppressWarnings("unchecked")
@@ -83,6 +73,15 @@ public class DrawableCanvas implements Serializable {
 
 		mainDrawingCanvas = generateCanvas(width, height);
 
+		
+		toolbar.getClearButton().setOnAction((event) ->{
+			
+			lines = new CanvasLines();
+			
+			mainDrawingCanvas.getGraphicsContext2D().clearRect(0, 0, mainDrawingCanvas.getWidth(), mainDrawingCanvas.getHeight());
+			
+			
+		});
 	
 		initializeScrollPane();
 

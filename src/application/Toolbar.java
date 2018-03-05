@@ -1,5 +1,8 @@
 package application;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.Arrays;
 
@@ -20,6 +23,14 @@ public class Toolbar implements Serializable {
 	private static final long serialVersionUID = 556677L;
 	private double lineWidth;
 	private double lineWidthIncrease;
+	
+	
+	@SuppressWarnings("unused")
+	private double currentRed;
+	@SuppressWarnings("unused")
+	private double currentBlue;
+	@SuppressWarnings("unused")
+	private double currentGreen;
 	
 	private transient HBox  layout;
 	private transient Color currentColor;
@@ -55,12 +66,40 @@ public class Toolbar implements Serializable {
 	public Button getClearButton() {
 		return clearButton;
 	}
+
+	public void writeObject(ObjectOutputStream out) throws  IOException{
+		
+		currentRed = this.currentColor.getRed();
+		currentBlue = this.currentColor.getBlue();
+		currentGreen = this.currentColor.getGreen();
+		
+		out.defaultWriteObject();
+		
+	}
+	
+	public void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException{
+		
+		in.defaultReadObject();
+		
+		initializeToolbar();
+		
+		ObjectInputStream.GetField fields = in.readFields();
+		 
+		this.currentColor = new Color(fields.get("currentRed", 0),fields.get("currentBlue", 0), fields.get("currentGreen", 0),0);
+
+		
+	}
 	
 	
 	private void initializeToolbar() {
 		currentSize = new Label("Current Line Width : " + lineWidth);
 		currentColor = Color.BLACK;
 		layout = new HBox();
+		
+		this.lineWidth = .5;
+		this.lineWidthIncrease = .1;
+		
+		this.updateSize();
 		
 		ColorPicker colorList = generateColorPicker();
 
@@ -110,6 +149,7 @@ public class Toolbar implements Serializable {
 		});
 
 		return colorList;
+	
 	}
 
 	private ComboBox<Double> generateIncreaseSizeComboBox() {
@@ -140,5 +180,5 @@ public class Toolbar implements Serializable {
 
 		currentSize.setText("Current Line Width: " + lineWidth);
 	}
-
+	
 }
