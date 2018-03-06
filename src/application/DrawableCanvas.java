@@ -84,10 +84,7 @@ public class DrawableCanvas implements Serializable {
 		});
 	
 		initializeScrollPane();
-
-		updateOffsetY();
-		updateOffsetX();
-
+		
 		layout.getChildren().addAll(toolbar.getLayout(), canvasContainer);
 
 	}

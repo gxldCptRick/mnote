@@ -5,6 +5,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.List;
 
 import javafx.event.ActionEvent;
 import javafx.scene.control.Button;
@@ -16,125 +17,127 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 
 public class Toolbar implements Serializable {
-	
+
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 556677L;
+	private static final List<Double> increaseSizeValues;
+
+	static {
+
+		increaseSizeValues = Arrays.asList(.1, .2, .3, .4, .5, .6, .7, .8, .9, 1.0, 10.0, 100.0);
+
+	}
+
 	private double lineWidth;
 	private double lineWidthIncrease;
-	
-	
+
 	@SuppressWarnings("unused")
 	private double currentRed;
 	@SuppressWarnings("unused")
 	private double currentBlue;
 	@SuppressWarnings("unused")
 	private double currentGreen;
-	
-	private transient HBox  layout;
+
+	private transient HBox layout;
 	private transient Color currentColor;
 	private transient Label currentSize;
 	private transient Button clearButton = new Button("Clear");
 	private transient Button increaseLineSize = new Button("+");
 	private transient Button decreaseLineSize = new Button("-");
-	
+	private transient ColorPicker colorPicker;
+	private transient ComboBox<Double> sizePicker;
+
 	public Toolbar() {
 
 		initializeToolbar();
-		
+
 	}
-	
+
 	public Pane getLayout() {
-		
+
 		return layout;
-	
+
 	}
 
 	public double getLineWidth() {
-		
+
 		return this.lineWidth;
-	
+
 	}
-	
+
 	public Color getCurrentColor() {
-		
+
 		return currentColor;
 
 	}
-	
+
 	public Button getClearButton() {
 		return clearButton;
 	}
 
-	public void writeObject(ObjectOutputStream out) throws  IOException{
-		
+	public void writeObject(ObjectOutputStream out) throws IOException {
+
 		currentRed = this.currentColor.getRed();
 		currentBlue = this.currentColor.getBlue();
 		currentGreen = this.currentColor.getGreen();
-		
+
 		out.defaultWriteObject();
-		
+
 	}
-	
-	public void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException{
-		
-		in.defaultReadObject();
-		
+
+	public void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+
 		initializeToolbar();
-		
+
 		ObjectInputStream.GetField fields = in.readFields();
-		 
-		this.currentColor = new Color(fields.get("currentRed", 0),fields.get("currentBlue", 0), fields.get("currentGreen", 0),0);
+
+		this.lineWidth = fields.get("lineWidth", .5);
+
+		this.lineWidthIncrease = fields.get("lineWidthIncrease", 0.1);
+
+		this.currentColor = new Color(fields.get("currentRed", 0), fields.get("currentBlue", 0),
+				fields.get("currentGreen", 0), 0);
+
+		this.colorPicker.setValue(this.currentColor);
+
+		this.sizePicker.setValue(this.lineWidthIncrease);
 
 		
 	}
-	
-	
+
 	private void initializeToolbar() {
+
 		currentSize = new Label("Current Line Width : " + lineWidth);
 		currentColor = Color.BLACK;
 		layout = new HBox();
-		
+
 		this.lineWidth = .5;
 		this.lineWidthIncrease = .1;
-		
-		this.updateSize();
-		
-		ColorPicker colorList = generateColorPicker();
 
-		ComboBox<Double> increaseSizes = generateIncreaseSizeComboBox();
+		this.updateSize();
+
+		initializeColorPicker();
+
+		initializeIncreaseSizeComboBox();
+
+		setupButtons();
 
 		layout.setSpacing(10);
 
-		layout.getChildren().addAll(currentSize, colorList, increaseSizes);
-
-		setButtons();
-
-	}
-
-	private void setButtons() {
-
-
-		increaseLineSize.setOnAction((ActionEvent event) -> {
-			lineWidth += lineWidthIncrease;
-			updateSize();
-		});
-
-		decreaseLineSize.setOnAction((ActionEvent event) -> {
-			lineWidth -= lineWidthIncrease;
-			updateSize();
-		});
-
-		layout.getChildren().addAll(clearButton, increaseLineSize, decreaseLineSize);
+		layout.getChildren().addAll(currentSize, colorPicker, sizePicker, clearButton, increaseLineSize,
+				decreaseLineSize);
 
 	}
 
-	private ColorPicker generateColorPicker() {
+	private void initializeColorPicker() {
 
-		ColorPicker colorList = new ColorPicker();
-		colorList.setValue(Color.BLACK);
-		colorList.setOnAction((event) -> {
+		this.colorPicker = new ColorPicker();
+
+		colorPicker.setValue(Color.BLACK);
+
+		colorPicker.setOnAction((event) -> {
 
 			Object source = event.getSource();
 
@@ -148,37 +151,48 @@ public class Toolbar implements Serializable {
 			}
 		});
 
-		return colorList;
-	
 	}
 
-	private ComboBox<Double> generateIncreaseSizeComboBox() {
+	private void initializeIncreaseSizeComboBox() {
 
-		ComboBox<Double> increaseSizes = new ComboBox<Double>();
+		this.sizePicker = new ComboBox<Double>();
 
-		increaseSizes.getItems().addAll(Arrays.asList(.1, .2, .3, .4, .5, .6, .7, .8, .9, 1.0, 10.0, 100.0));
+		sizePicker.getItems().addAll(Toolbar.increaseSizeValues);
 
-		increaseSizes.setValue(.1);
+		sizePicker.setValue(.1);
 
-		increaseSizes.setOnAction((ActionEvent event) -> {
+		sizePicker.setOnAction((ActionEvent event) -> {
 
-			Object sauce = event.getSource();
-			if (sauce instanceof ComboBox<?>) {
+			Object source = event.getSource();
+			if (source instanceof ComboBox<?>) {
 
 				@SuppressWarnings("unchecked")
-				ComboBox<Double> comboBox = (ComboBox<Double>) sauce;
+				ComboBox<Double> comboBox = (ComboBox<Double>) source;
 
 				lineWidthIncrease = comboBox.getValue();
 
 			}
 		});
 
-		return increaseSizes;
 	}
-	
+
+	private void setupButtons() {
+
+		increaseLineSize.setOnAction((ActionEvent event) -> {
+			lineWidth += lineWidthIncrease;
+			updateSize();
+		});
+
+		decreaseLineSize.setOnAction((ActionEvent event) -> {
+			lineWidth -= lineWidthIncrease;
+			updateSize();
+		});
+	}
+
 	private void updateSize() {
 
 		currentSize.setText("Current Line Width: " + lineWidth);
+
 	}
-	
+
 }
