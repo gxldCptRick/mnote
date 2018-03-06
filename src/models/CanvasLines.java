@@ -85,6 +85,7 @@ public class CanvasLines implements Serializable {
 			gc.stroke();
 		
 		}
+		
 		if(!lines.contains(currentLine)) {
 
 			Iterator<SavablePoint2D> iterator = currentLine.iterator();

@@ -61,17 +61,24 @@ public class DrawableCanvas implements Serializable {
 	private transient double offsetX;
 	private transient EventHandler<MouseEvent>[] drawableMouseEvents;
 
-	@SuppressWarnings("unchecked")
+	
 	public DrawableCanvas(double width, double height) {
-
 		layout = new VBox();
+		initialize(width, height);
+
+	}
+	
+	
+	@SuppressWarnings("unchecked")
+	private void initialize(double width, double height) {
+		
 		layout.setSpacing(5);
 		lines = new CanvasLines();
 		toolbar = new Toolbar();
 		
 		drawableMouseEvents = new EventHandler[3];
 
-		mainDrawingCanvas = generateCanvas(width, height);
+		initializeCanvas(width, height);
 
 		
 		toolbar.getClearButton().setOnAction((event) ->{
@@ -86,7 +93,7 @@ public class DrawableCanvas implements Serializable {
 		initializeScrollPane();
 		
 		layout.getChildren().addAll(toolbar.getLayout(), canvasContainer);
-
+		
 	}
 
 	public Pane getLayout() {
@@ -163,21 +170,86 @@ public class DrawableCanvas implements Serializable {
 
 	}
 
-	private Canvas generateCanvas(double width, double height) {
-		Canvas canvas = new Canvas(width, height);
+	private void initializeCanvas(double width, double height) {
+		this.mainDrawingCanvas = new Canvas(width, height);
 
-		setUpMouseEvents(canvas);
-		setUpDrawing(canvas);
-		setBoundsUpdate(canvas);
+		setUpMouseEvents();
+		setUpDrawing();
+		setBoundsUpdate();
 
-		return canvas;
+	}
+	
+	private void setUpMouseEvents() {
+		drawableMouseEvents[0] = (event) -> {
+			if (event.isPrimaryButtonDown()) {
+
+				checkIfInboundsOfView(event);
+
+				checkIfInboundsOfCanvas(event);
+
+				GraphicsContext gc = mainDrawingCanvas.getGraphicsContext2D();
+
+				lines.addNextPoint(new SavablePoint2D(event.getX(), event.getY()));
+
+				gc.lineTo(event.getX(), event.getY());
+
+				gc.stroke();
+			}
+
+		};
+
+		drawableMouseEvents[1] = (event) -> {
+
+			if (lines.isLineStarted()) {
+
+				GraphicsContext gc = mainDrawingCanvas.getGraphicsContext2D();
+
+				lines.addNextPoint(new SavablePoint2D(event.getX(), event.getY()));
+
+				gc.lineTo(event.getX(), event.getY());
+
+				gc.closePath();
+
+				lines.endLine();
+
+			}
+		};
+
+		drawableMouseEvents[2] = (event) -> {
+
+			if (event.isPrimaryButtonDown()) {
+
+				GraphicsContext gc = mainDrawingCanvas.getGraphicsContext2D();
+				
+				gc.beginPath();
+				gc.setLineWidth(toolbar.getLineWidth());
+				gc.setStroke(toolbar.getCurrentColor());
+				gc.moveTo(event.getX(), event.getY());
+				
+				lines.startNewLine();
+				lines.addNextPoint(new SavablePoint2D(event.getX(), event.getY()));
+
+			}
+
+		};
+
 	}
 
-	private void setBoundsUpdate(Canvas canvas) {
+	private void setUpDrawing() {
 
-		canvas.widthProperty().addListener((listener) -> updateOffsetX());
+		this.mainDrawingCanvas.setOnMouseDragged(drawableMouseEvents[0]);
 
-		canvas.heightProperty().addListener((listener) -> {
+		this.mainDrawingCanvas.setOnMouseReleased(drawableMouseEvents[1]);
+
+		this.mainDrawingCanvas.setOnMousePressed(drawableMouseEvents[2]);
+
+	}
+	
+	private void setBoundsUpdate() {
+
+		this.mainDrawingCanvas.widthProperty().addListener((listener) -> updateOffsetX());
+
+		this.mainDrawingCanvas.heightProperty().addListener((listener) -> {
 
 			updateOffsetY();
 
@@ -203,70 +275,6 @@ public class DrawableCanvas implements Serializable {
 		System.out.println(Math.round(offsetX * canvasContainer.getHvalue()) + 1d);
 		System.out.println(canvasContainer.getHvalue());
 		return xPos;
-	}
-
-	private void setUpDrawing(Canvas canvas) {
-
-		canvas.setOnMouseDragged(drawableMouseEvents[0]);
-
-		canvas.setOnMouseReleased(drawableMouseEvents[1]);
-
-		canvas.setOnMousePressed(drawableMouseEvents[2]);
-
-	}
-
-	private void setUpMouseEvents(Canvas canvas) {
-		drawableMouseEvents[0] = (event) -> {
-			if (event.isPrimaryButtonDown()) {
-
-				checkIfInboundsOfView(event);
-
-				checkIfInboundsOfCanvas(event);
-
-				GraphicsContext gc = canvas.getGraphicsContext2D();
-
-				lines.addNextPoint(new SavablePoint2D(event.getX(), event.getY()));
-
-				gc.lineTo(event.getX(), event.getY());
-
-				gc.stroke();
-			}
-
-		};
-
-		drawableMouseEvents[1] = (event) -> {
-
-			if (lines.isLineStarted()) {
-
-				GraphicsContext gc = canvas.getGraphicsContext2D();
-
-				lines.addNextPoint(new SavablePoint2D(event.getX(), event.getY()));
-
-				gc.lineTo(event.getX(), event.getY());
-
-				gc.closePath();
-
-				lines.endLine();
-
-			}
-		};
-
-		drawableMouseEvents[2] = (event) -> {
-
-			if (event.isPrimaryButtonDown()) {
-
-				lines.startNewLine();
-				GraphicsContext gc = canvas.getGraphicsContext2D();
-				gc.beginPath();
-				gc.setLineWidth(toolbar.getLineWidth());
-				gc.setStroke(toolbar.getCurrentColor());
-				lines.addNextPoint(new SavablePoint2D(event.getX(), event.getY()));
-				gc.moveTo(event.getX(), event.getY());
-
-			}
-
-		};
-
 	}
 
 	private void checkIfInboundsOfCanvas(MouseEvent event) {
