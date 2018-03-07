@@ -1,6 +1,9 @@
 package application;
 
 import java.awt.Toolkit;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
 import javafx.event.EventHandler;
@@ -39,10 +42,10 @@ public class DrawableCanvas implements Serializable {
 	}
 
 	private static long generateID(String input) {
-		
+
 		long counter = 0;
 		char[] inputs = input.toCharArray();
-		for (int i = 0; i <  inputs.length; i++) {
+		for (int i = 0; i < inputs.length; i++) {
 
 			counter += inputs[i] + i;
 
@@ -52,67 +55,86 @@ public class DrawableCanvas implements Serializable {
 	}
 
 	private CanvasLines lines;
-	private Toolbar toolbar;
-	
-	private transient final VBox layout;
+	private CanvasToolbar toolbar;
+
+	private transient VBox layout;
 	private transient Canvas mainDrawingCanvas;
 	private transient ScrollPane canvasContainer;
 	private transient double offsetY;
 	private transient double offsetX;
 	private transient EventHandler<MouseEvent>[] drawableMouseEvents;
 
-	
 	public DrawableCanvas(double width, double height) {
-		layout = new VBox();
-		initialize(width, height);
 
+
+		initialize(width, height);
+		
+
+	}
+
+	public Pane getLayout() {
+	
+		return this.layout;
+	
+	}
+	
+	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException{
+		
+		System.out.println("taking out");
+		
+			initialize(Toolkit.getDefaultToolkit().getScreenSize().getWidth(), Toolkit.getDefaultToolkit().getScreenSize().getHeight());
+		
+			ObjectInputStream.GetField fields = in.readFields();
+			
+			this.lines = (CanvasLines) fields.get("lines", new CanvasLines());
+			
+			this.toolbar = (CanvasToolbar) fields.get("toolbar", new CanvasToolbar());
+			
+			
+			System.out.println(mainDrawingCanvas);
+			System.out.println(mainDrawingCanvas.getGraphicsContext2D());
+			this.lines.drawLines(this.mainDrawingCanvas.getGraphicsContext2D());
+			
+			
 	}
 	
 	
+	private void writeObject(ObjectOutputStream out) throws IOException{
+
+		out.defaultWriteObject();
+		
+	}
+
 	@SuppressWarnings("unchecked")
 	private void initialize(double width, double height) {
-		
+
+		layout = new VBox();
+
 		layout.setSpacing(5);
 		lines = new CanvasLines();
-		toolbar = new Toolbar();
-		
+		toolbar = new CanvasToolbar();
+
 		drawableMouseEvents = new EventHandler[3];
 
 		initializeCanvas(width, height);
 
-		
-		toolbar.getClearButton().setOnAction((event) ->{
-			
+		toolbar.getClearButton().setOnAction((event) -> {
+
 			lines = new CanvasLines();
-			
-			mainDrawingCanvas.getGraphicsContext2D().clearRect(0, 0, mainDrawingCanvas.getWidth(), mainDrawingCanvas.getHeight());
-			
-			
+
+			mainDrawingCanvas.getGraphicsContext2D().clearRect(0, 0, mainDrawingCanvas.getWidth(),
+					mainDrawingCanvas.getHeight());
+
 		});
-	
+
 		initializeScrollPane();
+
 		
-		layout.getChildren().addAll(toolbar.getLayout(), canvasContainer);
+		this.layout.getChildren().addAll(toolbar.getLayout(), canvasContainer);
 		
 	}
-
-	public Pane getLayout() {
-		return this.layout;
-	}
-
-	private void updateOffsetY() {
-
-		offsetY = ((1 + STANDARD_DEVATION_Y) * mainDrawingCanvas.getHeight()) - canvasContainer.getHeight();
-
-	}
-
-	private void updateOffsetX() {
-
-		offsetX = ((1 + STANDARD_DEVATION_X) * mainDrawingCanvas.getWidth()) - canvasContainer.getWidth();
-		System.out.println("Offset x updated");
-		System.out.println(offsetX);
-		System.out.println(canvasContainer.getWidth());
-	}
+	
+	
 
 	private void initializeScrollPane() {
 		canvasContainer = new ScrollPane();
@@ -135,6 +157,29 @@ public class DrawableCanvas implements Serializable {
 
 		});
 
+	}
+
+	private void initializeCanvas(double width, double height) {
+		this.mainDrawingCanvas = new Canvas(width, height);
+
+		setUpMouseEvents();
+		setUpDrawing();
+		setBoundsUpdate();
+
+	}
+	
+	private void updateOffsetY() {
+
+		offsetY = ((1 + STANDARD_DEVATION_Y) * mainDrawingCanvas.getHeight()) - canvasContainer.getHeight();
+
+	}
+
+	private void updateOffsetX() {
+
+		offsetX = ((1 + STANDARD_DEVATION_X) * mainDrawingCanvas.getWidth()) - canvasContainer.getWidth();
+		System.out.println("Offset x updated");
+		System.out.println(offsetX);
+		System.out.println(canvasContainer.getWidth());
 	}
 
 	private void setupScrollPaneEventFilters() {
@@ -170,15 +215,6 @@ public class DrawableCanvas implements Serializable {
 
 	}
 
-	private void initializeCanvas(double width, double height) {
-		this.mainDrawingCanvas = new Canvas(width, height);
-
-		setUpMouseEvents();
-		setUpDrawing();
-		setBoundsUpdate();
-
-	}
-	
 	private void setUpMouseEvents() {
 		drawableMouseEvents[0] = (event) -> {
 			if (event.isPrimaryButtonDown()) {
@@ -210,8 +246,6 @@ public class DrawableCanvas implements Serializable {
 
 				gc.closePath();
 
-				lines.endLine();
-
 			}
 		};
 
@@ -220,12 +254,12 @@ public class DrawableCanvas implements Serializable {
 			if (event.isPrimaryButtonDown()) {
 
 				GraphicsContext gc = mainDrawingCanvas.getGraphicsContext2D();
-				
+
 				gc.beginPath();
 				gc.setLineWidth(toolbar.getLineWidth());
 				gc.setStroke(toolbar.getCurrentColor());
 				gc.moveTo(event.getX(), event.getY());
-				
+
 				lines.startNewLine();
 				lines.addNextPoint(new SavablePoint2D(event.getX(), event.getY()));
 
@@ -244,7 +278,7 @@ public class DrawableCanvas implements Serializable {
 		this.mainDrawingCanvas.setOnMousePressed(drawableMouseEvents[2]);
 
 	}
-	
+
 	private void setBoundsUpdate() {
 
 		this.mainDrawingCanvas.widthProperty().addListener((listener) -> updateOffsetX());
@@ -256,8 +290,6 @@ public class DrawableCanvas implements Serializable {
 		});
 
 	}
-
-	
 
 	private double calculateTrueYPosition(double originalYPos) {
 
@@ -277,6 +309,13 @@ public class DrawableCanvas implements Serializable {
 		return xPos;
 	}
 
+	private double calculateJump(double currentSize, double sizeOfView, double sizeOfObject, double direction) {
+
+		double jumpSize = currentSize + (sizeOfView / sizeOfObject) * .1 * direction;
+
+		return jumpSize;
+	}
+	
 	private void checkIfInboundsOfCanvas(MouseEvent event) {
 
 		if (event.getX() > mainDrawingCanvas.getWidth()) {
@@ -324,13 +363,6 @@ public class DrawableCanvas implements Serializable {
 
 		}
 
-	}
-
-	private double calculateJump(double currentSize, double sizeOfView, double sizeOfObject, double direction) {
-
-		double jumpSize = currentSize + (sizeOfView / sizeOfObject) * .1 * direction;
-
-		return jumpSize;
 	}
 
 }

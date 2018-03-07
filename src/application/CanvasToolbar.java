@@ -16,7 +16,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 
-public class Toolbar implements Serializable {
+public class CanvasToolbar implements Serializable {
 
 	/**
 	 * 
@@ -43,13 +43,13 @@ public class Toolbar implements Serializable {
 	private transient HBox layout;
 	private transient Color currentColor;
 	private transient Label currentSize;
-	private transient Button clearButton = new Button("Clear");
-	private transient Button increaseLineSize = new Button("+");
-	private transient Button decreaseLineSize = new Button("-");
+	private transient Button clearButton;
+	private transient Button increaseLineSize;
+	private transient Button decreaseLineSize ;
 	private transient ColorPicker colorPicker;
 	private transient ComboBox<Double> sizePicker;
 
-	public Toolbar() {
+	public CanvasToolbar() {
 
 		initializeToolbar();
 
@@ -77,7 +77,7 @@ public class Toolbar implements Serializable {
 		return clearButton;
 	}
 
-	public void writeObject(ObjectOutputStream out) throws IOException {
+	private void writeObject(ObjectOutputStream out) throws IOException {
 
 		currentRed = this.currentColor.getRed();
 		currentBlue = this.currentColor.getBlue();
@@ -87,7 +87,7 @@ public class Toolbar implements Serializable {
 
 	}
 
-	public void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
 
 		initializeToolbar();
 
@@ -97,8 +97,8 @@ public class Toolbar implements Serializable {
 
 		this.lineWidthIncrease = fields.get("lineWidthIncrease", 0.1);
 
-		this.currentColor = new Color(fields.get("currentRed", 0), fields.get("currentBlue", 0),
-				fields.get("currentGreen", 0), 0);
+		this.currentColor = new Color(fields.get("currentRed", 0d), fields.get("currentBlue", 0d),
+				fields.get("currentGreen", 0d), 0d);
 
 		this.colorPicker.setValue(this.currentColor);
 
@@ -108,9 +108,15 @@ public class Toolbar implements Serializable {
 	}
 
 	private void initializeToolbar() {
-
+		
+		this.clearButton = new Button("Clear");
+		this.increaseLineSize = new Button("+");
+		this.decreaseLineSize = new Button("-");
+		
 		currentSize = new Label("Current Line Width : " + lineWidth);
+		
 		currentColor = Color.BLACK;
+		
 		layout = new HBox();
 
 		this.lineWidth = .5;
@@ -157,7 +163,7 @@ public class Toolbar implements Serializable {
 
 		this.sizePicker = new ComboBox<Double>();
 
-		sizePicker.getItems().addAll(Toolbar.increaseSizeValues);
+		sizePicker.getItems().addAll(CanvasToolbar.increaseSizeValues);
 
 		sizePicker.setValue(.1);
 
