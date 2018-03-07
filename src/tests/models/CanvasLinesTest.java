@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
+import models.CanvasLine;
 import models.CanvasLines;
 import models.SavablePoint2D;
 
@@ -16,12 +17,13 @@ class CanvasLinesTest {
 
 	@Test
 	void newLineIsNotNull() {
+	
 		// arrange
 		CanvasLines lines = new CanvasLines();
-		List<SavablePoint2D> badCase = null;
-		List<SavablePoint2D> actual;
+		CanvasLine badCase = null;
+		CanvasLine actual;
+		
 		// act
-
 		lines.startNewLine();
 		actual = lines.getCurrentLine();
 
@@ -34,38 +36,23 @@ class CanvasLinesTest {
 	void canCreateTwoNewUniqueLines() {
 		// arrange
 		CanvasLines lines = new CanvasLines();
-		List<SavablePoint2D> firstLine;
-		List<SavablePoint2D> secondLine;
+		CanvasLine firstLine;
+		CanvasLine secondLine;
+		SavablePoint2D differingPoint = new SavablePoint2D(100, 100);
 
 		// act
 		lines.startNewLine();
+		
 		firstLine = lines.getCurrentLine();
 
 		lines.startNewLine();
-		lines.addNextPoint(new SavablePoint2D(100, 100));
+		
+		lines.addNextPoint(differingPoint);
 
 		secondLine = lines.getCurrentLine();
+		
 		// assert
 		assertNotEquals(firstLine, secondLine);
-
-	}
-
-	@Test
-	void canAddPointToLine() {
-		// arrange
-		CanvasLines lines = new CanvasLines();
-		List<SavablePoint2D> currentLine;
-		SavablePoint2D expected = new SavablePoint2D(200, 00);
-		SavablePoint2D actual;
-
-		// act
-		lines.startNewLine();
-		lines.addNextPoint(expected);
-		currentLine = lines.getCurrentLine();
-		actual = currentLine.get(0);
-
-		// assert
-		assertEquals(expected, actual);
 
 	}
 
@@ -73,8 +60,8 @@ class CanvasLinesTest {
 	void allLinesCreatedAreSaved() {
 		// arrange
 		CanvasLines lines = new CanvasLines();
-		List<List<SavablePoint2D>> originalLines = lines.getLines();
-		List<List<SavablePoint2D>> secondaryLines;
+		List<CanvasLine> originalLines = lines.getLines();
+		List<CanvasLine> secondaryLines;
 
 		// act
 		lines.startNewLine();

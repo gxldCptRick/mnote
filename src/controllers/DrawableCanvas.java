@@ -285,7 +285,7 @@ public class DrawableCanvas implements Serializable {
 				gc.setStroke(toolbar.getCurrentColor());
 				gc.moveTo(event.getX(), event.getY());
 
-				lines.startNewLine();
+				lines.startNewLine(this.toolbar.getCurrentColor(), this.toolbar.getLineWidth());
 				lines.addNextPoint(new SavablePoint2D(event.getX(), event.getY()));
 
 			}
