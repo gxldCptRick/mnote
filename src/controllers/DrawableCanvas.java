@@ -83,9 +83,6 @@ public class DrawableCanvas implements Serializable {
 	
 	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException{
 		
-		System.out.println("taking out");
-		
-			initialize(Toolkit.getDefaultToolkit().getScreenSize().getWidth(), Toolkit.getDefaultToolkit().getScreenSize().getHeight());
 		
 			ObjectInputStream.GetField fields = in.readFields();
 			
@@ -93,6 +90,7 @@ public class DrawableCanvas implements Serializable {
 			
 			this.toolbar = (CanvasToolbar) fields.get("toolbar", new CanvasToolbar());
 			
+			initialize(Toolkit.getDefaultToolkit().getScreenSize().getWidth(), Toolkit.getDefaultToolkit().getScreenSize().getHeight());
 			
 			System.out.println(mainDrawingCanvas);
 			System.out.println(mainDrawingCanvas.getGraphicsContext2D());
@@ -115,20 +113,13 @@ public class DrawableCanvas implements Serializable {
 
 		layout.setSpacing(5);
 		lines = new CanvasLines();
-		toolbar = new CanvasToolbar();
+		
 
 		drawableMouseEvents = new EventHandler[3];
 
 		initializeCanvas(width, height);
 
-		toolbar.getClearButton().setOnAction((event) -> {
-
-			lines = new CanvasLines();
-
-			mainDrawingCanvas.getGraphicsContext2D().clearRect(0, 0, mainDrawingCanvas.getWidth(),
-					mainDrawingCanvas.getHeight());
-
-		});
+		initializeToolbar();
 
 		initializeScrollPane();
 
@@ -138,6 +129,22 @@ public class DrawableCanvas implements Serializable {
 	}
 	
 	
+
+	private void initializeToolbar() {
+		
+		if(toolbar == null)
+			toolbar = new CanvasToolbar();
+		
+		toolbar.getClearButton().setOnAction((event) -> {
+
+			lines = new CanvasLines();
+
+			mainDrawingCanvas.getGraphicsContext2D().clearRect(0, 0, mainDrawingCanvas.getWidth(),
+					mainDrawingCanvas.getHeight());
+
+		});
+		
+	}
 
 	private void initializeScrollPane() {
 		canvasContainer = new ScrollPane();
