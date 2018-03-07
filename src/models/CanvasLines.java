@@ -2,10 +2,9 @@ package models;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
-import javafx.geometry.Point2D;
+
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
@@ -82,7 +81,8 @@ public class CanvasLines implements Serializable {
 	
 	public boolean equals(CanvasLines other) {
 		
-		return other != null && this.lines.equals(other.lines) && this.currentLine.equals(other.currentLine);
+		return other != null && other.lines.equals(this.lines) && other.currentLine.equals(this.currentLine);
+	
 	}
 
 

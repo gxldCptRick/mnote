@@ -74,18 +74,22 @@ class CanvasLinesTest {
 
 	@Test
 	void canvasLinesAreSavable() {
+		
 		// arrange
 		CanvasLines expected = new CanvasLines();
 		CanvasLines actual;
 
 		// act
+		expected.startNewLine();
 		File saveFile = saveFile("test.co", expected);
 		actual = loadFile(saveFile);
 
+		System.out.println(expected.getLines());
+		System.out.println(actual.getLines());
+		
 		// assert
-
 		assertNotEquals(actual, null);
-
+		
 		assertEquals(expected, actual);
 
 	}
