@@ -1,4 +1,4 @@
-package application;
+package controllers;
 
 import java.awt.Toolkit;
 import java.io.IOException;
@@ -17,6 +17,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import models.CanvasLines;
 import models.SavablePoint2D;
+import views.CanvasToolbar;
 
 public class DrawableCanvas implements Serializable {
 
@@ -44,7 +45,9 @@ public class DrawableCanvas implements Serializable {
 	private static long generateID(String input) {
 
 		long counter = 0;
+		
 		char[] inputs = input.toCharArray();
+		
 		for (int i = 0; i < inputs.length; i++) {
 
 			counter += inputs[i] + i;

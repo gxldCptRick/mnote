@@ -1,4 +1,4 @@
-package application;
+package controllers;
 
 import java.awt.Toolkit;
 import java.io.File;
@@ -8,6 +8,7 @@ import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import views.FileMenuToolbar;
 
 public class Main extends Application {
 

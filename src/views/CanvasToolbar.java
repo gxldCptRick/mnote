@@ -1,4 +1,4 @@
-package application;
+package views;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -201,4 +201,26 @@ public class CanvasToolbar implements Serializable {
 
 	}
 
+	public boolean equals(CanvasToolbar other) {
+		
+		return other != null && other.currentColor == this.currentColor && other.currentSize.getText().equals(this.currentSize.getText());
+		
+	}
+	
+	
+	@Override
+	public boolean equals(Object other) {
+		boolean equal = false;
+		
+		if(other != null || CanvasToolbar.class.isInstance(other)) {
+			
+			equals(this.getClass().cast(other));
+			
+		}
+		
+		return equal;
+	
+	}
+	
+	
 }
