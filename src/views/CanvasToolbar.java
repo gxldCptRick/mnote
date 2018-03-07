@@ -82,6 +82,10 @@ public class CanvasToolbar implements Serializable {
 		currentRed = this.currentColor.getRed();
 		currentBlue = this.currentColor.getBlue();
 		currentGreen = this.currentColor.getGreen();
+		
+		System.out.println("currentRed " + currentRed);
+		System.out.println("currentBlue " + currentBlue);
+		System.out.println("currentGreen " + currentGreen);
 
 		out.defaultWriteObject();
 
@@ -98,7 +102,7 @@ public class CanvasToolbar implements Serializable {
 		this.lineWidthIncrease = fields.get("lineWidthIncrease", 0.1);
 
 		this.currentColor = new Color(fields.get("currentRed", 0d), fields.get("currentBlue", 0d),
-				fields.get("currentGreen", 0d), 0d);
+				fields.get("currentGreen", 0d), 1);
 
 		this.colorPicker.setValue(this.currentColor);
 

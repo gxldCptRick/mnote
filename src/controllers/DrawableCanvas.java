@@ -45,9 +45,9 @@ public class DrawableCanvas implements Serializable {
 	private static long generateID(String input) {
 
 		long counter = 0;
-		
+
 		char[] inputs = input.toCharArray();
-		
+
 		for (int i = 0; i < inputs.length; i++) {
 
 			counter += inputs[i] + i;
@@ -69,72 +69,88 @@ public class DrawableCanvas implements Serializable {
 
 	public DrawableCanvas(double width, double height) {
 
-
 		initialize(width, height);
-		
 
 	}
 
 	public Pane getLayout() {
-	
+
 		return this.layout;
-	
+
 	}
-	
-	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException{
-		
-		
-			ObjectInputStream.GetField fields = in.readFields();
-			
-			this.lines = (CanvasLines) fields.get("lines", new CanvasLines());
-			
-			this.toolbar = (CanvasToolbar) fields.get("toolbar", new CanvasToolbar());
-			
-			initialize(Toolkit.getDefaultToolkit().getScreenSize().getWidth(), Toolkit.getDefaultToolkit().getScreenSize().getHeight());
-			
-			System.out.println(mainDrawingCanvas);
-			System.out.println(mainDrawingCanvas.getGraphicsContext2D());
-			this.lines.drawLines(this.mainDrawingCanvas.getGraphicsContext2D());
-			
-			
+
+	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+
+		ObjectInputStream.GetField fields = in.readFields();
+
+		this.lines = (CanvasLines) fields.get("lines", null);
+
+		this.toolbar = (CanvasToolbar) fields.get("toolbar", null);
+
+		initialize(Toolkit.getDefaultToolkit().getScreenSize().getWidth(),
+				Toolkit.getDefaultToolkit().getScreenSize().getHeight());
+
+
+		lines.drawLines(this.mainDrawingCanvas.getGraphicsContext2D());
+
 	}
-	
-	
-	private void writeObject(ObjectOutputStream out) throws IOException{
+
+	private void writeObject(ObjectOutputStream out) throws IOException {
 
 		out.defaultWriteObject();
-		
+
 	}
 
-	@SuppressWarnings("unchecked")
 	private void initialize(double width, double height) {
 
-		layout = new VBox();
+		initializeLayout();
 
-		layout.setSpacing(5);
-		lines = new CanvasLines();
-		
-
-		drawableMouseEvents = new EventHandler[3];
+		initializeMouseEvents();
 
 		initializeCanvas(width, height);
+
+		initializeLines();
 
 		initializeToolbar();
 
 		initializeScrollPane();
 
 		
-		this.layout.getChildren().addAll(toolbar.getLayout(), canvasContainer);
+		layout.getChildren().addAll(toolbar.getLayout(), canvasContainer);
+
+	}
+
+	private void initializeLayout() {
+		
+		if (layout == null)
+			layout = new VBox();
+
+		layout.setSpacing(5);
 		
 	}
-	
-	
+
+	@SuppressWarnings("unchecked")
+	private void initializeMouseEvents() {
+
+		if (drawableMouseEvents == null)
+			drawableMouseEvents = new EventHandler[3];
+
+		this.setUpMouseEvents();
+
+	}
+
+	private void initializeLines() {
+
+		if (lines == null)
+			lines = new CanvasLines();
+
+	}
 
 	private void initializeToolbar() {
-		
-		if(toolbar == null)
+
+		if (toolbar == null)
 			toolbar = new CanvasToolbar();
-		
+
 		toolbar.getClearButton().setOnAction((event) -> {
 
 			lines = new CanvasLines();
@@ -143,7 +159,7 @@ public class DrawableCanvas implements Serializable {
 					mainDrawingCanvas.getHeight());
 
 		});
-		
+
 	}
 
 	private void initializeScrollPane() {
@@ -172,12 +188,11 @@ public class DrawableCanvas implements Serializable {
 	private void initializeCanvas(double width, double height) {
 		this.mainDrawingCanvas = new Canvas(width, height);
 
-		setUpMouseEvents();
 		setUpDrawing();
 		setBoundsUpdate();
 
 	}
-	
+
 	private void updateOffsetY() {
 
 		offsetY = ((1 + STANDARD_DEVATION_Y) * mainDrawingCanvas.getHeight()) - canvasContainer.getHeight();
@@ -325,7 +340,7 @@ public class DrawableCanvas implements Serializable {
 
 		return jumpSize;
 	}
-	
+
 	private void checkIfInboundsOfCanvas(MouseEvent event) {
 
 		if (event.getX() > mainDrawingCanvas.getWidth()) {

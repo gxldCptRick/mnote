@@ -51,8 +51,6 @@ public class Main extends Application {
 				
 				this.drawSurface = (DrawableCanvas) tools.loadFile(oldSave);
 				
-				mainLayout.getChildren().add(this.drawSurface.getLayout());
-				
 				mainLayout.getChildren().add(drawSurface.getLayout());
 
 				drawSurface.getLayout().prefWidthProperty().bind(primaryStage.widthProperty().multiply(.95));
