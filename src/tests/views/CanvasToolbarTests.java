@@ -1,7 +1,7 @@
 package tests.views;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static tests.HelperMethods.*;
+import static tests.IOMethods.*;
 
 import java.io.File;
 
