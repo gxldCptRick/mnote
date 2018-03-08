@@ -84,6 +84,7 @@ public class CanvasLine implements Serializable{
 	
 	@Override 
 	public boolean equals(Object other) {
+		
 		boolean equal = false;
 		
 		if(getClass().isInstance(other)) {
