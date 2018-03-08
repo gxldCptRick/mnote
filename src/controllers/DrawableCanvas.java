@@ -279,7 +279,6 @@ public class DrawableCanvas implements Serializable {
 			if (event.isPrimaryButtonDown()) {
 
 				GraphicsContext gc = mainDrawingCanvas.getGraphicsContext2D();
-
 				gc.beginPath();
 				gc.setLineWidth(toolbar.getLineWidth());
 				gc.setStroke(toolbar.getCurrentColor());

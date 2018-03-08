@@ -5,6 +5,7 @@ import java.io.File;
 
 
 import javafx.application.Application;
+import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -13,6 +14,7 @@ import views.FileMenuToolbar;
 public class Main extends Application {
 
 	private VBox mainLayout;
+	private Group mainGroup;
 	private DrawableCanvas drawSurface;
 	private FileMenuToolbar tools;
 
@@ -62,8 +64,12 @@ public class Main extends Application {
 		mainLayout = new VBox();
 
 		mainLayout.getChildren().addAll(tools, drawSurface.getLayout());
+		
+		mainGroup = new Group();
+		
+		mainGroup.getChildren().add(mainLayout);
 
-		Scene mainScene = new Scene(mainLayout, 1500, 500);
+		Scene mainScene = new Scene(mainGroup, 1500, 500);
 
 		primaryStage.setScene(mainScene);
 

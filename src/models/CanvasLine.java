@@ -45,11 +45,14 @@ public class CanvasLine implements Serializable {
 	}
 
 	public void drawLine(GraphicsContext gc) {
-
+		gc.beginPath();
+		
 		gc.setLineWidth(lineWidth);
 
 		gc.setStroke(color.getColor());
 
+		System.out.println(this.lineWidth);
+		
 		Point2D initialPoint = getInitialPoint().get2DPoint();
 
 		gc.moveTo(initialPoint.getX(), initialPoint.getY());
@@ -63,13 +66,14 @@ public class CanvasLine implements Serializable {
 			if (nextPoint != initialPoint) {
 
 				gc.lineTo(nextPoint.getX(), nextPoint.getY());
-
+				
 			}
+			
 
 		}
 
 		gc.stroke();
-
+		gc.closePath();
 	}
 
 	public SavablePoint2D getInitialPoint() {
