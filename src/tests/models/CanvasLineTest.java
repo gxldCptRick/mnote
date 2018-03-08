@@ -48,6 +48,23 @@ class CanvasLineTest {
 	}
 	
 	@Test
+	void hashCodeIsConsitentWithEquality() {
+		//arrange
+		CanvasLine firstLine = new CanvasLine(Color.BLACK, 1);
+		CanvasLine secondLine = new CanvasLine(Color.BLACK, 1);
+		int firstHash;
+		int secondHash;
+		
+		//act
+		firstHash = firstLine.hashCode();
+		secondHash = secondLine.hashCode();
+		
+		//assert
+		assertEquals(firstLine, secondLine);
+		assertEquals(firstHash, secondHash);
+	}
+	
+	@Test
 	void hashCodeIsUnique() {
 		//arrange
 		CanvasLine firstLine = new CanvasLine(Color.BLACK, 1);
@@ -60,7 +77,6 @@ class CanvasLineTest {
 		secondHashCode = secondLine.hashCode();
 		
 		//assert
-		assertNotEquals(firstLine, secondLine);
 		assertNotEquals(firstHashCode, secondHashCode);
 		
 	}
@@ -80,5 +96,8 @@ class CanvasLineTest {
 		assertEquals(expected, actual);
 		
 	}
+	
+	
 
 }
+	
