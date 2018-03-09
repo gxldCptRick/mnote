@@ -68,7 +68,7 @@ public class DrawableCanvas implements Serializable {
 	private transient double offsetY;
 	private transient double offsetX;
 	private transient EventHandler<MouseEvent>[] drawableMouseEvents;
-	private EventTarget target;
+	private transient EventTarget target;
 
 	public DrawableCanvas(double width, double height) {
 
@@ -146,7 +146,7 @@ public class DrawableCanvas implements Serializable {
 	private void initializeMouseEvents() {
 
 		if (drawableMouseEvents == null)
-			drawableMouseEvents = new EventHandler[4];
+			drawableMouseEvents = new EventHandler[3];
 
 		this.setUpMouseEvents();
 
@@ -203,9 +203,6 @@ public class DrawableCanvas implements Serializable {
 
 		setUpDrawing();
 		setBoundsUpdate();
-		
-		mainDrawingCanvas.setOnMouseClicked(drawableMouseEvents[3]);
-
 	}
 
 	private void updateOffsetY() {
@@ -304,16 +301,7 @@ public class DrawableCanvas implements Serializable {
 			}
 
 		};
-		
-		drawableMouseEvents[3] = (event) ->{
-			
-			if(event.getClickCount() >= 2 && target != null) {
-				
-				Event.fireEvent(target, event);
-
-			}
-			
-		};
+	
 
 	}
 

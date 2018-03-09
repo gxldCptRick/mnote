@@ -32,10 +32,10 @@ public class CanvasToolbar implements Serializable {
 	}
 
 	private double currentLineWidth;
-	
+
 	@SuppressWarnings("unused")
 	private SavableColor lastColor;
-	               
+
 	private transient HBox layout;
 	private transient Color currentColor;
 	private transient Label currentSize;
@@ -74,7 +74,7 @@ public class CanvasToolbar implements Serializable {
 	private void writeObject(ObjectOutputStream out) throws IOException {
 
 		this.lastColor = new SavableColor(this.currentColor);
-		
+
 		out.defaultWriteObject();
 
 	}
@@ -85,28 +85,27 @@ public class CanvasToolbar implements Serializable {
 
 		ObjectInputStream.GetField fields = in.readFields();
 
-		this.currentLineWidth = fields.get("lineWidth", .5);
+		this.currentLineWidth = fields.get("currentLineWidth", .5);
 
-		this.currentColor = new Color(fields.get("currentRed", 0d), fields.get("currentBlue", 0d),
-				fields.get("currentGreen", 0d), 1);
+		this.lastColor = (SavableColor) fields.get("lastColor", null);
+		
+		if (lastColor != null)
+			this.currentColor = this.lastColor.getColor();
 
 		this.colorPicker.setValue(this.currentColor);
 
 		this.sizePicker.setValue(this.currentLineWidth);
 
-		
 	}
 
 	private void initializeToolbar() {
-		
-		this.clearButton = new Button("Clear");
-		this.increaseLineSize = new Button("+");
-		this.decreaseLineSize = new Button("-");
-		
+
+		this.clearButton = new Button("Clear Drawing");
+
 		currentSize = new Label("Current Line Width : " + currentLineWidth);
-		
+
 		currentColor = Color.BLACK;
-		
+
 		layout = new HBox();
 
 		this.currentLineWidth = .5;
@@ -117,10 +116,9 @@ public class CanvasToolbar implements Serializable {
 
 		initializeIncreaseSizeComboBox();
 
-	layout.setSpacing(10);
+		layout.setSpacing(10);
 
-		layout.getChildren().addAll(currentSize, colorPicker, sizePicker, clearButton, increaseLineSize,
-				decreaseLineSize);
+		layout.getChildren().addAll(currentSize, colorPicker, sizePicker, clearButton);
 
 	}
 
@@ -152,7 +150,7 @@ public class CanvasToolbar implements Serializable {
 
 		sizePicker.getItems().addAll(CanvasToolbar.increaseSizeValues);
 
-		sizePicker.setValue(.1);
+		sizePicker.setValue(this.currentLineWidth);
 
 		sizePicker.setOnAction((ActionEvent event) -> {
 
@@ -176,25 +174,24 @@ public class CanvasToolbar implements Serializable {
 	}
 
 	public boolean equals(CanvasToolbar other) {
-		
-		return other != null && other.currentColor == this.currentColor && other.currentSize.getText().equals(this.currentSize.getText());
-		
+
+		return other != null && other.currentColor == this.currentColor
+				&& other.currentSize.getText().equals(this.currentSize.getText());
+
 	}
-	
-	
+
 	@Override
 	public boolean equals(Object other) {
 		boolean equal = false;
-		
-		if(other != null || CanvasToolbar.class.isInstance(other)) {
-			
+
+		if (other != null || CanvasToolbar.class.isInstance(other)) {
+
 			equals(this.getClass().cast(other));
-			
+
 		}
-		
+
 		return equal;
-	
+
 	}
-	
-	
+
 }
