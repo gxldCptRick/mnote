@@ -217,9 +217,7 @@ public class DrawableCanvas implements Serializable {
 	private void updateOffsetX() {
 
 		offsetX = ((1 + STANDARD_DEVATION_X) * mainDrawingCanvas.getWidth()) - canvasContainer.getWidth();
-		System.out.println("Offset x updated");
-		System.out.println(offsetX);
-		System.out.println(canvasContainer.getWidth());
+	
 	}
 
 	private void setupScrollPaneEventFilters() {
@@ -309,8 +307,7 @@ public class DrawableCanvas implements Serializable {
 		
 		drawableMouseEvents[3] = (event) ->{
 			
-			if(event.getClickCount() > 2 && target != null) {
-				System.out.println(event.getClickCount());
+			if(event.getClickCount() >= 2 && target != null) {
 				
 				Event.fireEvent(target, event);
 

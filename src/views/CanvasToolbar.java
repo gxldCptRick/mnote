@@ -15,6 +15,7 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
+import models.SavableColor;
 
 public class CanvasToolbar implements Serializable {
 
@@ -30,22 +31,15 @@ public class CanvasToolbar implements Serializable {
 
 	}
 
-	private double lineWidth;
-	private double lineWidthIncrease;
-
+	private double currentLineWidth;
+	
 	@SuppressWarnings("unused")
-	private double currentRed;
-	@SuppressWarnings("unused")
-	private double currentBlue;
-	@SuppressWarnings("unused")
-	private double currentGreen;
-
+	private SavableColor lastColor;
+	               
 	private transient HBox layout;
 	private transient Color currentColor;
 	private transient Label currentSize;
 	private transient Button clearButton;
-	private transient Button increaseLineSize;
-	private transient Button decreaseLineSize ;
 	private transient ColorPicker colorPicker;
 	private transient ComboBox<Double> sizePicker;
 
@@ -63,7 +57,7 @@ public class CanvasToolbar implements Serializable {
 
 	public double getLineWidth() {
 
-		return this.lineWidth;
+		return this.currentLineWidth;
 
 	}
 
@@ -79,14 +73,8 @@ public class CanvasToolbar implements Serializable {
 
 	private void writeObject(ObjectOutputStream out) throws IOException {
 
-		currentRed = this.currentColor.getRed();
-		currentBlue = this.currentColor.getBlue();
-		currentGreen = this.currentColor.getGreen();
+		this.lastColor = new SavableColor(this.currentColor);
 		
-		System.out.println("currentRed " + currentRed);
-		System.out.println("currentBlue " + currentBlue);
-		System.out.println("currentGreen " + currentGreen);
-
 		out.defaultWriteObject();
 
 	}
@@ -97,16 +85,14 @@ public class CanvasToolbar implements Serializable {
 
 		ObjectInputStream.GetField fields = in.readFields();
 
-		this.lineWidth = fields.get("lineWidth", .5);
-
-		this.lineWidthIncrease = fields.get("lineWidthIncrease", 0.1);
+		this.currentLineWidth = fields.get("lineWidth", .5);
 
 		this.currentColor = new Color(fields.get("currentRed", 0d), fields.get("currentBlue", 0d),
 				fields.get("currentGreen", 0d), 1);
 
 		this.colorPicker.setValue(this.currentColor);
 
-		this.sizePicker.setValue(this.lineWidthIncrease);
+		this.sizePicker.setValue(this.currentLineWidth);
 
 		
 	}
@@ -117,14 +103,13 @@ public class CanvasToolbar implements Serializable {
 		this.increaseLineSize = new Button("+");
 		this.decreaseLineSize = new Button("-");
 		
-		currentSize = new Label("Current Line Width : " + lineWidth);
+		currentSize = new Label("Current Line Width : " + currentLineWidth);
 		
 		currentColor = Color.BLACK;
 		
 		layout = new HBox();
 
-		this.lineWidth = .5;
-		this.lineWidthIncrease = .1;
+		this.currentLineWidth = .5;
 
 		this.updateSize();
 
@@ -132,9 +117,7 @@ public class CanvasToolbar implements Serializable {
 
 		initializeIncreaseSizeComboBox();
 
-		setupButtons();
-
-		layout.setSpacing(10);
+	layout.setSpacing(10);
 
 		layout.getChildren().addAll(currentSize, colorPicker, sizePicker, clearButton, increaseLineSize,
 				decreaseLineSize);
@@ -179,29 +162,16 @@ public class CanvasToolbar implements Serializable {
 				@SuppressWarnings("unchecked")
 				ComboBox<Double> comboBox = (ComboBox<Double>) source;
 
-				lineWidthIncrease = comboBox.getValue();
+				currentLineWidth = comboBox.getValue();
 
 			}
 		});
 
 	}
 
-	private void setupButtons() {
-
-		increaseLineSize.setOnAction((ActionEvent event) -> {
-			lineWidth += lineWidthIncrease;
-			updateSize();
-		});
-
-		decreaseLineSize.setOnAction((ActionEvent event) -> {
-			lineWidth -= lineWidthIncrease;
-			updateSize();
-		});
-	}
-
 	private void updateSize() {
 
-		currentSize.setText("Current Line Width: " + lineWidth);
+		currentSize.setText("Current Line Width: " + currentLineWidth);
 
 	}
 

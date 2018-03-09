@@ -7,6 +7,7 @@ import java.io.File;
 import javafx.application.Application;
 import javafx.scene.Group;
 import javafx.scene.Scene;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -71,9 +72,22 @@ public class Main extends Application {
 		mainGroup.getChildren().add(mainLayout);
 		
 		mainGroup.setOnMouseClicked(event -> {
-			if(event.getClickCount() > 2) {
-				System.out.println("HEllo");
-				mainGroup.getChildren().add(new TextField());
+			
+			if(event.getClickCount() >= 2) {
+			
+				TextField note = new TextField();
+				note.setLayoutX(event.getX());
+				note.setLayoutY(event.getY());
+				mainGroup.getChildren().add(note);
+				note.setOnAction(noteEvent -> {
+					
+					mainGroup.getChildren().remove(note);
+					Label text = new Label(note.getText());
+					text.setLayoutX(note.getLayoutX());
+					text.setLayoutY(note.getLayoutY());
+					mainGroup.getChildren().add(text);
+				});
+			
 			}
 			
 		});
