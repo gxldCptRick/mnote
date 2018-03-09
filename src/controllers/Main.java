@@ -7,6 +7,7 @@ import java.io.File;
 import javafx.application.Application;
 import javafx.scene.Group;
 import javafx.scene.Scene;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import views.FileMenuToolbar;
@@ -68,6 +69,16 @@ public class Main extends Application {
 		mainGroup = new Group();
 		
 		mainGroup.getChildren().add(mainLayout);
+		
+		mainGroup.setOnMouseClicked(event -> {
+			if(event.getClickCount() > 2) {
+				System.out.println("HEllo");
+				mainGroup.getChildren().add(new TextField());
+			}
+			
+		});
+		
+		drawSurface.setEventTarget(mainGroup);
 
 		Scene mainScene = new Scene(mainGroup, 1500, 500);
 

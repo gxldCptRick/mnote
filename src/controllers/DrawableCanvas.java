@@ -6,7 +6,9 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
+import javafx.event.Event;
 import javafx.event.EventHandler;
+import javafx.event.EventTarget;
 import javafx.geometry.Bounds;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -66,6 +68,7 @@ public class DrawableCanvas implements Serializable {
 	private transient double offsetY;
 	private transient double offsetX;
 	private transient EventHandler<MouseEvent>[] drawableMouseEvents;
+	private EventTarget target;
 
 	public DrawableCanvas(double width, double height) {
 
@@ -77,6 +80,16 @@ public class DrawableCanvas implements Serializable {
 
 		return this.layout;
 
+	}
+	
+	public void setEventTarget(EventTarget target) {
+		
+		if(target != null) {
+		
+			this.target = target;
+			
+		}
+		
 	}
 
 	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
@@ -133,7 +146,7 @@ public class DrawableCanvas implements Serializable {
 	private void initializeMouseEvents() {
 
 		if (drawableMouseEvents == null)
-			drawableMouseEvents = new EventHandler[3];
+			drawableMouseEvents = new EventHandler[4];
 
 		this.setUpMouseEvents();
 
@@ -190,6 +203,8 @@ public class DrawableCanvas implements Serializable {
 
 		setUpDrawing();
 		setBoundsUpdate();
+		
+		mainDrawingCanvas.setOnMouseClicked(drawableMouseEvents[3]);
 
 	}
 
@@ -241,8 +256,9 @@ public class DrawableCanvas implements Serializable {
 	}
 
 	private void setUpMouseEvents() {
+		
 		drawableMouseEvents[0] = (event) -> {
-			if (event.isPrimaryButtonDown()) {
+			if (event != null && event.isPrimaryButtonDown()) {
 
 				checkIfInboundsOfView(event);
 
@@ -261,7 +277,7 @@ public class DrawableCanvas implements Serializable {
 
 		drawableMouseEvents[1] = (event) -> {
 
-			if (lines.isLineStarted()) {
+			if (event != null && lines.isLineStarted()) {
 
 				GraphicsContext gc = mainDrawingCanvas.getGraphicsContext2D();
 
@@ -276,8 +292,8 @@ public class DrawableCanvas implements Serializable {
 
 		drawableMouseEvents[2] = (event) -> {
 
-			if (event.isPrimaryButtonDown()) {
-
+			if (event != null && event.isPrimaryButtonDown()) {
+				
 				GraphicsContext gc = mainDrawingCanvas.getGraphicsContext2D();
 				gc.beginPath();
 				gc.setLineWidth(toolbar.getLineWidth());
@@ -289,6 +305,17 @@ public class DrawableCanvas implements Serializable {
 
 			}
 
+		};
+		
+		drawableMouseEvents[3] = (event) ->{
+			
+			if(event.getClickCount() > 2 && target != null) {
+				System.out.println(event.getClickCount());
+				
+				Event.fireEvent(target, event);
+
+			}
+			
 		};
 
 	}
@@ -325,11 +352,7 @@ public class DrawableCanvas implements Serializable {
 	private double calculateTrueXPosition(double originalXPos) {
 
 		double xPos = originalXPos - Math.round(offsetX * canvasContainer.getHvalue()) + 1;
-
-		System.out.println(originalXPos);
-		System.out.println(offsetX);
-		System.out.println(Math.round(offsetX * canvasContainer.getHvalue()) + 1d);
-		System.out.println(canvasContainer.getHvalue());
+		
 		return xPos;
 	}
 
@@ -359,9 +382,6 @@ public class DrawableCanvas implements Serializable {
 		double x = calculateTrueXPosition(event.getX()), y = calculateTrueYPosition(event.getY());
 		Bounds viewPortBounds = canvasContainer.getViewportBounds();
 
-		System.out.printf("the current x value is %.1f the current y value is %.1f\n", x, y);
-		System.out.printf("the current viewport width is %.1f and the current viewport height is %.1f\n",
-				viewPortBounds.getWidth(), viewPortBounds.getHeight());
 
 		if (x + 10 > viewPortBounds.getWidth()) {
 
