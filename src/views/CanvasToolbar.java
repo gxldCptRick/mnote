@@ -100,7 +100,7 @@ public class CanvasToolbar implements Serializable {
 
 	private void initializeToolbar() {
 
-		this.clearButton = new Button("Clear Drawing");
+		this.clearButton = new Button("Clear");
 
 		currentSize = new Label("Current Line Width : " + currentLineWidth);
 

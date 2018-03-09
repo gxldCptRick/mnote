@@ -5,19 +5,24 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
-import javafx.event.Event;
 import javafx.event.EventHandler;
-import javafx.event.EventTarget;
 import javafx.geometry.Bounds;
+import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextField;
 import javafx.scene.input.InputEvent;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import models.CanvasLines;
+import models.NoteData;
 import models.SavablePoint2D;
 import views.CanvasToolbar;
 
@@ -61,6 +66,7 @@ public class DrawableCanvas implements Serializable {
 
 	private CanvasLines lines;
 	private CanvasToolbar toolbar;
+	private List<NoteData> notes;
 
 	private transient VBox layout;
 	private transient Canvas mainDrawingCanvas;
@@ -68,7 +74,7 @@ public class DrawableCanvas implements Serializable {
 	private transient double offsetY;
 	private transient double offsetX;
 	private transient EventHandler<MouseEvent>[] drawableMouseEvents;
-	private transient EventTarget target;
+	private transient Group canvasGroup;
 
 	public DrawableCanvas(double width, double height) {
 
@@ -81,17 +87,8 @@ public class DrawableCanvas implements Serializable {
 		return this.layout;
 
 	}
-	
-	public void setEventTarget(EventTarget target) {
-		
-		if(target != null) {
-		
-			this.target = target;
-			
-		}
-		
-	}
 
+	@SuppressWarnings("unchecked")
 	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
 
 		ObjectInputStream.GetField fields = in.readFields();
@@ -100,9 +97,10 @@ public class DrawableCanvas implements Serializable {
 
 		this.toolbar = (CanvasToolbar) fields.get("toolbar", null);
 
+		this.notes = (List<NoteData>) fields.get("notes", null);
+
 		initialize(Toolkit.getDefaultToolkit().getScreenSize().getWidth(),
 				Toolkit.getDefaultToolkit().getScreenSize().getHeight());
-
 
 		lines.drawLines(this.mainDrawingCanvas.getGraphicsContext2D());
 
@@ -120,6 +118,8 @@ public class DrawableCanvas implements Serializable {
 
 		initializeMouseEvents();
 
+		initializeNotes();
+
 		initializeCanvas(width, height);
 
 		initializeLines();
@@ -128,18 +128,26 @@ public class DrawableCanvas implements Serializable {
 
 		initializeScrollPane();
 
-		
 		layout.getChildren().addAll(toolbar.getLayout(), canvasContainer);
 
 	}
 
+	private void initializeNotes() {
+
+		this.notes = notes == null ? new ArrayList<>() : notes;
+
+	}
+
 	private void initializeLayout() {
-		
+
 		if (layout == null)
 			layout = new VBox();
 
+		if (this.canvasGroup == null)
+			canvasGroup = new Group();
+
 		layout.setSpacing(5);
-		
+
 	}
 
 	@SuppressWarnings("unchecked")
@@ -167,7 +175,10 @@ public class DrawableCanvas implements Serializable {
 		toolbar.getClearButton().setOnAction((event) -> {
 
 			lines = new CanvasLines();
+			canvasGroup = new Group();
+			canvasGroup.getChildren().add(mainDrawingCanvas);
 
+			this.canvasContainer.setContent(canvasGroup);
 			mainDrawingCanvas.getGraphicsContext2D().clearRect(0, 0, mainDrawingCanvas.getWidth(),
 					mainDrawingCanvas.getHeight());
 
@@ -176,9 +187,14 @@ public class DrawableCanvas implements Serializable {
 	}
 
 	private void initializeScrollPane() {
+
 		canvasContainer = new ScrollPane();
 
-		canvasContainer.setContent(mainDrawingCanvas);
+		this.canvasGroup.getChildren().add(mainDrawingCanvas);
+
+		canvasContainer.setContent(canvasGroup);
+
+		setupCanvasGroup();
 
 		setupScrollPaneSize();
 
@@ -198,11 +214,86 @@ public class DrawableCanvas implements Serializable {
 
 	}
 
+	private void setupCanvasGroup() {
+		if (notes.size() > 0) {
+
+			List<Node> children = canvasGroup.getChildren();
+			for (NoteData noteData : notes) {
+				if (noteData != null) {
+
+					TextField note = noteData.getInputForText();
+					note.setOnAction(inputEntered -> {
+
+						noteData.updateText();
+
+						children.add(noteData.getDisplayForText());
+						children.remove(note);
+
+					});
+
+					noteData.getDisplayForText().setOnMouseClicked(clicked -> {
+
+						children.remove(noteData.getDisplayForText());
+
+						children.add(note);
+
+						note.requestFocus();
+					});
+
+					canvasGroup.getChildren().add(noteData.getDisplayForText());
+
+				}
+			}
+
+		}
+	}
+
 	private void initializeCanvas(double width, double height) {
 		this.mainDrawingCanvas = new Canvas(width, height);
 
 		setUpDrawing();
 		setBoundsUpdate();
+		setupNoteClicked();
+	}
+
+	private void setupNoteClicked() {
+
+		this.mainDrawingCanvas.setOnMouseClicked(event -> {
+
+			if (event.getButton() == MouseButton.PRIMARY && event.getClickCount() >= 2) {
+
+				NoteData note = new NoteData(event.getX(), event.getY());
+
+				this.notes.add(note);
+
+				TextField input = note.getInputForText();
+				List<Node> children = canvasGroup.getChildren();
+
+				children.add(input);
+
+				input.requestFocus();
+
+				input.setOnAction(inputEntered -> {
+
+					note.updateText();
+
+					children.add(note.getDisplayForText());
+					children.remove(input);
+
+					note.getDisplayForText().setOnMouseClicked(clicked -> {
+
+						children.remove(note.getDisplayForText());
+
+						children.add(input);
+
+						input.requestFocus();
+					});
+
+				});
+			}
+
+		});
+
 	}
 
 	private void updateOffsetY() {
@@ -214,7 +305,7 @@ public class DrawableCanvas implements Serializable {
 	private void updateOffsetX() {
 
 		offsetX = ((1 + STANDARD_DEVATION_X) * mainDrawingCanvas.getWidth()) - canvasContainer.getWidth();
-	
+
 	}
 
 	private void setupScrollPaneEventFilters() {
@@ -251,7 +342,7 @@ public class DrawableCanvas implements Serializable {
 	}
 
 	private void setUpMouseEvents() {
-		
+
 		drawableMouseEvents[0] = (event) -> {
 			if (event != null && event.isPrimaryButtonDown()) {
 
@@ -288,7 +379,7 @@ public class DrawableCanvas implements Serializable {
 		drawableMouseEvents[2] = (event) -> {
 
 			if (event != null && event.isPrimaryButtonDown()) {
-				
+
 				GraphicsContext gc = mainDrawingCanvas.getGraphicsContext2D();
 				gc.beginPath();
 				gc.setLineWidth(toolbar.getLineWidth());
@@ -301,7 +392,6 @@ public class DrawableCanvas implements Serializable {
 			}
 
 		};
-	
 
 	}
 
@@ -337,7 +427,7 @@ public class DrawableCanvas implements Serializable {
 	private double calculateTrueXPosition(double originalXPos) {
 
 		double xPos = originalXPos - Math.round(offsetX * canvasContainer.getHvalue()) + 1;
-		
+
 		return xPos;
 	}
 
@@ -366,7 +456,6 @@ public class DrawableCanvas implements Serializable {
 
 		double x = calculateTrueXPosition(event.getX()), y = calculateTrueYPosition(event.getY());
 		Bounds viewPortBounds = canvasContainer.getViewportBounds();
-
 
 		if (x + 10 > viewPortBounds.getWidth()) {
 
