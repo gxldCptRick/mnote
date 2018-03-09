@@ -172,16 +172,26 @@ public class DrawableCanvas implements Serializable {
 		if (toolbar == null)
 			toolbar = new CanvasToolbar();
 
-		toolbar.getClearButton().setOnAction((event) -> {
+		toolbar.getClearScreenButton().setOnAction((event) -> {
 
 			lines = new CanvasLines();
 			canvasGroup = new Group();
 			canvasGroup.getChildren().add(mainDrawingCanvas);
 
 			this.canvasContainer.setContent(canvasGroup);
+			
 			mainDrawingCanvas.getGraphicsContext2D().clearRect(0, 0, mainDrawingCanvas.getWidth(),
 					mainDrawingCanvas.getHeight());
+			
 
+		});
+		
+		toolbar.getClearCanvasButton().setOnAction(event -> {
+			
+			lines = new CanvasLines();
+			
+			mainDrawingCanvas.getGraphicsContext2D().clearRect(0, 0, mainDrawingCanvas.getWidth(),
+					mainDrawingCanvas.getHeight());
 		});
 
 	}
@@ -370,7 +380,9 @@ public class DrawableCanvas implements Serializable {
 				lines.addNextPoint(new SavablePoint2D(event.getX(), event.getY()));
 
 				gc.lineTo(event.getX(), event.getY());
-
+				
+				gc.stroke();
+				
 				gc.closePath();
 
 			}
@@ -385,6 +397,7 @@ public class DrawableCanvas implements Serializable {
 				gc.setLineWidth(toolbar.getLineWidth());
 				gc.setStroke(toolbar.getCurrentColor());
 				gc.moveTo(event.getX(), event.getY());
+				gc.stroke();
 
 				lines.startNewLine(this.toolbar.getCurrentColor(), this.toolbar.getLineWidth());
 				lines.addNextPoint(new SavablePoint2D(event.getX(), event.getY()));

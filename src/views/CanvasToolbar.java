@@ -39,7 +39,8 @@ public class CanvasToolbar implements Serializable {
 	private transient HBox layout;
 	private transient Color currentColor;
 	private transient Label currentSize;
-	private transient Button clearButton;
+	private transient Button clearScreenButton;
+	private transient Button clearCanvasButton;
 	private transient ColorPicker colorPicker;
 	private transient ComboBox<Double> sizePicker;
 
@@ -67,9 +68,14 @@ public class CanvasToolbar implements Serializable {
 
 	}
 
-	public Button getClearButton() {
-		return clearButton;
+	public Button getClearScreenButton() {
+		return clearScreenButton;
 	}
+
+	public Button getClearCanvasButton() {
+		return clearCanvasButton;
+	}
+
 
 	private void writeObject(ObjectOutputStream out) throws IOException {
 
@@ -100,7 +106,8 @@ public class CanvasToolbar implements Serializable {
 
 	private void initializeToolbar() {
 
-		this.clearButton = new Button("Clear");
+		this.clearScreenButton = new Button("Clear");
+		this.clearCanvasButton = new Button("Clear Whiteboard");
 
 		currentSize = new Label("Current Line Width : " + currentLineWidth);
 
@@ -118,7 +125,7 @@ public class CanvasToolbar implements Serializable {
 
 		layout.setSpacing(10);
 
-		layout.getChildren().addAll(currentSize, colorPicker, sizePicker, clearButton);
+		layout.getChildren().addAll(currentSize, colorPicker, sizePicker, clearScreenButton, clearCanvasButton);
 
 	}
 
@@ -161,6 +168,7 @@ public class CanvasToolbar implements Serializable {
 				ComboBox<Double> comboBox = (ComboBox<Double>) source;
 
 				currentLineWidth = comboBox.getValue();
+				updateSize();
 
 			}
 		});
