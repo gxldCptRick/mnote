@@ -1,5 +1,5 @@
 package models;
-
+///@@@@ "Javadoc style documentation on an entire class (class and all its methods)"
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
@@ -14,11 +14,7 @@ import javafx.geometry.Point2D;
  * **/
 public class SavablePoint2D implements Serializable {
 	
-	/**
-	 * @serialField 6969.
-	 */
 	private static final long serialVersionUID = 6969L;
-
 	private double x;
 	private double y;
 

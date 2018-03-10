@@ -14,6 +14,8 @@ import models.SavablePoint2D;
 
 class CanvasLineTest {
 
+	///@@@@ “At least 3 passing tests using Junit”
+	
 	@Test
 	void linesCreatedHavePoints() {
 		//arrange

@@ -8,19 +8,21 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import javafx.event.Event;
 import javafx.event.EventHandler;
-import javafx.geometry.Bounds;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
+import javafx.scene.effect.GaussianBlur;
 import javafx.scene.input.InputEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+import javafx.scene.shape.StrokeLineCap;
 import models.CanvasLines;
 import models.NoteData;
 import models.SavablePoint2D;
@@ -35,17 +37,11 @@ public class DrawableCanvas implements Serializable {
 	private static final double MAX_WIDTH;
 	private static final double MAX_HEIGHT;
 
-	private static final double STANDARD_DEVATION_Y;
-	private static final double STANDARD_DEVATION_X;
-
 	static {
 
 		serialVersionUID = generateID("420 BLAZE IT");
 		MAX_WIDTH = Toolkit.getDefaultToolkit().getScreenSize().getWidth() * 3;
 		MAX_HEIGHT = Toolkit.getDefaultToolkit().getScreenSize().getHeight() * 3;
-
-		STANDARD_DEVATION_Y = .018310648;
-		STANDARD_DEVATION_X = .00796156;
 
 	}
 
@@ -71,8 +67,6 @@ public class DrawableCanvas implements Serializable {
 	private transient VBox layout;
 	private transient Canvas mainDrawingCanvas;
 	private transient ScrollPane canvasContainer;
-	private transient double offsetY;
-	private transient double offsetX;
 	private transient EventHandler<MouseEvent>[] drawableMouseEvents;
 	private transient Group canvasGroup;
 
@@ -88,7 +82,7 @@ public class DrawableCanvas implements Serializable {
 
 	}
 
-	@SuppressWarnings("unchecked")
+	
 	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
 
 		ObjectInputStream.GetField fields = in.readFields();
@@ -179,17 +173,18 @@ public class DrawableCanvas implements Serializable {
 			canvasGroup.getChildren().add(mainDrawingCanvas);
 
 			this.canvasContainer.setContent(canvasGroup);
+
+			mainDrawingCanvas.getGraphicsContext2D().setEffect(null);
 			
 			mainDrawingCanvas.getGraphicsContext2D().clearRect(0, 0, mainDrawingCanvas.getWidth(),
 					mainDrawingCanvas.getHeight());
-			
 
 		});
-		
+
 		toolbar.getClearCanvasButton().setOnAction(event -> {
-			
+
 			lines = new CanvasLines();
-			
+			mainDrawingCanvas.getGraphicsContext2D().setEffect(null);
 			mainDrawingCanvas.getGraphicsContext2D().clearRect(0, 0, mainDrawingCanvas.getWidth(),
 					mainDrawingCanvas.getHeight());
 		});
@@ -211,16 +206,6 @@ public class DrawableCanvas implements Serializable {
 		setupScrollPaneMousePanEvents();
 
 		setupScrollPaneEventFilters();
-
-		canvasContainer.widthProperty().addListener(event -> {
-			updateOffsetX();
-		});
-
-		canvasContainer.heightProperty().addListener(event -> {
-
-			updateOffsetY();
-
-		});
 
 	}
 
@@ -262,8 +247,8 @@ public class DrawableCanvas implements Serializable {
 		this.mainDrawingCanvas = new Canvas(width, height);
 
 		setUpDrawing();
-		setBoundsUpdate();
 		setupNoteClicked();
+
 	}
 
 	private void setupNoteClicked() {
@@ -306,18 +291,6 @@ public class DrawableCanvas implements Serializable {
 
 	}
 
-	private void updateOffsetY() {
-
-		offsetY = ((1 + STANDARD_DEVATION_Y) * mainDrawingCanvas.getHeight()) - canvasContainer.getHeight();
-
-	}
-
-	private void updateOffsetX() {
-
-		offsetX = ((1 + STANDARD_DEVATION_X) * mainDrawingCanvas.getWidth()) - canvasContainer.getWidth();
-
-	}
-
 	private void setupScrollPaneEventFilters() {
 
 		canvasContainer.addEventFilter(InputEvent.ANY, (event) -> {
@@ -338,6 +311,33 @@ public class DrawableCanvas implements Serializable {
 		canvasContainer.setOnMouseReleased(event -> {
 
 			canvasContainer.setPannable(false);
+
+		});
+
+		canvasContainer.setOnMouseDragged(event -> {
+
+			if (event.getX() + 100 > canvasContainer.getWidth()) {
+
+				this.canvasContainer.setHvalue(calculateJump(canvasContainer.getHvalue(),
+						canvasContainer.getViewportBounds().getWidth(), mainDrawingCanvas.getWidth(), 1));
+			} else if (event.getX() < 10) {
+
+				this.canvasContainer.setHvalue(calculateJump(canvasContainer.getHvalue(),
+						canvasContainer.getViewportBounds().getWidth(), mainDrawingCanvas.getWidth(), -1));
+
+			}
+
+			if (event.getY() + 10 > canvasContainer.getViewportBounds().getHeight()) {
+
+				this.canvasContainer.setVvalue(calculateJump(canvasContainer.getVvalue(),
+						canvasContainer.getViewportBounds().getHeight(), mainDrawingCanvas.getHeight(), 1));
+
+			} else if (event.getY() < 10) {
+
+				this.canvasContainer.setVvalue(calculateJump(canvasContainer.getVvalue(),
+						canvasContainer.getViewportBounds().getHeight(), mainDrawingCanvas.getHeight(), -1));
+
+			}
 
 		});
 
@@ -380,11 +380,13 @@ public class DrawableCanvas implements Serializable {
 				lines.addNextPoint(new SavablePoint2D(event.getX(), event.getY()));
 
 				gc.lineTo(event.getX(), event.getY());
-				
+
 				gc.stroke();
-				
+
 				gc.closePath();
 
+				gc.setEffect(null);
+				gc.clip();
 			}
 		};
 
@@ -394,8 +396,19 @@ public class DrawableCanvas implements Serializable {
 
 				GraphicsContext gc = mainDrawingCanvas.getGraphicsContext2D();
 				gc.beginPath();
+
+				if (this.toolbar.getCheck().isSelected()) {
+
+					GaussianBlur blur = new GaussianBlur();
+					gc.setEffect(blur);
+				} else {
+				
+					gc.setEffect(null);
+				
+				}
 				gc.setLineWidth(toolbar.getLineWidth());
 				gc.setStroke(toolbar.getCurrentColor());
+				gc.setLineCap(StrokeLineCap.ROUND);
 				gc.moveTo(event.getX(), event.getY());
 				gc.stroke();
 
@@ -418,32 +431,6 @@ public class DrawableCanvas implements Serializable {
 
 	}
 
-	private void setBoundsUpdate() {
-
-		this.mainDrawingCanvas.widthProperty().addListener((listener) -> updateOffsetX());
-
-		this.mainDrawingCanvas.heightProperty().addListener((listener) -> {
-
-			updateOffsetY();
-
-		});
-
-	}
-
-	private double calculateTrueYPosition(double originalYPos) {
-
-		double yPos = originalYPos - Math.round(offsetY * canvasContainer.getVvalue()) + 1;
-
-		return yPos;
-	}
-
-	private double calculateTrueXPosition(double originalXPos) {
-
-		double xPos = originalXPos - Math.round(offsetX * canvasContainer.getHvalue()) + 1;
-
-		return xPos;
-	}
-
 	private double calculateJump(double currentSize, double sizeOfView, double sizeOfObject, double direction) {
 
 		double jumpSize = currentSize + (sizeOfView / sizeOfObject) * .1 * direction;
@@ -453,12 +440,12 @@ public class DrawableCanvas implements Serializable {
 
 	private void checkIfInboundsOfCanvas(MouseEvent event) {
 
-		if (event.getX() > mainDrawingCanvas.getWidth()) {
+		if (event.getX() + 10 > mainDrawingCanvas.getWidth()) {
 
 			mainDrawingCanvas.setWidth(MAX_WIDTH);
 		}
 
-		if (event.getY() > mainDrawingCanvas.getHeight()) {
+		if (event.getY() + 10 > mainDrawingCanvas.getHeight()) {
 
 			mainDrawingCanvas.setHeight(MAX_HEIGHT);
 		}
@@ -467,32 +454,7 @@ public class DrawableCanvas implements Serializable {
 
 	private void checkIfInboundsOfView(MouseEvent event) {
 
-		double x = calculateTrueXPosition(event.getX()), y = calculateTrueYPosition(event.getY());
-		Bounds viewPortBounds = canvasContainer.getViewportBounds();
-
-		if (x + 10 > viewPortBounds.getWidth()) {
-
-			this.canvasContainer.setHvalue(calculateJump(canvasContainer.getHvalue(), viewPortBounds.getWidth(),
-					mainDrawingCanvas.getWidth(), 1));
-
-		} else if (x < 10) {
-
-			this.canvasContainer.setHvalue(calculateJump(canvasContainer.getHvalue(), viewPortBounds.getWidth(),
-					mainDrawingCanvas.getWidth(), -1));
-
-		}
-
-		if (y + 10 > viewPortBounds.getHeight()) {
-
-			this.canvasContainer.setVvalue(calculateJump(canvasContainer.getVvalue(), viewPortBounds.getHeight(),
-					mainDrawingCanvas.getHeight(), 1));
-
-		} else if (y < 10) {
-
-			this.canvasContainer.setVvalue(calculateJump(canvasContainer.getVvalue(), viewPortBounds.getHeight(),
-					mainDrawingCanvas.getHeight(), -1));
-
-		}
+		Event.fireEvent(canvasContainer, event);
 
 	}
 

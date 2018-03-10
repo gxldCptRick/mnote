@@ -59,4 +59,11 @@ public class SavableColor implements Serializable{
 		
 		return equal;
 	}
+	
+	@Override
+	public int hashCode() {
+		
+		return Double.hashCode(red) ^ Double.hashCode(blue) ^ Double.hashCode(green);
+		
+	}
 }

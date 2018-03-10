@@ -9,6 +9,7 @@ import java.util.List;
 
 import javafx.event.ActionEvent;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
@@ -33,7 +34,6 @@ public class CanvasToolbar implements Serializable {
 
 	private double currentLineWidth;
 
-	@SuppressWarnings("unused")
 	private SavableColor lastColor;
 
 	private transient HBox layout;
@@ -43,6 +43,7 @@ public class CanvasToolbar implements Serializable {
 	private transient Button clearCanvasButton;
 	private transient ColorPicker colorPicker;
 	private transient ComboBox<Double> sizePicker;
+	private transient CheckBox check;
 
 	public CanvasToolbar() {
 
@@ -106,9 +107,10 @@ public class CanvasToolbar implements Serializable {
 
 	private void initializeToolbar() {
 
-		this.clearScreenButton = new Button("Clear");
-		this.clearCanvasButton = new Button("Clear Whiteboard");
-
+		this.clearScreenButton = new Button("Clear Whiteboard");
+		this.clearCanvasButton = new Button("Clear Drawings");
+		this.check = new CheckBox("Add Special Effect");
+		
 		currentSize = new Label("Current Line Width : " + currentLineWidth);
 
 		currentColor = Color.BLACK;
@@ -125,7 +127,7 @@ public class CanvasToolbar implements Serializable {
 
 		layout.setSpacing(10);
 
-		layout.getChildren().addAll(currentSize, colorPicker, sizePicker, clearScreenButton, clearCanvasButton);
+		layout.getChildren().addAll(currentSize, colorPicker, sizePicker, clearScreenButton, clearCanvasButton, this.check);
 
 	}
 
@@ -200,6 +202,17 @@ public class CanvasToolbar implements Serializable {
 
 		return equal;
 
+	}
+
+	@Override
+	public int hashCode() {
+		
+		return currentColor.hashCode() ^ currentSize.hashCode();
+	}
+	
+	public CheckBox getCheck() {
+		// TODO Auto-generated method stub
+		return check;
 	}
 
 }

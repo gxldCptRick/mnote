@@ -88,6 +88,8 @@ public class CanvasLine implements Serializable {
 				&& line.color.equals(this.color);
 
 	}
+	
+	//@@@@ "Overriding and benefiting from equals and hashcode." 
 
 	@Override
 	public boolean equals(Object other) {

@@ -97,5 +97,13 @@ public class CanvasLines implements Serializable {
 		
 		return equal;
 	}
+	
+	@Override
+	public int hashCode() {
+		
+		
+		return lines.hashCode() ^ currentLine.hashCode();
+		
+	}
 
 }
