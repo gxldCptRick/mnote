@@ -7,6 +7,7 @@ import java.util.List;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
+import models.enums.SpecialEffect;
 
 public class CanvasLines implements Serializable {
 
@@ -39,7 +40,12 @@ public class CanvasLines implements Serializable {
 
 	public void startNewLine(Color colorOfLine, double lineWidth) {
 
-		currentLine = new CanvasLine(colorOfLine, lineWidth);
+		startNewLine(colorOfLine,lineWidth, null);
+	}
+	
+	public void startNewLine(Color colorOfLine, double lineWidth, SpecialEffect specialEffect) {
+	
+		currentLine = new CanvasLine(colorOfLine, lineWidth , specialEffect);
 
 		lines.add(currentLine);
 
@@ -105,5 +111,6 @@ public class CanvasLines implements Serializable {
 		return lines.hashCode() ^ currentLine.hashCode();
 		
 	}
+
 
 }

@@ -8,6 +8,7 @@ import java.util.List;
 import javafx.geometry.Point2D;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
+import models.enums.SpecialEffect;
 
 public class CanvasLine implements Serializable {
 
@@ -16,25 +17,34 @@ public class CanvasLine implements Serializable {
 	private double lineWidth;
 	private List<SavablePoint2D> points;
 	private SavableColor color;
-
+	private SpecialEffect lineEffect;
+	
 	public CanvasLine(CanvasLine currentLine) {
 
-		this(currentLine.color, currentLine.lineWidth);
+		this(currentLine.color, currentLine.lineWidth, currentLine.lineEffect);
 		this.points = new ArrayList<>(currentLine.points);
 	}
 
-	public CanvasLine(SavableColor color, double lineWidth) {
-
+	public CanvasLine(SavableColor color, double lineWidth, SpecialEffect effect) {
+		
 		this.color = color;
 		this.lineWidth = lineWidth;
 		this.points = new ArrayList<>();
-
+		if(effect != null)
+		this.lineEffect = effect;
+		
 	}
 
-	public CanvasLine(Color color, double lineWidth) {
+	public CanvasLine(Color colorOfLine, double lineWidth, SpecialEffect specialEffect) {
+	
+		this(new SavableColor(colorOfLine) , lineWidth, specialEffect);
+		
+	}
 
-		this(new SavableColor(color), lineWidth);
-
+	public CanvasLine(Color colorOfLine, int lineWidth) {
+		
+		this(new SavableColor(colorOfLine), lineWidth, null);
+		
 	}
 
 	public void addNextPoint(SavablePoint2D nextPoint) {
@@ -51,7 +61,15 @@ public class CanvasLine implements Serializable {
 
 		gc.setStroke(color.getColor());
 
-		System.out.println(this.lineWidth);
+		if(this.lineEffect != null) {
+			
+			gc.setEffect(lineEffect.effect);
+		
+		}
+		else {
+			
+			gc.setEffect(null);
+		}
 		
 		Point2D initialPoint = getInitialPoint().get2DPoint();
 
@@ -66,7 +84,7 @@ public class CanvasLine implements Serializable {
 			if (nextPoint != initialPoint) {
 
 				gc.lineTo(nextPoint.getX(), nextPoint.getY());
-				
+				gc.stroke();
 			}
 			
 

@@ -26,6 +26,7 @@ import javafx.scene.shape.StrokeLineCap;
 import models.CanvasLines;
 import models.NoteData;
 import models.SavablePoint2D;
+import models.enums.SpecialEffect;
 import views.CanvasToolbar;
 
 public class DrawableCanvas implements Serializable {
@@ -401,8 +402,10 @@ public class DrawableCanvas implements Serializable {
 
 					GaussianBlur blur = new GaussianBlur();
 					gc.setEffect(blur);
+					lines.startNewLine(this.toolbar.getCurrentColor(), this.toolbar.getLineWidth(), SpecialEffect.GuassianBlur);
 				} else {
 				
+					lines.startNewLine(this.toolbar.getCurrentColor(), this.toolbar.getLineWidth());
 					gc.setEffect(null);
 				
 				}
@@ -412,7 +415,6 @@ public class DrawableCanvas implements Serializable {
 				gc.moveTo(event.getX(), event.getY());
 				gc.stroke();
 
-				lines.startNewLine(this.toolbar.getCurrentColor(), this.toolbar.getLineWidth());
 				lines.addNextPoint(new SavablePoint2D(event.getX(), event.getY()));
 
 			}

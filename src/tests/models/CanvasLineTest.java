@@ -1,7 +1,9 @@
 package tests.models;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static tests.IOMethods.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static tests.IOMethods.loadFile;
+import static tests.IOMethods.saveFile;
 
 import java.io.File;
 import java.util.List;
