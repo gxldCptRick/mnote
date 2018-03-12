@@ -18,7 +18,7 @@ public class CanvasLine implements Serializable {
 	private List<SavablePoint2D> points;
 	private SavableColor color;
 	private SpecialEffect lineEffect;
-	
+
 	public CanvasLine(CanvasLine currentLine) {
 
 		this(currentLine.color, currentLine.lineWidth, currentLine.lineEffect);
@@ -26,25 +26,26 @@ public class CanvasLine implements Serializable {
 	}
 
 	public CanvasLine(SavableColor color, double lineWidth, SpecialEffect effect) {
-		
+
 		this.color = color;
 		this.lineWidth = lineWidth;
 		this.points = new ArrayList<>();
-		if(effect != null)
-		this.lineEffect = effect;
-		
+
+		if (effect != null)
+			this.lineEffect = effect;
+
 	}
 
 	public CanvasLine(Color colorOfLine, double lineWidth, SpecialEffect specialEffect) {
-	
-		this(new SavableColor(colorOfLine) , lineWidth, specialEffect);
-		
+
+		this(new SavableColor(colorOfLine), lineWidth, specialEffect);
+
 	}
 
 	public CanvasLine(Color colorOfLine, int lineWidth) {
-		
+
 		this(new SavableColor(colorOfLine), lineWidth, null);
-		
+
 	}
 
 	public void addNextPoint(SavablePoint2D nextPoint) {
@@ -55,45 +56,42 @@ public class CanvasLine implements Serializable {
 	}
 
 	public boolean contains(Point2D point) {
-		
+
 		boolean found = false;
-		
+
 		Iterator<SavablePoint2D> iterator = this.points.iterator();
-		
-		
-		while(iterator.hasNext() && !found) {
-		
-			
+
+		while (iterator.hasNext() && !found) {
+
 			Point2D linePoint = iterator.next().get2DPoint();
-			
+
 			found = linePoint.distance(point) < 15;
-			
+
 			System.out.println(linePoint.distance(point));
-			
+
 			System.out.println(found);
-			
+
 		}
-		
+
 		return found;
 	}
-	
+
 	public void drawLine(GraphicsContext gc) {
 		gc.beginPath();
-		
+
 		gc.setLineWidth(lineWidth);
 
 		gc.setStroke(color.getColor());
 
-		if(this.lineEffect != null) {
-			
+		if (this.lineEffect != null) {
+
 			gc.setEffect(lineEffect.lineEffect);
-		
-		}
-		else {
-			
+
+		} else {
+
 			gc.setEffect(null);
 		}
-		
+
 		Point2D initialPoint = getInitialPoint().get2DPoint();
 
 		gc.moveTo(initialPoint.getX(), initialPoint.getY());
@@ -109,7 +107,6 @@ public class CanvasLine implements Serializable {
 				gc.lineTo(nextPoint.getX(), nextPoint.getY());
 				gc.stroke();
 			}
-			
 
 		}
 
@@ -121,7 +118,7 @@ public class CanvasLine implements Serializable {
 
 		return points.get(0);
 
-	} 
+	}
 
 	public boolean equals(CanvasLine line) {
 
@@ -129,8 +126,8 @@ public class CanvasLine implements Serializable {
 				&& line.color.equals(this.color);
 
 	}
-	
-	//@@@@ "Overriding and benefiting from equals and hashcode." 
+
+	// @@@@ "Overriding and benefiting from equals and hashcode."
 
 	@Override
 	public boolean equals(Object other) {
@@ -146,14 +143,13 @@ public class CanvasLine implements Serializable {
 		return equal;
 
 	}
-	
+
 	@Override
 	public int hashCode() {
-		
+
 		return this.points.hashCode() ^ Double.hashCode(this.lineWidth) ^ this.color.hashCode();
-		
+
 	}
-	
 
 	@Override
 	public String toString() {
@@ -163,8 +159,8 @@ public class CanvasLine implements Serializable {
 	}
 
 	public List<SavablePoint2D> getPoints() {
-		
+
 		return new ArrayList<>(this.points);
-		
+
 	}
 }

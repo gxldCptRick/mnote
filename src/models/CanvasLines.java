@@ -110,6 +110,8 @@ public class CanvasLines implements Serializable {
 			
 			line.drawLine(gc);
 
+			
+			System.out.println(gc);
 		}
 
 		if (currentLine != null && !lines.contains(currentLine)) {

@@ -182,12 +182,14 @@ public class DrawableCanvas implements Serializable {
 			
 			this.clearAnnotations();
 			this.clearCanvas();
+			this.lines = new CanvasLines();
 			
 		});
 		
 		clearDrawing.setOnAction(event -> {
 			
 			this.clearCanvas();
+			this.lines = new CanvasLines();
 			
 		});
 		
@@ -507,7 +509,6 @@ public class DrawableCanvas implements Serializable {
 	}
 
 	private void clearCanvas() {
-		this.lines = new CanvasLines();
 		
 		GraphicsContext gc = mainDrawingCanvas.getGraphicsContext2D();
 		
