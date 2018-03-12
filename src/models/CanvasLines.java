@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-
+import javafx.geometry.Point2D;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import models.enums.SpecialEffect;
@@ -61,6 +61,28 @@ public class CanvasLines implements Serializable {
 
 		return currentLine != null && !lines.contains(currentLine);
 
+	}
+	
+	
+	public boolean removeLine(Point2D point) {
+		
+		boolean foundLine = false;
+		for(int i = lines.size() - 1; i > -1 && !foundLine; i--) {
+			
+			foundLine = lines.get(i).contains(point);
+			
+			if(foundLine) {
+				
+				lines.remove(i);
+			
+			}
+			
+		}
+		
+		
+		
+		return foundLine;
+		
 	}
 
 	public void addNextPoint(SavablePoint2D savablePoint2D) {

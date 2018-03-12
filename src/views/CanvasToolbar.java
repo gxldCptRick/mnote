@@ -8,14 +8,17 @@ import java.util.Arrays;
 import java.util.List;
 
 import javafx.event.ActionEvent;
+import javafx.geometry.Side;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
+import javafx.stage.Window;
 import models.SavableColor;
 
 public class CanvasToolbar implements Serializable {
@@ -39,11 +42,12 @@ public class CanvasToolbar implements Serializable {
 	private transient HBox layout;
 	private transient Color currentColor;
 	private transient Label currentSize;
-	private transient Button clearScreenButton;
-	private transient Button clearCanvasButton;
+	private transient ContextMenu contextMenu;
+	private transient Button eraseButton;
 	private transient ColorPicker colorPicker;
 	private transient ComboBox<Double> sizePicker;
 	private transient CheckBox check;
+	private transient CheckBox deletings;
 
 	public CanvasToolbar() {
 
@@ -68,15 +72,21 @@ public class CanvasToolbar implements Serializable {
 		return currentColor;
 
 	}
-
-	public Button getClearScreenButton() {
-		return clearScreenButton;
+	
+	public ContextMenu getContextMenu() {
+		
+		return this.contextMenu;
 	}
 
-	public Button getClearCanvasButton() {
-		return clearCanvasButton;
+	
+	private void initializeErase() {
+		
+		this.eraseButton.setOnAction(event -> {
+			this.contextMenu.show(eraseButton, Side.RIGHT,0,0);
+			
+		});
+		
 	}
-
 
 	private void writeObject(ObjectOutputStream out) throws IOException {
 
@@ -107,9 +117,12 @@ public class CanvasToolbar implements Serializable {
 
 	private void initializeToolbar() {
 
-		this.clearScreenButton = new Button("Clear Whiteboard");
-		this.clearCanvasButton = new Button("Clear Drawings");
+		this.contextMenu = new ContextMenu();
+		this.eraseButton = new Button("Erase");
+		this.eraseButton.setContextMenu(contextMenu);
 		this.check = new CheckBox("Add Special Effect");
+		this.deletings = new CheckBox("Delete Line");
+		this.initializeErase();
 		
 		currentSize = new Label("Current Line Width : " + currentLineWidth);
 
@@ -127,7 +140,7 @@ public class CanvasToolbar implements Serializable {
 
 		layout.setSpacing(10);
 
-		layout.getChildren().addAll(currentSize, colorPicker, sizePicker, clearScreenButton, clearCanvasButton, this.check);
+		layout.getChildren().addAll(currentSize, colorPicker, sizePicker, this.eraseButton, this.check ,this.deletings);
 
 	}
 
@@ -189,6 +202,16 @@ public class CanvasToolbar implements Serializable {
 				&& other.currentSize.getText().equals(this.currentSize.getText());
 
 	}
+	
+	public boolean isDelete() {
+		
+		return this.deletings.isSelected();
+	}
+	
+	public boolean isSpecial() {
+		
+		return this.check.isSelected();
+	}
 
 	@Override
 	public boolean equals(Object other) {
@@ -210,9 +233,5 @@ public class CanvasToolbar implements Serializable {
 		return currentColor.hashCode() ^ currentSize.hashCode();
 	}
 	
-	public CheckBox getCheck() {
-		// TODO Auto-generated method stub
-		return check;
-	}
 
 }

@@ -10,10 +10,12 @@ import java.util.List;
 
 import javafx.event.Event;
 import javafx.event.EventHandler;
+import javafx.geometry.Point2D;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.effect.GaussianBlur;
@@ -83,7 +85,7 @@ public class DrawableCanvas implements Serializable {
 
 	}
 
-	
+	@SuppressWarnings("unchecked")
 	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
 
 		ObjectInputStream.GetField fields = in.readFields();
@@ -167,29 +169,80 @@ public class DrawableCanvas implements Serializable {
 		if (toolbar == null)
 			toolbar = new CanvasToolbar();
 
-		toolbar.getClearScreenButton().setOnAction((event) -> {
-
-			lines = new CanvasLines();
-			canvasGroup = new Group();
-			canvasGroup.getChildren().add(mainDrawingCanvas);
-
-			this.canvasContainer.setContent(canvasGroup);
-
-			mainDrawingCanvas.getGraphicsContext2D().setEffect(null);
+		
+		MenuItem clearCanvas = new MenuItem("Whiteboard");
+		
+		MenuItem clearDrawing = new MenuItem("Drawings");
+		
+		MenuItem clearAnnotations = new MenuItem("Annotations");
+		
+		toolbar.getContextMenu().getItems().addAll(clearCanvas, clearDrawing, clearAnnotations);
+		
+		clearCanvas.setOnAction(event -> {
 			
-			mainDrawingCanvas.getGraphicsContext2D().clearRect(0, 0, mainDrawingCanvas.getWidth(),
-					mainDrawingCanvas.getHeight());
+			this.clearAnnotations();
+			this.clearCanvas();
+			
+		});
+		
+		clearDrawing.setOnAction(event -> {
+			
+			this.clearCanvas();
+			
+		});
+		
+		clearAnnotations.setOnAction(event -> {
+			
+			this.clearAnnotations();
+			
+		});
+		
+	}
+
+	private void clearAnnotations() {
+		
+		this.canvasGroup = new Group();
+		
+		this.canvasGroup.getChildren().add(this.mainDrawingCanvas);
+		
+		this.mainDrawingCanvas.setOnMouseClicked(event -> {
+
+			if (event.getButton() == MouseButton.PRIMARY && event.getClickCount() >= 2) {
+
+				NoteData note = new NoteData(event.getX(), event.getY());
+
+				this.notes.add(note);
+
+				TextField input = note.getInputForText();
+				List<Node> children = canvasGroup.getChildren();
+
+				children.add(input);
+
+				input.requestFocus();
+
+				input.setOnAction(inputEntered -> {
+
+					note.updateText();
+
+					children.add(note.getDisplayForText());
+					children.remove(input);
+
+					note.getDisplayForText().setOnMouseClicked(clicked -> {
+
+						children.remove(note.getDisplayForText());
+
+						children.add(input);
+
+						input.requestFocus();
+					});
+
+				});
+			}
 
 		});
-
-		toolbar.getClearCanvasButton().setOnAction(event -> {
-
-			lines = new CanvasLines();
-			mainDrawingCanvas.getGraphicsContext2D().setEffect(null);
-			mainDrawingCanvas.getGraphicsContext2D().clearRect(0, 0, mainDrawingCanvas.getWidth(),
-					mainDrawingCanvas.getHeight());
-		});
-
+		
+		this.canvasContainer.setContent(this.canvasGroup);
+		
 	}
 
 	private void initializeScrollPane() {
@@ -250,6 +303,12 @@ public class DrawableCanvas implements Serializable {
 		setUpDrawing();
 		setupNoteClicked();
 
+		this.mainDrawingCanvas.setOnMouseClicked(event -> {
+			if(toolbar.isDelete())
+				checkRemove(event);
+			
+		});
+		
 	}
 
 	private void setupNoteClicked() {
@@ -355,72 +414,105 @@ public class DrawableCanvas implements Serializable {
 	private void setUpMouseEvents() {
 
 		drawableMouseEvents[0] = (event) -> {
-			if (event != null && event.isPrimaryButtonDown()) {
 
-				checkIfInboundsOfView(event);
+			if (!toolbar.isDelete()) {
+				if (event != null && event.isPrimaryButtonDown()) {
 
-				checkIfInboundsOfCanvas(event);
+					checkIfInboundsOfView(event);
 
-				GraphicsContext gc = mainDrawingCanvas.getGraphicsContext2D();
+					checkIfInboundsOfCanvas(event);
 
-				lines.addNextPoint(new SavablePoint2D(event.getX(), event.getY()));
+					GraphicsContext gc = mainDrawingCanvas.getGraphicsContext2D();
 
-				gc.lineTo(event.getX(), event.getY());
+					lines.addNextPoint(new SavablePoint2D(event.getX(), event.getY()));
 
-				gc.stroke();
+					gc.lineTo(event.getX(), event.getY());
+
+					gc.stroke();
+				}
 			}
 
 		};
 
 		drawableMouseEvents[1] = (event) -> {
 
-			if (event != null && lines.isLineStarted()) {
+			if (!toolbar.isDelete()) {
 
-				GraphicsContext gc = mainDrawingCanvas.getGraphicsContext2D();
+				if (event != null && lines.isLineStarted()) {
 
-				lines.addNextPoint(new SavablePoint2D(event.getX(), event.getY()));
+					GraphicsContext gc = mainDrawingCanvas.getGraphicsContext2D();
 
-				gc.lineTo(event.getX(), event.getY());
+					lines.addNextPoint(new SavablePoint2D(event.getX(), event.getY()));
 
-				gc.stroke();
+					gc.lineTo(event.getX(), event.getY());
 
-				gc.closePath();
+					gc.stroke();
 
-				gc.setEffect(null);
-				gc.clip();
+					gc.closePath();
+
+					gc.setEffect(null);
+					gc.clip();
+				}
+
 			}
 		};
 
 		drawableMouseEvents[2] = (event) -> {
+			if (!toolbar.isDelete()) {
+				if (event != null && event.isPrimaryButtonDown()) {
 
-			if (event != null && event.isPrimaryButtonDown()) {
+					GraphicsContext gc = mainDrawingCanvas.getGraphicsContext2D();
+					gc.beginPath();
 
-				GraphicsContext gc = mainDrawingCanvas.getGraphicsContext2D();
-				gc.beginPath();
+					if (this.toolbar.isSpecial()) {
 
-				if (this.toolbar.getCheck().isSelected()) {
+						GaussianBlur blur = new GaussianBlur();
+						gc.setEffect(blur);
+						lines.startNewLine(this.toolbar.getCurrentColor(), this.toolbar.getLineWidth(),
+								SpecialEffect.GuassianBlur);
+					} else {
 
-					GaussianBlur blur = new GaussianBlur();
-					gc.setEffect(blur);
-					lines.startNewLine(this.toolbar.getCurrentColor(), this.toolbar.getLineWidth(), SpecialEffect.GuassianBlur);
-				} else {
-				
-					lines.startNewLine(this.toolbar.getCurrentColor(), this.toolbar.getLineWidth());
-					gc.setEffect(null);
-				
+						lines.startNewLine(this.toolbar.getCurrentColor(), this.toolbar.getLineWidth());
+						gc.setEffect(null);
+
+					}
+					
+					gc.setLineWidth(toolbar.getLineWidth());
+					gc.setStroke(toolbar.getCurrentColor());
+					gc.setLineCap(StrokeLineCap.ROUND);
+					gc.moveTo(event.getX(), event.getY());
+					gc.stroke();
+
+					lines.addNextPoint(new SavablePoint2D(event.getX(), event.getY()));
+
 				}
-				gc.setLineWidth(toolbar.getLineWidth());
-				gc.setStroke(toolbar.getCurrentColor());
-				gc.setLineCap(StrokeLineCap.ROUND);
-				gc.moveTo(event.getX(), event.getY());
-				gc.stroke();
 
-				lines.addNextPoint(new SavablePoint2D(event.getX(), event.getY()));
-
-			}
-
+			} 
 		};
 
+	}
+
+	private void checkRemove(MouseEvent event) {
+		
+		boolean removed = lines.removeLine(new Point2D(event.getX(), event.getY()));
+		
+		if (removed) {
+
+			clearCanvas();
+			
+			this.lines.drawLines(mainDrawingCanvas.getGraphicsContext2D());
+
+			
+		}
+	}
+
+	private void clearCanvas() {
+
+		
+		mainDrawingCanvas.getGraphicsContext2D().setEffect(null);
+		mainDrawingCanvas.getGraphicsContext2D().clearRect(0, 0, mainDrawingCanvas.getWidth(),
+				mainDrawingCanvas.getHeight());
+		
 	}
 
 	private void setUpDrawing() {

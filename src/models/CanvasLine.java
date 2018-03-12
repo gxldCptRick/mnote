@@ -54,6 +54,29 @@ public class CanvasLine implements Serializable {
 
 	}
 
+	public boolean contains(Point2D point) {
+		
+		boolean found = false;
+		
+		Iterator<SavablePoint2D> iterator = this.points.iterator();
+		
+		
+		while(iterator.hasNext() && !found) {
+		
+			
+			Point2D linePoint = iterator.next().get2DPoint();
+			
+			found = linePoint.distance(point) < 10;
+			
+			System.out.println(linePoint.distance(point));
+			
+			System.out.println(found);
+			
+		}
+		
+		return found;
+	}
+	
 	public void drawLine(GraphicsContext gc) {
 		gc.beginPath();
 		
@@ -63,7 +86,7 @@ public class CanvasLine implements Serializable {
 
 		if(this.lineEffect != null) {
 			
-			gc.setEffect(lineEffect.effect);
+			gc.setEffect(lineEffect.lineEffect);
 		
 		}
 		else {
@@ -98,7 +121,7 @@ public class CanvasLine implements Serializable {
 
 		return points.get(0);
 
-	}
+	} 
 
 	public boolean equals(CanvasLine line) {
 
