@@ -56,14 +56,16 @@ public class Main extends Application {
 	private void initializeTools(Stage primaryStage) {
 		tools.getSaveOption().setOnAction(event -> {
 			if (this.recentlyOpenedFile == null) {
-			
+
+				this.tools.resetFileName();
+
 				File newSave = tools.getFileChooser().showSaveDialog(primaryStage);
 				saveFile(newSave);
-			
+
 			} else {
-				
+
 				saveFile(this.recentlyOpenedFile);
-			
+
 			}
 		});
 
@@ -94,7 +96,12 @@ public class Main extends Application {
 				drawSurface.getLayout().prefWidthProperty().bind(primaryStage.widthProperty().multiply(.95));
 
 				drawSurface.getLayout().prefHeightProperty().bind(primaryStage.heightProperty());
-
+				
+				tools.updateFileName(oldSave.getName());
+				
+				tools.getFileChooser().setInitialFileName(oldSave.getName());
+				
+				this.recentlyOpenedFile = oldSave;
 			}
 
 		});
@@ -144,7 +151,12 @@ public class Main extends Application {
 
 			tools.saveFile(save, drawSurface);
 
-			this.recentlyOpenedFile = save;
+			if (save != this.recentlyOpenedFile) {
+				
+				this.recentlyOpenedFile = save;
+				this.tools.updateFileName(recentlyOpenedFile.getName());
+			
+			}
 		}
 
 	}

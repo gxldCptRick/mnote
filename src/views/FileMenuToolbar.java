@@ -11,12 +11,15 @@ import java.io.Serializable;
 import javafx.geometry.Side;
 import javafx.scene.control.Button;
 import javafx.scene.control.ContextMenu;
+import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.layout.HBox;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 
 public class FileMenuToolbar extends HBox {
+
+	private static final String DEFAULT_FILE_NAME = "default.co";
 
 	private Button file;
 	private ContextMenu context;
@@ -25,8 +28,11 @@ public class FileMenuToolbar extends HBox {
 	private MenuItem loadNoteOption;
 	private MenuItem newNoteOption;
 	private FileChooser fileChooser;
+	private Label currentFileName;
 
 	public FileMenuToolbar() {
+
+		currentFileName = new Label("Current File: none");
 
 		file = new Button("File");
 
@@ -34,15 +40,14 @@ public class FileMenuToolbar extends HBox {
 
 		fileChooser = new FileChooser();
 		File initialDirectory = new File("../../mnote/");
-		
-		if(!initialDirectory.isDirectory())
+
+		if (!initialDirectory.isDirectory())
 			initialDirectory.mkdir();
-		
+
 		fileChooser.setInitialDirectory(initialDirectory);
-		fileChooser.setSelectedExtensionFilter(new ExtensionFilter("mnote files", "co"));
-		fileChooser.setInitialFileName("default.co");
-		
-		
+		fileChooser.setSelectedExtensionFilter(new ExtensionFilter("mnote files", ".co"));
+		fileChooser.setInitialFileName(DEFAULT_FILE_NAME);
+
 		file.setContextMenu(context);
 
 		setupMenuItems();
@@ -53,7 +58,14 @@ public class FileMenuToolbar extends HBox {
 
 		});
 
-		getChildren().addAll(file);
+		getChildren().addAll(file, currentFileName);
+		
+		this.setSpacing(10);
+	}
+
+	public void resetFileName() {
+
+		this.fileChooser.setInitialFileName(DEFAULT_FILE_NAME);
 	}
 
 	public MenuItem getSaveOption() {
@@ -83,7 +95,7 @@ public class FileMenuToolbar extends HBox {
 
 	}
 
-	///@@@@ "File reading (4 points) and writing"
+	/// @@@@ "File reading (4 points) and writing"
 	public void saveFile(File newSave, Serializable data) {
 
 		try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(newSave))) {
@@ -101,7 +113,7 @@ public class FileMenuToolbar extends HBox {
 	public Serializable loadFile(File loadingFile) {
 
 		Serializable data = null;
-		
+
 		try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(loadingFile))) {
 
 			data = (Serializable) in.readObject();
@@ -109,15 +121,23 @@ public class FileMenuToolbar extends HBox {
 		} catch (IOException | ClassNotFoundException e) {
 
 			e.printStackTrace();
-			
+
 		}
-		
+
 		return data;
 	}
 
 	public FileChooser getFileChooser() {
-		// TODO Auto-generated method stub
+
 		return this.fileChooser;
+
+	}
+
+	public void updateFileName(String name) {
+
+		if (name != null)
+			this.currentFileName.setText("Working On: "+ name);
+	
 	}
 
 }

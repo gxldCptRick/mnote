@@ -68,6 +68,7 @@ public class CanvasLines implements Serializable {
 		
 		boolean foundLine = false;
 		CanvasLine line = null;
+		
 		for(int i = lines.size() - 1; i > -1 && !foundLine; i--) {
 			
 			foundLine = lines.get(i).contains(point);
@@ -78,6 +79,8 @@ public class CanvasLines implements Serializable {
 			
 			}
 			
+			
+			System.out.println(i);
 		}
 		
 		if(line == currentLine) {

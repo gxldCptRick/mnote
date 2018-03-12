@@ -451,9 +451,6 @@ public class DrawableCanvas implements Serializable {
 					gc.stroke();
 
 					gc.closePath();
-
-					gc.setEffect(null);
-					gc.clip();
 				}
 
 			}
