@@ -498,6 +498,7 @@ public class DrawableCanvas implements Serializable {
 		
 		if (removed) {
 
+			
 			clearCanvas();
 			
 			this.lines.drawLines(mainDrawingCanvas.getGraphicsContext2D());
@@ -509,10 +510,11 @@ public class DrawableCanvas implements Serializable {
 	private void clearCanvas() {
 
 		
-		mainDrawingCanvas.getGraphicsContext2D().setEffect(null);
-		mainDrawingCanvas.getGraphicsContext2D().clearRect(0, 0, mainDrawingCanvas.getWidth(),
+		System.out.println("Clearing Canvas");
+		GraphicsContext gc = mainDrawingCanvas.getGraphicsContext2D();
+		gc.setEffect(null);
+		gc.clearRect(0, 0, mainDrawingCanvas.getWidth(),
 				mainDrawingCanvas.getHeight());
-		
 	}
 
 	private void setUpDrawing() {

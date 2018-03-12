@@ -67,15 +67,23 @@ public class CanvasLines implements Serializable {
 	public boolean removeLine(Point2D point) {
 		
 		boolean foundLine = false;
+		CanvasLine line = null;
 		for(int i = lines.size() - 1; i > -1 && !foundLine; i--) {
 			
 			foundLine = lines.get(i).contains(point);
 			
 			if(foundLine) {
 				
-				lines.remove(i);
+				line = lines.remove(i);
 			
 			}
+			
+		}
+		
+		if(line == currentLine) {
+			
+			
+			this.currentLine = null;
 			
 		}
 		
@@ -93,6 +101,7 @@ public class CanvasLines implements Serializable {
 	}
 
 	public void drawLines(GraphicsContext gc) {
+		System.out.println("Drawing Lines ");
 
 		for (CanvasLine line : lines) {
 			
@@ -100,9 +109,10 @@ public class CanvasLines implements Serializable {
 
 		}
 
-		if (!lines.contains(currentLine)) {
+		if (currentLine != null && !lines.contains(currentLine)) {
 
 			currentLine.drawLine(gc);
+			
 		}
 
 	}
