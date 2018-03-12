@@ -203,10 +203,12 @@ public class DrawableCanvas implements Serializable {
 		
 		this.canvasGroup = new Group();
 		
+		this.notes = new ArrayList<>();
+		
 		this.canvasGroup.getChildren().add(this.mainDrawingCanvas);
 		
 		this.mainDrawingCanvas.setOnMouseClicked(event -> {
-
+			
 			if (event.getButton() == MouseButton.PRIMARY && event.getClickCount() >= 2) {
 
 				NoteData note = new NoteData(event.getX(), event.getY());

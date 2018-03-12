@@ -66,7 +66,7 @@ public class CanvasLine implements Serializable {
 			
 			Point2D linePoint = iterator.next().get2DPoint();
 			
-			found = linePoint.distance(point) < 100;
+			found = linePoint.distance(point) < 15;
 			
 			System.out.println(linePoint.distance(point));
 			
