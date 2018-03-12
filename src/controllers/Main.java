@@ -18,6 +18,7 @@ public class Main extends Application {
 	private VBox mainLayout;
 	private DrawableCanvas drawSurface;
 	private FileMenuToolbar tools;
+	private File recentlyOpenedFile;
 
 	@Override
 	public void start(Stage primaryStage) {
@@ -54,30 +55,27 @@ public class Main extends Application {
 
 	private void initializeTools(Stage primaryStage) {
 		tools.getSaveOption().setOnAction(event -> {
-
-			File newSave = tools.getFileChooser().showSaveDialog(primaryStage);
-
-			if (newSave != null) {
-
-				if(!newSave.getAbsolutePath().endsWith(".co"))
-					newSave = new File(newSave.getAbsolutePath() + ".co");
-				tools.saveFile(newSave, drawSurface);
-
+			if (this.recentlyOpenedFile == null) {
+			
+				File newSave = tools.getFileChooser().showSaveDialog(primaryStage);
+				saveFile(newSave);
+			
+			} else {
+				
+				saveFile(this.recentlyOpenedFile);
+			
 			}
-
 		});
 
 		tools.getSaveAsOption().setOnAction(event -> {
 
+			if (this.recentlyOpenedFile != null) {
+				tools.getFileChooser().setInitialFileName(this.recentlyOpenedFile.getName());
+			}
+
 			File overwriteSave = tools.getFileChooser().showSaveDialog(primaryStage);
 
-			if (overwriteSave != null) {
-
-				if(!overwriteSave.getAbsolutePath().endsWith(".co"))
-					overwriteSave = new File(overwriteSave.getAbsolutePath() + ".co");
-				tools.saveFile(overwriteSave, drawSurface);
-
-			}
+			saveFile(overwriteSave);
 
 		});
 
@@ -131,19 +129,24 @@ public class Main extends Application {
 			if (response == ButtonType.OK) {
 
 				File save = tools.getFileChooser().showSaveDialog(stage);
-				
-				if (save != null) {
 
-					if(!save.getAbsolutePath().endsWith(".co"))
-						save = new File(save.getAbsolutePath() + ".co");
-					
-					
-					tools.saveFile(save, drawSurface);
-
-				}
+				saveFile(save);
 			}
 
 		});
+	}
+
+	private void saveFile(File save) {
+		if (save != null) {
+
+			if (!save.getAbsolutePath().endsWith(".co"))
+				save = new File(save.getAbsolutePath() + ".co");
+
+			tools.saveFile(save, drawSurface);
+
+			this.recentlyOpenedFile = save;
+		}
+
 	}
 
 	public static void main(String[] args) {

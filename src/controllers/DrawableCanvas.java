@@ -510,10 +510,10 @@ public class DrawableCanvas implements Serializable {
 	}
 
 	private void clearCanvas() {
-
+		this.lines = new CanvasLines();
 		
-		System.out.println("Clearing Canvas");
 		GraphicsContext gc = mainDrawingCanvas.getGraphicsContext2D();
+		
 		gc.setEffect(null);
 		gc.clearRect(0, 0, mainDrawingCanvas.getWidth(),
 				mainDrawingCanvas.getHeight());
