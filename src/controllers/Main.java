@@ -59,6 +59,8 @@ public class Main extends Application {
 
 			if (newSave != null) {
 
+				if(!newSave.getAbsolutePath().endsWith(".co"))
+					newSave = new File(newSave.getAbsolutePath() + ".co");
 				tools.saveFile(newSave, drawSurface);
 
 			}
@@ -71,6 +73,8 @@ public class Main extends Application {
 
 			if (overwriteSave != null) {
 
+				if(!overwriteSave.getAbsolutePath().endsWith(".co"))
+					overwriteSave = new File(overwriteSave.getAbsolutePath() + ".co");
 				tools.saveFile(overwriteSave, drawSurface);
 
 			}
@@ -127,9 +131,13 @@ public class Main extends Application {
 			if (response == ButtonType.OK) {
 
 				File save = tools.getFileChooser().showSaveDialog(stage);
-
+				
 				if (save != null) {
 
+					if(!save.getAbsolutePath().endsWith(".co"))
+						save = new File(save.getAbsolutePath() + ".co");
+					
+					
 					tools.saveFile(save, drawSurface);
 
 				}
