@@ -15,6 +15,7 @@ import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
@@ -335,13 +336,13 @@ public class DrawableCanvas implements Serializable {
 				input.setOnAction(inputEntered -> {
 
 					note.updateText();
+					Label displayedText = note.getDisplayForText();
 
-					children.add(note.getDisplayForText());
+					children.add(displayedText);
 					children.remove(input);
+					displayedText.setOnMouseClicked(clicked -> {
 
-					note.getDisplayForText().setOnMouseClicked(clicked -> {
-
-						children.remove(note.getDisplayForText());
+						children.remove(displayedText);
 
 						children.add(input);
 
