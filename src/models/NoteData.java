@@ -56,16 +56,6 @@ public class NoteData implements Serializable {
 
 		c.setLayoutX(xPosition);
 		c.setLayoutY(yPosition);
-		
-		c.setOnMouseDragReleased(event -> {
-		
-			c.setLayoutX(event.getX());
-			c.setLayoutY(event.getY());
-			
-			
-		});
-		
-		
 	}
 
 	private void writeObject(ObjectOutputStream out) throws IOException {
@@ -94,8 +84,7 @@ public class NoteData implements Serializable {
 		this.inputForText = new TextField();
 
 		setupControlXandYPostition(this.displayForText);
-		setupControlXandYPostition(this.inputForText);
-		
+		setupControlXandYPostition(this.inputForText);// TODO Auto-generated method stub
 
 	}
 

@@ -80,6 +80,7 @@ public class CanvasLines implements Serializable {
 			}
 			
 			
+			System.out.println(i);
 		}
 		
 		if(line == currentLine) {
@@ -103,12 +104,15 @@ public class CanvasLines implements Serializable {
 	}
 
 	public void drawLines(GraphicsContext gc) {
+		System.out.println("Drawing Lines ");
 
 		for (CanvasLine line : lines) {
 			
 			line.drawLine(gc);
 
-			}
+			
+			System.out.println(gc);
+		}
 
 		if (currentLine != null && !lines.contains(currentLine)) {
 
