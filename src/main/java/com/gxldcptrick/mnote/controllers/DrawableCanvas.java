@@ -45,8 +45,8 @@ public class DrawableCanvas implements Serializable {
 	static {
 
 		serialVersionUID = generateID("420 BLAZE IT");
-		MAX_WIDTH = Toolkit.getDefaultToolkit().getScreenSize().getWidth() * 3;
-		MAX_HEIGHT = Toolkit.getDefaultToolkit().getScreenSize().getHeight() * 3;
+		MAX_WIDTH = Toolkit.getDefaultToolkit().getScreenSize().getWidth() * 2.5;
+		MAX_HEIGHT = Toolkit.getDefaultToolkit().getScreenSize().getHeight() * 2;
 
 	}
 
@@ -171,52 +171,50 @@ public class DrawableCanvas implements Serializable {
 		if (toolbar == null)
 			toolbar = new CanvasToolbar();
 
-		
 		MenuItem clearCanvas = new MenuItem("Whiteboard");
-		
+
 		MenuItem clearDrawing = new MenuItem("Drawings");
-		
+
 		MenuItem clearAnnotations = new MenuItem("Annotations");
-		
+
 		toolbar.getContextMenu().getItems().addAll(clearCanvas, clearDrawing, clearAnnotations);
-		
+
 		clearCanvas.setOnAction(event -> {
-			
+
 			this.clearAnnotations();
 			this.clearCanvas();
 			this.lines = new CanvasLines();
-			
+
 		});
-		
+
 		clearDrawing.setOnAction(event -> {
-			
+
 			this.clearCanvas();
 			this.lines = new CanvasLines();
-			
+
 		});
-		
+
 		clearAnnotations.setOnAction(event -> {
-			
+
 			this.clearAnnotations();
-			
+
 		});
-		
+
 	}
 
 	private void clearAnnotations() {
-		
+
 		this.canvasGroup = new Group();
-		
+
 		this.notes = new ArrayList<>();
-		
+
 		this.canvasGroup.getChildren().add(this.mainDrawingCanvas);
-		
+
 		this.mainDrawingCanvas.setOnMouseClicked(event -> {
-			
-			if(toolbar.isDelete())
+
+			if (toolbar.isDelete())
 				checkRemove(event);
-			
-			
+
 			if (event.getButton() == MouseButton.PRIMARY && event.getClickCount() >= 2) {
 
 				NoteData note = new NoteData(event.getX(), event.getY());
@@ -250,9 +248,9 @@ public class DrawableCanvas implements Serializable {
 			}
 
 		});
-		
+
 		this.canvasContainer.setContent(this.canvasGroup);
-		
+
 	}
 
 	private void initializeScrollPane() {
@@ -312,15 +310,15 @@ public class DrawableCanvas implements Serializable {
 
 		setUpDrawing();
 		setupNoteClicked();
-		
+
 	}
 
 	private void setupNoteClicked() {
 
 		this.mainDrawingCanvas.setOnMouseClicked(event -> {
-			if(toolbar.isDelete())
+			if (toolbar.isDelete())
 				checkRemove(event);
-			
+
 			if (event.getButton() == MouseButton.PRIMARY && event.getClickCount() >= 2) {
 
 				NoteData note = new NoteData(event.getX(), event.getY());
@@ -479,7 +477,7 @@ public class DrawableCanvas implements Serializable {
 						gc.setEffect(null);
 
 					}
-					
+
 					gc.setLineWidth(toolbar.getLineWidth());
 					gc.setStroke(toolbar.getCurrentColor());
 					gc.setLineCap(StrokeLineCap.ROUND);
@@ -490,33 +488,30 @@ public class DrawableCanvas implements Serializable {
 
 				}
 
-			} 
+			}
 		};
 
 	}
 
 	private void checkRemove(MouseEvent event) {
-		
+
 		boolean removed = lines.removeLine(new Point2D(event.getX(), event.getY()));
-		
+
 		if (removed) {
 
-			
 			clearCanvas();
-			
+
 			this.lines.drawLines(mainDrawingCanvas.getGraphicsContext2D());
 
-			
 		}
 	}
 
 	private void clearCanvas() {
-		
+
 		GraphicsContext gc = mainDrawingCanvas.getGraphicsContext2D();
-		
+
 		gc.setEffect(null);
-		gc.clearRect(0, 0, mainDrawingCanvas.getWidth(),
-				mainDrawingCanvas.getHeight());
+		gc.clearRect(0, 0, mainDrawingCanvas.getWidth(), mainDrawingCanvas.getHeight());
 	}
 
 	private void setUpDrawing() {
@@ -538,16 +533,19 @@ public class DrawableCanvas implements Serializable {
 
 	private void checkIfInboundsOfCanvas(MouseEvent event) {
 
-		if (event.getX() + 10 > mainDrawingCanvas.getWidth()) {
+		synchronized (mainDrawingCanvas) {
 
-			mainDrawingCanvas.setWidth(MAX_WIDTH);
+			if (event.getX() + 10 > mainDrawingCanvas.getWidth()) {
+
+				mainDrawingCanvas.setWidth(MAX_WIDTH);
+			}
+
+			if (event.getY() + 10 > mainDrawingCanvas.getHeight()) {
+
+				mainDrawingCanvas.setHeight(MAX_HEIGHT);
+			}
+
 		}
-
-		if (event.getY() + 10 > mainDrawingCanvas.getHeight()) {
-
-			mainDrawingCanvas.setHeight(MAX_HEIGHT);
-		}
-
 	}
 
 	private void checkIfInboundsOfView(MouseEvent event) {
