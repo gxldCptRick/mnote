@@ -1,0 +1,10 @@
+com\gxldcptrick\mnote\models\NoteData.class
+com\gxldcptrick\mnote\controllers\DrawableCanvas.class
+com\gxldcptrick\mnote\models\SavablePoint2D.class
+com\gxldcptrick\mnote\models\CanvasLines.class
+com\gxldcptrick\mnote\models\SavableColor.class
+com\gxldcptrick\mnote\controllers\Main.class
+com\gxldcptrick\mnote\models\enums\SpecialEffect.class
+com\gxldcptrick\mnote\views\CanvasToolbar.class
+com\gxldcptrick\mnote\models\CanvasLine.class
+com\gxldcptrick\mnote\views\FileMenuToolbar.class
