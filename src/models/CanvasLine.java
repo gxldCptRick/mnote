@@ -67,10 +67,6 @@ public class CanvasLine implements Serializable {
 
 			found = linePoint.distance(point) < 15;
 
-			System.out.println(linePoint.distance(point));
-
-			System.out.println(found);
-
 		}
 
 		return found;

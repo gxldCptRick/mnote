@@ -117,7 +117,7 @@ public class CanvasToolbar implements Serializable {
 	private void initializeToolbar() {
 
 		this.contextMenu = new ContextMenu();
-		this.eraseButton = new Button("Erase");
+		this.eraseButton = new Button("Clear");
 		this.eraseButton.setContextMenu(contextMenu);
 		this.check = new CheckBox("Add Special Effect");
 		this.deletings = new CheckBox("Delete Line");
