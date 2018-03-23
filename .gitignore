@@ -1,6 +1,8 @@
+*.class
 .metadata
 bin/
 tmp/
+target/
 *.tmp
 *.co
 *.bak

@@ -39,14 +39,14 @@ public class DrawableCanvas implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID;
-	private static final double MAX_WIDTH;
-	private static final double MAX_HEIGHT;
+	private static final double MAX_CANVAS_WIDTH;
+	private static final double MAX_CANVAS_HEIGHT;
 
 	static {
 
 		serialVersionUID = generateID("420 BLAZE IT");
-		MAX_WIDTH = Toolkit.getDefaultToolkit().getScreenSize().getWidth() * 2.5;
-		MAX_HEIGHT = Toolkit.getDefaultToolkit().getScreenSize().getHeight() * 2;
+		MAX_CANVAS_WIDTH = Toolkit.getDefaultToolkit().getScreenSize().getWidth() * 3;
+		MAX_CANVAS_HEIGHT = Toolkit.getDefaultToolkit().getScreenSize().getHeight() * 1.5;
 
 	}
 
@@ -537,12 +537,12 @@ public class DrawableCanvas implements Serializable {
 
 			if (event.getX() + 10 > mainDrawingCanvas.getWidth()) {
 
-				mainDrawingCanvas.setWidth(MAX_WIDTH);
+				mainDrawingCanvas.setWidth(MAX_CANVAS_WIDTH);
 			}
 
 			if (event.getY() + 10 > mainDrawingCanvas.getHeight()) {
 
-				mainDrawingCanvas.setHeight(MAX_HEIGHT);
+				mainDrawingCanvas.setHeight(MAX_CANVAS_HEIGHT);
 			}
 
 		}
