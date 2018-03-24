@@ -349,6 +349,14 @@ public class DrawableCanvas implements Serializable {
 					});
 
 				});
+			}else if(event.getButton() == MouseButton.PRIMARY) {
+				
+				GraphicsContext gc = mainDrawingCanvas.getGraphicsContext2D();
+				
+				setupGraphics(gc, event);
+				
+				gc.strokeRect(event.getX(), event.getY(), this.toolbar.getLineWidth(), this.toolbar.getLineWidth());
+				gc.closePath();
 			}
 
 		});
@@ -463,33 +471,37 @@ public class DrawableCanvas implements Serializable {
 				if (event != null && event.isPrimaryButtonDown()) {
 
 					GraphicsContext gc = mainDrawingCanvas.getGraphicsContext2D();
-					gc.beginPath();
-
-					if (this.toolbar.isSpecial()) {
-
-						GaussianBlur blur = new GaussianBlur();
-						gc.setEffect(blur);
-						lines.startNewLine(this.toolbar.getCurrentColor(), this.toolbar.getLineWidth(),
-								SpecialEffect.GuassianBlur);
-					} else {
-
-						lines.startNewLine(this.toolbar.getCurrentColor(), this.toolbar.getLineWidth());
-						gc.setEffect(null);
-
-					}
-
-					gc.setLineWidth(toolbar.getLineWidth());
-					gc.setStroke(toolbar.getCurrentColor());
-					gc.setLineCap(StrokeLineCap.ROUND);
-					gc.moveTo(event.getX(), event.getY());
-					gc.stroke();
-
-					lines.addNextPoint(new SavablePoint2D(event.getX(), event.getY()));
-
+					setupGraphics(gc, event);
 				}
 
 			}
 		};
+
+	}
+
+	private void setupGraphics(GraphicsContext gc, MouseEvent event) {
+		gc.beginPath();
+
+		if (this.toolbar.isSpecial()) {
+
+			GaussianBlur blur = new GaussianBlur();
+			gc.setEffect(blur);
+			lines.startNewLine(this.toolbar.getCurrentColor(), this.toolbar.getLineWidth(),
+					SpecialEffect.GuassianBlur);
+		} else {
+
+			lines.startNewLine(this.toolbar.getCurrentColor(), this.toolbar.getLineWidth());
+			gc.setEffect(null);
+
+		}
+
+		gc.setLineWidth(toolbar.getLineWidth());
+		gc.setStroke(toolbar.getCurrentColor());
+		gc.setLineCap(StrokeLineCap.ROUND);
+		gc.moveTo(event.getX(), event.getY());
+		gc.stroke();
+
+		lines.addNextPoint(new SavablePoint2D(event.getX(), event.getY()));
 
 	}
 
