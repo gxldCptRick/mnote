@@ -1,6 +1,7 @@
 package com.gxldcptrick.mnote.controllers;
 
 import java.awt.Toolkit;
+import java.awt.image.RenderedImage;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -14,6 +15,7 @@ import com.gxldcptrick.mnote.models.SavablePoint2D;
 import com.gxldcptrick.mnote.models.enums.SpecialEffect;
 import com.gxldcptrick.mnote.views.CanvasToolbar;
 
+import javafx.embed.swing.SwingFXUtils;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
@@ -32,6 +34,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.StrokeLineCap;
+import javafx.scene.image.WritableImage;
 
 public class DrawableCanvas implements Serializable {
 
@@ -349,12 +352,12 @@ public class DrawableCanvas implements Serializable {
 					});
 
 				});
-			}else if(event.getButton() == MouseButton.PRIMARY) {
-				
+			} else if (event.getButton() == MouseButton.PRIMARY) {
+
 				GraphicsContext gc = mainDrawingCanvas.getGraphicsContext2D();
-				
+
 				setupGraphics(gc, event);
-				
+
 				gc.strokeRect(event.getX(), event.getY(), this.toolbar.getLineWidth(), this.toolbar.getLineWidth());
 				gc.closePath();
 			}
@@ -486,8 +489,7 @@ public class DrawableCanvas implements Serializable {
 
 			GaussianBlur blur = new GaussianBlur();
 			gc.setEffect(blur);
-			lines.startNewLine(this.toolbar.getCurrentColor(), this.toolbar.getLineWidth(),
-					SpecialEffect.GuassianBlur);
+			lines.startNewLine(this.toolbar.getCurrentColor(), this.toolbar.getLineWidth(), SpecialEffect.GuassianBlur);
 		} else {
 
 			lines.startNewLine(this.toolbar.getCurrentColor(), this.toolbar.getLineWidth());
@@ -564,6 +566,18 @@ public class DrawableCanvas implements Serializable {
 
 		Event.fireEvent(canvasContainer, event);
 
+	}
+
+	public RenderedImage getRenderedImage() {
+
+		WritableImage image = new WritableImage((int) mainDrawingCanvas.getWidth(),
+				(int) mainDrawingCanvas.getHeight());
+
+		mainDrawingCanvas.snapshot(null, image);
+
+		RenderedImage renderedImage = SwingFXUtils.fromFXImage(image, null);
+
+		return renderedImage;
 	}
 
 }

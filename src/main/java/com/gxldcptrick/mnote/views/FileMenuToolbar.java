@@ -24,12 +24,12 @@ public class FileMenuToolbar extends HBox {
 	private Button file;
 	private ContextMenu context;
 	private MenuItem saveOption;
+	private MenuItem exportAsOption;
 	private MenuItem saveAsOption;
 	private MenuItem loadNoteOption;
 	private MenuItem newNoteOption;
 	private FileChooser fileChooser;
 	private Label currentFileName;
-
 	public FileMenuToolbar() {
 
 		currentFileName = new Label("Current File: none");
@@ -67,6 +67,12 @@ public class FileMenuToolbar extends HBox {
 
 		this.fileChooser.setInitialFileName(DEFAULT_FILE_NAME);
 	}
+	
+	
+
+	public MenuItem getExportAsOption() {
+		return exportAsOption;
+	}
 
 	public MenuItem getSaveOption() {
 		return saveOption;
@@ -90,8 +96,9 @@ public class FileMenuToolbar extends HBox {
 		saveAsOption = new MenuItem("Save As");
 		loadNoteOption = new MenuItem("Load Note");
 		newNoteOption = new MenuItem("New Note");
+		exportAsOption = new MenuItem("Export As Png");
 
-		context.getItems().addAll(saveOption, saveAsOption, loadNoteOption, newNoteOption);
+		context.getItems().addAll(saveOption, saveAsOption, loadNoteOption, newNoteOption,exportAsOption);
 
 	}
 

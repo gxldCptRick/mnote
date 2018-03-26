@@ -1,7 +1,11 @@
 package com.gxldcptrick.mnote.controllers;
 
 import java.awt.Toolkit;
+import java.awt.image.RenderedImage;
 import java.io.File;
+import java.io.IOException;
+
+import javax.imageio.ImageIO;
 
 import com.gxldcptrick.mnote.views.FileMenuToolbar;
 
@@ -97,11 +101,11 @@ public class Main extends Application {
 				drawSurface.getLayout().prefWidthProperty().bind(primaryStage.widthProperty().multiply(.95));
 
 				drawSurface.getLayout().prefHeightProperty().bind(primaryStage.heightProperty());
-				
+
 				tools.updateFileName(oldSave.getName());
-				
+
 				tools.getFileChooser().setInitialFileName(oldSave.getName());
-				
+
 				this.recentlyOpenedFile = oldSave;
 			}
 
@@ -124,6 +128,29 @@ public class Main extends Application {
 
 			primaryStage.setScene(mainScene);
 
+		});
+
+		tools.getExportAsOption().setOnAction((event) -> {
+
+			File imageFile = tools.getFileChooser().showSaveDialog(primaryStage);
+
+			
+			if(!imageFile.getName().endsWith(".png")) {
+				imageFile = new File(imageFile.getAbsolutePath() + ".png");
+			}
+			
+			
+			RenderedImage canvas = this.drawSurface.getRenderedImage();
+			
+			
+			try {
+				ImageIO.write(canvas, "png", imageFile);
+			} catch (IOException e) {
+				
+				e.printStackTrace();
+			}
+			
+			
 		});
 
 	}
@@ -153,10 +180,10 @@ public class Main extends Application {
 			tools.saveFile(save, drawSurface);
 
 			if (save != this.recentlyOpenedFile) {
-				
+
 				this.recentlyOpenedFile = save;
 				this.tools.updateFileName(recentlyOpenedFile.getName());
-			
+
 			}
 		}
 
