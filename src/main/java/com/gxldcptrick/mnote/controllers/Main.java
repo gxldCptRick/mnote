@@ -21,13 +21,13 @@ import javafx.stage.Stage;
 public class Main extends Application {
 
 	private VBox mainLayout;
-	private DrawableCanvas drawSurface;
+	private CanvasContainer drawSurface;
 	private FileMenuToolbar tools;
 	private File recentlyOpenedFile;
 
 	@Override
 	public void start(Stage primaryStage) {
-		drawSurface = new DrawableCanvas(Toolkit.getDefaultToolkit().getScreenSize().getWidth(),
+		drawSurface = new CanvasContainer(Toolkit.getDefaultToolkit().getScreenSize().getWidth(),
 				Toolkit.getDefaultToolkit().getScreenSize().getHeight());
 
 		tools = new FileMenuToolbar();
@@ -94,7 +94,7 @@ public class Main extends Application {
 
 				mainLayout.getChildren().remove(this.drawSurface.getLayout());
 
-				this.drawSurface = (DrawableCanvas) tools.loadFile(oldSave);
+				this.drawSurface = (CanvasContainer) tools.loadFile(oldSave);
 
 				mainLayout.getChildren().add(drawSurface.getLayout());
 
@@ -115,7 +115,7 @@ public class Main extends Application {
 
 			promptToSave(primaryStage);
 
-			drawSurface = new DrawableCanvas(Toolkit.getDefaultToolkit().getScreenSize().getWidth(),
+			drawSurface = new CanvasContainer(Toolkit.getDefaultToolkit().getScreenSize().getWidth(),
 					Toolkit.getDefaultToolkit().getScreenSize().getHeight());
 
 			mainLayout = new VBox();

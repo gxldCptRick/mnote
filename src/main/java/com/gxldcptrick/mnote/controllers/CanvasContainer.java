@@ -36,7 +36,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.shape.StrokeLineCap;
 import javafx.scene.image.WritableImage;
 
-public class DrawableCanvas implements Serializable {
+public class CanvasContainer implements Serializable {
 
 	/**
 	 * 
@@ -78,7 +78,7 @@ public class DrawableCanvas implements Serializable {
 	private transient EventHandler<MouseEvent>[] drawableMouseEvents;
 	private transient Group canvasGroup;
 
-	public DrawableCanvas(double width, double height) {
+	public CanvasContainer(double width, double height) {
 
 		initialize(width, height);
 
