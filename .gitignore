@@ -118,4 +118,3 @@ fabric.properties
 .idea/modules.xml
 .idea/vcs.xml
 onenoteproject.iml
-src/main/java/com/gxldcptrick/mnote/views/DrawingBoard.java
