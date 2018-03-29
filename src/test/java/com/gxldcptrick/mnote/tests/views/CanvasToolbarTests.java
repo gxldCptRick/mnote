@@ -17,8 +17,6 @@ public class CanvasToolbarTests {
 	@Test
 	public void canBeSavedAndRestored() {
 		
-		TestApp.main(null);
-		
 		Platform.runLater(() -> {
 	
 			//arrange

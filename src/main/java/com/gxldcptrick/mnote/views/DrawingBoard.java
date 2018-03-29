@@ -1,6 +1,7 @@
 package com.gxldcptrick.mnote.views;
 
-import com.gxldcptrick.mnote.models.CanvasLines;1
+import com.gxldcptrick.mnote.models.Brush;
+import com.gxldcptrick.mnote.models.CanvasLines;
 import com.gxldcptrick.mnote.models.NoteData;
 import com.gxldcptrick.mnote.models.SavablePoint2D;
 import javafx.beans.property.BooleanProperty;
@@ -13,8 +14,10 @@ import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
+import javafx.scene.effect.GaussianBlur;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.InputEvent;
 import javafx.scene.input.MouseButton;
@@ -41,8 +44,8 @@ public class  DrawingBoard extends ScrollPane{
     private List<NoteData> notes;
     private CanvasLines lines;
 
-    private BooleanProperty specialTip;
-    private BooleanProperty delete;
+    private BooleanProperty usingSpecialTip;
+    private BooleanProperty deleting;
 
     private Canvas mainDrawingCanvas;
     private EventHandler<MouseEvent>[] drawableMouseEvents;
@@ -57,8 +60,8 @@ public class  DrawingBoard extends ScrollPane{
 
     private void initialize(double width, double height) {
 
-        this.delete = new SimpleBooleanProperty(false);
-        this.specialTip = new SimpleBooleanProperty(false);
+        this.deleting = new SimpleBooleanProperty(false);
+        this.usingSpecialTip = new SimpleBooleanProperty(false);
 
         if (this.canvasGroup == null)
             canvasGroup = new Group();
@@ -116,7 +119,7 @@ public class  DrawingBoard extends ScrollPane{
 
         this.mainDrawingCanvas.setOnMouseClicked(event -> {
 
-            if (delete.get()) {
+            if (deleting.get()) {
                 checkRemove(event);
             }
 
@@ -214,51 +217,61 @@ public class  DrawingBoard extends ScrollPane{
 
     }
 
+    private void setUpDrawing() {
+
+        this.mainDrawingCanvas.setOnMouseDragged(drawableMouseEvents[0]);
+
+        this.mainDrawingCanvas.setOnMouseReleased(drawableMouseEvents[1]);
+
+        this.mainDrawingCanvas.setOnMousePressed(drawableMouseEvents[2]);
+
+    }
+
     private void setupNoteClicked() {
 
         this.mainDrawingCanvas.setOnMouseClicked(event -> {
-//            if (delete.get())
-//                checkRemove(event);
-//
-//            if (event.getButton() == MouseButton.PRIMARY && event.getClickCount() >= 2) {
-//
-//                NoteData note = new NoteData(event.getX(), event.getY());
-//
-//                this.notes.add(note);
-//
-//                TextField input = note.getInputForText();
-//                List<Node> children = canvasGroup.getChildren();
-//
-//                children.add(input);
-//
-//                input.requestFocus();
-//
-//                input.setOnAction(inputEntered -> {
-//
-//                    note.updateText();
-//                    Label displayedText = note.getDisplayForText();
-//
-//                    children.add(displayedText);
-//                    children.remove(input);
-//                    displayedText.setOnMouseClicked(clicked -> {
-//
-//                        children.remove(displayedText);
-//
-//                        children.add(input);
-//
-//                        input.requestFocus();
-//                    });
-//
-//                });
-//            } else if (event.getButton() == MouseButton.PRIMARY) {
-//
-//                GraphicsContext gc = mainDrawingCanvas.getGraphicsContext2D();
-//
-//                setupGraphics(gc, event);
-//
+            if (deleting.get())
+                checkRemove(event);
+
+            if (event.getButton() == MouseButton.PRIMARY && event.getClickCount() >= 2) {
+
+                NoteData note = new NoteData(event.getX(), event.getY());
+
+                this.notes.add(note);
+
+                TextField input = note.getInputForText();
+                List<Node> children = canvasGroup.getChildren();
+
+                children.add(input);
+
+                input.requestFocus();
+
+                input.setOnAction(inputEntered -> {
+
+                    note.updateText();
+                    Label displayedText = note.getDisplayForText();
+
+                    children.add(displayedText);
+                    children.remove(input);
+                    displayedText.setOnMouseClicked(clicked -> {
+
+                        children.remove(displayedText);
+
+                        children.add(input);
+
+                        input.requestFocus();
+                    });
+
+                });
+            } else if (event.getButton() == MouseButton.PRIMARY) {
+
+                GraphicsContext gc = mainDrawingCanvas.getGraphicsContext2D();
+
+                configureGraphics(gc);
+
 //                gc.strokeRect(event.getX(), event.getY(), this.toolbar.getLineWidth(), this.toolbar.getLineWidth());
-//                gc.closePath();
-//            }
+                gc.closePath();
+            }
 
         });
 
@@ -327,7 +340,7 @@ public class  DrawingBoard extends ScrollPane{
 
         drawableMouseEvents[0] = (event) -> {
 
-            if (!delete.get()) {
+            if (!deleting.get()) {
                 if (event != null && event.isPrimaryButtonDown()) {
 
                     checkIfInboundsOfView(event);
@@ -348,7 +361,7 @@ public class  DrawingBoard extends ScrollPane{
 
         drawableMouseEvents[1] = (event) -> {
 
-            if (!delete.get()) {
+            if (!deleting.get()) {
 
                 if (event != null && lines.isLineStarted()) {
 
@@ -367,11 +380,15 @@ public class  DrawingBoard extends ScrollPane{
         };
 
         drawableMouseEvents[2] = (event) -> {
-            if (!delete.get()) {
+            if (!deleting.get()) {
                 if (event != null && event.isPrimaryButtonDown()) {
                     System.out.println(event.getX()+", " + event.getY() + " internal");
                     GraphicsContext gc = mainDrawingCanvas.getGraphicsContext2D();
-                    setupGraphics(gc, event);
+                    configureGraphics(gc);
+                    lines.addNextPoint(new SavablePoint2D(event.getX(), event.getY()));
+                    gc.moveTo(event.getX(), event.getY());
+                    gc.stroke();
+
                 }
 
             }
@@ -379,30 +396,35 @@ public class  DrawingBoard extends ScrollPane{
 
     }
 
-    private void setupGraphics(GraphicsContext gc, MouseEvent event) {
+    private void configureGraphics(GraphicsContext gc) {
 
         gc.beginPath();
 
-        lines.startNewLine();
-        lines.addNextPoint(new SavablePoint2D(event.getX(), event.getY()));
+        if (usingSpecialTip.get()) {
 
-        gc.moveTo(event.getX(), event.getY());
-        gc.stroke();
+            GaussianBlur blur = new GaussianBlur();
+            gc.setEffect(blur);
+          //  lines.startNewLine(this.toolbar.getCurrentColor(), this.toolbar.getLineWidth(), SpecialEffect.GuassianBlur);
+        } else {
 
-    }
-
-    private void checkRemove(MouseEvent event) {
-
-        boolean removed = lines.removeLine(new Point2D(event.getX(), event.getY()));
-
-        if (removed) {
-
-            clearDrawings();
-
-            this.lines.drawLines(mainDrawingCanvas.getGraphicsContext2D());
+            //lines.startNewLine(this.toolbar.getCurrentColor(), this.toolbar.getLineWidth());
+            gc.setEffect(null);
 
         }
+
+        //gc.setLineWidth(toolbar.getLineWidth());
+        //gc.setStroke(toolbar.getCurrentColor());
+        //gc.setLineCap(StrokeLineCap.ROUND);
+
+        lines.startNewLine();
+
     }
+
+    public Brush getABrush(){
+
+        return new Brush(this.mainDrawingCanvas.getGraphicsContext2D());
+    }
+
 
     public void clearLines(){
         clearDrawings();
@@ -419,14 +441,19 @@ public class  DrawingBoard extends ScrollPane{
 
     }
 
-    private void setUpDrawing() {
 
-        this.mainDrawingCanvas.setOnMouseDragged(drawableMouseEvents[0]);
 
-        this.mainDrawingCanvas.setOnMouseReleased(drawableMouseEvents[1]);
+    private void checkRemove(MouseEvent event) {
 
-        this.mainDrawingCanvas.setOnMousePressed(drawableMouseEvents[2]);
+        boolean removed = lines.removeLine(new Point2D(event.getX(), event.getY()));
 
+        if (removed) {
+
+            clearDrawings();
+
+            this.lines.drawLines(mainDrawingCanvas.getGraphicsContext2D());
+
+        }
     }
 
     private double calculateJump(double currentSize, double sizeOfView, double sizeOfObject, double direction) {
@@ -436,7 +463,6 @@ public class  DrawingBoard extends ScrollPane{
 
     private void checkIfInboundsOfCanvas(MouseEvent event) {
 
-        synchronized (mainDrawingCanvas) {
 
             if (event.getX() + 10 > mainDrawingCanvas.getWidth()) {
 
@@ -448,7 +474,7 @@ public class  DrawingBoard extends ScrollPane{
                 mainDrawingCanvas.setHeight(MAX_CANVAS_HEIGHT);
             }
 
-        }
+
     }
 
     private void checkIfInboundsOfView(MouseEvent event) {
