@@ -9,7 +9,7 @@ public enum SpecialEffect {
 	GuassianBlur(new GaussianBlur());
 	
 	public final Effect lineEffect;
-	private SpecialEffect(Effect effect){
+	SpecialEffect(Effect effect){
 		this.lineEffect = effect;
 	}
 	

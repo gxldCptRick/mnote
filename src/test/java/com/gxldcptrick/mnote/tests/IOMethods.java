@@ -16,7 +16,7 @@ public class IOMethods {
 
 		T data = null;
 
-		try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(saveFile));) {
+		try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(saveFile))) {
 
 			data = (T) in.readObject();
 
