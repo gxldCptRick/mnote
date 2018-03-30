@@ -79,9 +79,7 @@ public class CanvasLines implements Serializable {
 				line = lines.remove(i);
 			
 			}
-			
-			
-			System.out.println(i);
+
 		}
 		
 		if(line == currentLine) {
@@ -111,8 +109,6 @@ public class CanvasLines implements Serializable {
 			
 			line.drawLine(gc);
 
-			
-			System.out.println(gc);
 		}
 
 		if (currentLine != null && !lines.contains(currentLine)) {
@@ -132,7 +128,9 @@ public class CanvasLines implements Serializable {
 
 	@Override
 	public boolean equals(Object other) {
+
 		boolean equal = false;
+
 		if(CanvasLines.class.isInstance(other)) {
 			
 			equal = equals((CanvasLines) other);

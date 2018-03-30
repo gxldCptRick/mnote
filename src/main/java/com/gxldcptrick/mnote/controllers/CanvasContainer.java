@@ -105,18 +105,13 @@ public class CanvasContainer implements Serializable {
 			layout = new VBox();
 
 		layout.setSpacing(5);
-
-
-		layout.setOnMouseDragged(this::printPoint);
-		layout.setOnMouseDragReleased(this::printPoint);
-        layout.setOnMousePressed(this::printPoint);
 	}
 
-	private void printPoint(MouseEvent e){
-
-        System.out.println(e.getX() + ", " + e.getY());
-
-    }
+//	private void printPoint(MouseEvent e){
+//
+//        System.out.println(e.getX() + ", " + e.getY());
+//
+//    }
 
 
 

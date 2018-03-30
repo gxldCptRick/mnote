@@ -13,155 +13,165 @@ import javafx.scene.paint.Color;
 
 public class CanvasLine implements Serializable {
 
-	private static final long serialVersionUID = 7230L;
+    private static final long serialVersionUID = 7230L;
 
-	private double lineWidth;
-	private List<SavablePoint2D> points;
-	private SavableColor color;
-	private SpecialEffect lineEffect;
+    private double lineWidth;
+    private List<SavablePoint2D> points;
+    private SavableColor color;
+    private SpecialEffect lineEffect;
 
-	public CanvasLine(CanvasLine currentLine) {
+    public CanvasLine(CanvasLine currentLine) {
 
-		this(currentLine.color, currentLine.lineWidth, currentLine.lineEffect);
-		this.points = new ArrayList<>(currentLine.points);
-	}
+        this(currentLine.color, currentLine.lineWidth, currentLine.lineEffect);
+        this.points = new ArrayList<>(currentLine.points);
+    }
 
-	public CanvasLine(SavableColor color, double lineWidth, SpecialEffect effect) {
+    public CanvasLine(SavableColor color, double lineWidth, SpecialEffect effect) {
 
-		this.color = color;
-		this.lineWidth = lineWidth;
-		this.points = new ArrayList<>();
+        this.color = color;
+        this.lineWidth = lineWidth;
+        this.points = new ArrayList<>();
 
-		if (effect != null)
-			this.lineEffect = effect;
+        if (effect != null)
+            this.lineEffect = effect;
 
-	}
+    }
 
-	public CanvasLine(Color colorOfLine, double lineWidth, SpecialEffect specialEffect) {
+    public CanvasLine(Color colorOfLine, double lineWidth, SpecialEffect specialEffect) {
 
-		this(new SavableColor(colorOfLine), lineWidth, specialEffect);
+        this(new SavableColor(colorOfLine), lineWidth, specialEffect);
 
-	}
+    }
 
-	public CanvasLine(Color colorOfLine, int lineWidth) {
+    public CanvasLine(Color colorOfLine, int lineWidth) {
 
-		this(new SavableColor(colorOfLine), lineWidth, null);
+        this(new SavableColor(colorOfLine), lineWidth, null);
 
-	}
+    }
 
-	public void addNextPoint(SavablePoint2D nextPoint) {
+    public void addNextPoint(SavablePoint2D nextPoint) {
 
-		if (nextPoint != null)
-			points.add(nextPoint);
+        if (nextPoint != null)
+            points.add(nextPoint);
 
-	}
+    }
 
-	public boolean contains(Point2D point) {
+    public boolean contains(Point2D point) {
 
-		boolean found = false;
+        boolean found = false;
 
-		Iterator<SavablePoint2D> iterator = this.points.iterator();
+        Iterator<SavablePoint2D> iterator = this.points.iterator();
 
-		while (iterator.hasNext() && !found) {
+        while (iterator.hasNext() && !found) {
 
-			Point2D linePoint = iterator.next().get2DPoint();
+            Point2D linePoint = iterator.next().get2DPoint();
 
-			found = linePoint.distance(point) < 15;
+            found = linePoint.distance(point) < 15;
 
-			System.out.println(linePoint.distance(point));
+            System.out.println(linePoint.distance(point));
 
-			System.out.println(found);
+            System.out.println(found);
 
-		}
+        }
 
-		return found;
-	}
+        return found;
+    }
 
-	public void drawLine(GraphicsContext gc) {
-		gc.beginPath();
+    public void drawLine(GraphicsContext gc) {
+        gc.beginPath();
 
-		gc.setLineWidth(lineWidth);
+        gc.setLineWidth(lineWidth);
 
-		gc.setStroke(color.getColor());
+        gc.setStroke(color.getColor());
 
-		if (this.lineEffect != null) {
+        if (this.lineEffect != null) {
 
-			gc.setEffect(lineEffect.lineEffect);
+            gc.setEffect(lineEffect.lineEffect);
 
-		} else {
+        } else {
 
-			gc.setEffect(null);
-		}
+            gc.setEffect(null);
+        }
 
-		Point2D initialPoint = getInitialPoint().get2DPoint();
+        SavablePoint2D startingPoint = getInitialPoint();
+        if (startingPoint != null) {
 
-		gc.moveTo(initialPoint.getX(), initialPoint.getY());
+            Point2D initialPoint = startingPoint.get2DPoint();
 
-		Iterator<SavablePoint2D> iterator = points.iterator();
+            gc.moveTo(initialPoint.getX(), initialPoint.getY());
 
-		while (iterator.hasNext()) {
+            Iterator<SavablePoint2D> iterator = points.iterator();
 
-			Point2D nextPoint = iterator.next().get2DPoint();
+            while (iterator.hasNext()) {
 
-			if (nextPoint != initialPoint) {
+                Point2D nextPoint = iterator.next().get2DPoint();
 
-				gc.lineTo(nextPoint.getX(), nextPoint.getY());
-				gc.stroke();
-			}
+                if (nextPoint != initialPoint) {
 
-		}
+                    gc.lineTo(nextPoint.getX(), nextPoint.getY());
+                    gc.stroke();
+                }
 
-		gc.stroke();
-		gc.closePath();
-	}
+            }
 
-	public SavablePoint2D getInitialPoint() {
+            gc.stroke();
+        }
+        gc.closePath();
+    }
 
-		return points.get(0);
+    public SavablePoint2D getInitialPoint() {
 
-	}
+        SavablePoint2D point = null;
 
-	public boolean equals(CanvasLine line) {
+        if (points.size() > 0) {
+            point = points.get(0);
+        }
 
-		return line != null && line.points.equals(this.points) && line.lineWidth == this.lineWidth
-				&& line.color.equals(this.color);
+        return point;
 
-	}
+    }
 
-	// @@@@ "Overriding and benefiting from equals and hashcode."
+    public boolean equals(CanvasLine line) {
 
-	@Override
-	public boolean equals(Object other) {
+        return line != null && line.points.equals(this.points) && line.lineWidth == this.lineWidth
+                && line.color.equals(this.color);
 
-		boolean equal = false;
+    }
 
-		if (getClass().isInstance(other)) {
+    // @@@@ "Overriding and benefiting from equals and hashcode."
 
-			equal = equals(getClass().cast(other));
+    @Override
+    public boolean equals(Object other) {
 
-		}
+        boolean equal = false;
 
-		return equal;
+        if (getClass().isInstance(other)) {
 
-	}
+            equal = equals(getClass().cast(other));
 
-	@Override
-	public int hashCode() {
+        }
 
-		return this.points.hashCode() ^ Double.hashCode(this.lineWidth) ^ this.color.hashCode();
+        return equal;
 
-	}
+    }
 
-	@Override
-	public String toString() {
+    @Override
+    public int hashCode() {
 
-		return points + " " + color + " " + lineWidth;
+        return this.points.hashCode() ^ Double.hashCode(this.lineWidth) ^ this.color.hashCode();
 
-	}
+    }
 
-	public List<SavablePoint2D> getPoints() {
+    @Override
+    public String toString() {
 
-		return new ArrayList<>(this.points);
+        return points + " " + color + " " + lineWidth;
 
-	}
+    }
+
+    public List<SavablePoint2D> getPoints() {
+
+        return new ArrayList<>(this.points);
+
+    }
 }

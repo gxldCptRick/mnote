@@ -4,6 +4,7 @@ import com.gxldcptrick.mnote.models.Brush;
 import com.gxldcptrick.mnote.models.CanvasLines;
 import com.gxldcptrick.mnote.models.NoteData;
 import com.gxldcptrick.mnote.models.SavablePoint2D;
+import com.gxldcptrick.mnote.models.enums.SpecialEffect;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.embed.swing.SwingFXUtils;
@@ -380,7 +381,6 @@ public class DrawingBoard extends ScrollPane {
         drawableMouseEvents[2] = (event) -> {
             if (!canvasBrush.isDeleting()) {
                 if (event != null && event.isPrimaryButtonDown()) {
-                    System.out.println(event.getX() + ", " + event.getY() + " internal");
                     GraphicsContext gc = mainDrawingCanvas.getGraphicsContext2D();
                     configureGraphics(gc);
                     lines.addNextPoint(new SavablePoint2D(event.getX(), event.getY()));
@@ -398,20 +398,22 @@ public class DrawingBoard extends ScrollPane {
 
         gc.beginPath();
 
-        if (this.canvasBrush.isSpecial()) {
-
-            lines.startNewLine(this.canvasBrush.getCurrentColor(), this.canvasBrush.getCurrentWidth(), this.canvasBrush.getEffect());
-
-        } else {
-
-            lines.startNewLine(this.canvasBrush.getCurrentColor(), this.canvasBrush.getCurrentWidth());
-
-        }
+        lines.startNewLine(this.canvasBrush.getCurrentColor(), this.canvasBrush.getCurrentWidth(), this.canvasBrush.getEffect());
 
         gc.setLineWidth(canvasBrush.getCurrentWidth());
         gc.setStroke(canvasBrush.getCurrentColor());
         gc.setLineCap(canvasBrush.getBrushCap());
+        SpecialEffect effect = this.canvasBrush.getEffect();
 
+        if (effect == null) {
+
+            gc.setEffect(null);
+
+        } else {
+
+            gc.setEffect(this.canvasBrush.getEffect().lineEffect);
+
+        }
         lines.startNewLine();
 
     }
@@ -453,6 +455,8 @@ public class DrawingBoard extends ScrollPane {
             clearDrawings();
 
             this.lines.drawLines(mainDrawingCanvas.getGraphicsContext2D());
+
+            System.out.println(lines);
 
         }
     }
