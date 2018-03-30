@@ -1,6 +1,7 @@
 package com.gxldcptrick.mnote.tests;
 
 
+import org.junit.Before;
 import org.junit.Test;
 
 import javafx.application.Application;

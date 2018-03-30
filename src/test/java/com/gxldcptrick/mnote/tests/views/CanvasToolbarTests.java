@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 
 import java.io.File;
 
+import com.gxldcptrick.mnote.models.Brush;
 import org.junit.Test;
 
 import com.gxldcptrick.mnote.tests.TestApp;
@@ -20,7 +21,7 @@ public class CanvasToolbarTests {
 		Platform.runLater(() -> {
 	
 			//arrange
-			CanvasToolbar expected = new CanvasToolbar();
+			CanvasToolbar expected = new CanvasToolbar(new Brush());
 			CanvasToolbar actual;
 			//act
 			File save = saveFile("testCT.co", expected);

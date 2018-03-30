@@ -28,7 +28,7 @@ import java.awt.image.RenderedImage;
 import java.util.ArrayList;
 import java.util.List;
 
-public class  DrawingBoard extends ScrollPane{
+public class DrawingBoard extends ScrollPane {
 
     private static final double MAX_CANVAS_WIDTH;
     private static final double MAX_CANVAS_HEIGHT;
@@ -43,16 +43,14 @@ public class  DrawingBoard extends ScrollPane{
 
     private List<NoteData> notes;
     private CanvasLines lines;
-
-    private BooleanProperty usingSpecialTip;
-    private BooleanProperty deleting;
+    private Brush canvasBrush;
 
     private Canvas mainDrawingCanvas;
     private EventHandler<MouseEvent>[] drawableMouseEvents;
     private Group canvasGroup;
 
 
-    public DrawingBoard(double width, double height){
+    public DrawingBoard(double width, double height) {
 
         this.initialize(width, height);
 
@@ -60,8 +58,8 @@ public class  DrawingBoard extends ScrollPane{
 
     private void initialize(double width, double height) {
 
-        this.deleting = new SimpleBooleanProperty(false);
-        this.usingSpecialTip = new SimpleBooleanProperty(false);
+        if (this.canvasBrush == null)
+            this.canvasBrush = new Brush();
 
         if (this.canvasGroup == null)
             canvasGroup = new Group();
@@ -98,7 +96,7 @@ public class  DrawingBoard extends ScrollPane{
 
     }
 
-    public RenderedImage captureImage(){
+    public RenderedImage captureImage() {
 
         WritableImage image = new WritableImage((int) mainDrawingCanvas.getWidth(),
                 (int) mainDrawingCanvas.getHeight());
@@ -119,7 +117,7 @@ public class  DrawingBoard extends ScrollPane{
 
         this.mainDrawingCanvas.setOnMouseClicked(event -> {
 
-            if (deleting.get()) {
+            if (this.canvasBrush.isDeleting()) {
                 checkRemove(event);
             }
 
@@ -230,7 +228,7 @@ public class  DrawingBoard extends ScrollPane{
     private void setupNoteClicked() {
 
         this.mainDrawingCanvas.setOnMouseClicked(event -> {
-            if (deleting.get())
+            if (this.canvasBrush.isDeleting())
                 checkRemove(event);
 
             if (event.getButton() == MouseButton.PRIMARY && event.getClickCount() >= 2) {
@@ -277,7 +275,7 @@ public class  DrawingBoard extends ScrollPane{
 
     }
 
-    public void clearBoard(){
+    public void clearBoard() {
 
         this.clearAnnotations();
         this.clearDrawings();
@@ -304,7 +302,7 @@ public class  DrawingBoard extends ScrollPane{
 
         this.setOnMouseReleased(event ->
 
-            this.setPannable(false)
+                this.setPannable(false)
         );
 
         this.setOnMouseDragged(event -> {
@@ -340,7 +338,7 @@ public class  DrawingBoard extends ScrollPane{
 
         drawableMouseEvents[0] = (event) -> {
 
-            if (!deleting.get()) {
+            if (!this.canvasBrush.isDeleting()) {
                 if (event != null && event.isPrimaryButtonDown()) {
 
                     checkIfInboundsOfView(event);
@@ -361,7 +359,7 @@ public class  DrawingBoard extends ScrollPane{
 
         drawableMouseEvents[1] = (event) -> {
 
-            if (!deleting.get()) {
+            if (!canvasBrush.isDeleting()) {
 
                 if (event != null && lines.isLineStarted()) {
 
@@ -380,9 +378,9 @@ public class  DrawingBoard extends ScrollPane{
         };
 
         drawableMouseEvents[2] = (event) -> {
-            if (!deleting.get()) {
+            if (!canvasBrush.isDeleting()) {
                 if (event != null && event.isPrimaryButtonDown()) {
-                    System.out.println(event.getX()+", " + event.getY() + " internal");
+                    System.out.println(event.getX() + ", " + event.getY() + " internal");
                     GraphicsContext gc = mainDrawingCanvas.getGraphicsContext2D();
                     configureGraphics(gc);
                     lines.addNextPoint(new SavablePoint2D(event.getX(), event.getY()));
@@ -400,33 +398,37 @@ public class  DrawingBoard extends ScrollPane{
 
         gc.beginPath();
 
-        if (usingSpecialTip.get()) {
+        if (this.canvasBrush.isSpecial()) {
 
-            GaussianBlur blur = new GaussianBlur();
-            gc.setEffect(blur);
-          //  lines.startNewLine(this.toolbar.getCurrentColor(), this.toolbar.getLineWidth(), SpecialEffect.GuassianBlur);
+            lines.startNewLine(this.canvasBrush.getCurrentColor(), this.canvasBrush.getCurrentWidth(), this.canvasBrush.getEffect());
+
         } else {
 
-            //lines.startNewLine(this.toolbar.getCurrentColor(), this.toolbar.getLineWidth());
-            gc.setEffect(null);
+            lines.startNewLine(this.canvasBrush.getCurrentColor(), this.canvasBrush.getCurrentWidth());
 
         }
 
-        //gc.setLineWidth(toolbar.getLineWidth());
-        //gc.setStroke(toolbar.getCurrentColor());
-        //gc.setLineCap(StrokeLineCap.ROUND);
+        gc.setLineWidth(canvasBrush.getCurrentWidth());
+        gc.setStroke(canvasBrush.getCurrentColor());
+        gc.setLineCap(canvasBrush.getBrushCap());
 
         lines.startNewLine();
 
     }
 
-    public Brush getABrush(){
+    public Brush getCanvasBrush() {
 
-        return new Brush(this.mainDrawingCanvas.getGraphicsContext2D());
+        return this.canvasBrush;
+    }
+
+    public void setCanvasBrush(Brush canvasBrush) {
+
+        this.canvasBrush = canvasBrush;
+
     }
 
 
-    public void clearLines(){
+    public void clearLines() {
         clearDrawings();
         this.lines = new CanvasLines();
 
@@ -440,7 +442,6 @@ public class  DrawingBoard extends ScrollPane{
         gc.clearRect(0, 0, mainDrawingCanvas.getWidth(), mainDrawingCanvas.getHeight());
 
     }
-
 
 
     private void checkRemove(MouseEvent event) {
@@ -458,21 +459,21 @@ public class  DrawingBoard extends ScrollPane{
 
     private double calculateJump(double currentSize, double sizeOfView, double sizeOfObject, double direction) {
 
-        return  currentSize + (sizeOfView / sizeOfObject) * .1 * direction;
+        return currentSize + (sizeOfView / sizeOfObject) * .1 * direction;
     }
 
     private void checkIfInboundsOfCanvas(MouseEvent event) {
 
 
-            if (event.getX() + 10 > mainDrawingCanvas.getWidth()) {
+        if (event.getX() + 10 > mainDrawingCanvas.getWidth()) {
 
-                mainDrawingCanvas.setWidth(MAX_CANVAS_WIDTH);
-            }
+            mainDrawingCanvas.setWidth(MAX_CANVAS_WIDTH);
+        }
 
-            if (event.getY() + 10 > mainDrawingCanvas.getHeight()) {
+        if (event.getY() + 10 > mainDrawingCanvas.getHeight()) {
 
-                mainDrawingCanvas.setHeight(MAX_CANVAS_HEIGHT);
-            }
+            mainDrawingCanvas.setHeight(MAX_CANVAS_HEIGHT);
+        }
 
 
     }

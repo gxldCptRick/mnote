@@ -19,132 +19,137 @@ import javafx.stage.FileChooser.ExtensionFilter;
 
 public class FileMenuToolbar extends HBox {
 
-	private static final String DEFAULT_FILE_NAME = "default.co";
+    private static final String DEFAULT_FILE_NAME = "default.co";
 
-	private Button file;
-	private ContextMenu context;
-	private MenuItem saveOption;
-	private MenuItem exportAsOption;
-	private MenuItem saveAsOption;
-	private MenuItem loadNoteOption;
-	private MenuItem newNoteOption;
-	private FileChooser fileChooser;
-	private Label currentFileName;
-	public FileMenuToolbar() {
+    private Button file;
 
-		currentFileName = new Label("Current File: none");
+    private ContextMenu context;
+    private MenuItem saveOption;
+    private MenuItem exportAsOption;
+    private MenuItem saveAsOption;
+    private MenuItem loadNoteOption;
+    private MenuItem newNoteOption;
+    private FileChooser fileChooser;
 
-		file = new Button("File");
+    private Label currentFileName;
 
-		context = new ContextMenu();
+    public String getCurrentFileName() {
+        return currentFileName.getText();
+    }
 
-		fileChooser = new FileChooser();
-		File initialDirectory = new File("../../mnote/");
+    public FileMenuToolbar() {
 
-		if (!initialDirectory.isDirectory())
-			initialDirectory.mkdir();
+        currentFileName = new Label("Current File: none");
 
-		fileChooser.setInitialDirectory(initialDirectory);
-		fileChooser.setSelectedExtensionFilter(new ExtensionFilter("mnote files", ".co"));
-		fileChooser.setInitialFileName(DEFAULT_FILE_NAME);
+        file = new Button("File");
 
-		file.setContextMenu(context);
+        context = new ContextMenu();
 
-		setupMenuItems();
+        fileChooser = new FileChooser();
+        File initialDirectory = new File("../../mnote/");
 
-		file.setOnAction(event -> {
+        if (!initialDirectory.isDirectory())
+            initialDirectory.mkdir();
 
-			context.show(file, Side.BOTTOM, 0, 0);
+        fileChooser.setInitialDirectory(initialDirectory);
+        fileChooser.setSelectedExtensionFilter(new ExtensionFilter("mnote files", ".co"));
+        fileChooser.setInitialFileName(DEFAULT_FILE_NAME);
 
-		});
+        file.setContextMenu(context);
 
-		getChildren().addAll(file, currentFileName);
-		
-		this.setSpacing(10);
-	}
+        setupMenuItems();
 
-	public void resetFileName() {
+        file.setOnAction(event -> {
 
-		this.fileChooser.setInitialFileName(DEFAULT_FILE_NAME);
-	}
-	
-	
+            context.show(file, Side.BOTTOM, 0, 0);
 
-	public MenuItem getExportAsOption() {
-		return exportAsOption;
-	}
+        });
 
-	public MenuItem getSaveOption() {
-		return saveOption;
-	}
+        getChildren().addAll(file, currentFileName);
 
-	public MenuItem getSaveAsOption() {
-		return saveAsOption;
-	}
+        this.setSpacing(10);
+    }
 
-	public MenuItem getLoadNoteOption() {
-		return loadNoteOption;
-	}
+    public void resetFileName() {
 
-	public MenuItem getNewNoteOption() {
-		return newNoteOption;
-	}
+        this.fileChooser.setInitialFileName(DEFAULT_FILE_NAME);
+    }
 
-	private void setupMenuItems() {
 
-		saveOption = new MenuItem("Save");
-		saveAsOption = new MenuItem("Save As");
-		loadNoteOption = new MenuItem("Load Note");
-		newNoteOption = new MenuItem("New Note");
-		exportAsOption = new MenuItem("Export As Png");
+    public MenuItem getExportAsOption() {
+        return exportAsOption;
+    }
 
-		context.getItems().addAll(saveOption, saveAsOption, loadNoteOption, newNoteOption,exportAsOption);
+    public MenuItem getSaveOption() {
+        return saveOption;
+    }
 
-	}
+    public MenuItem getSaveAsOption() {
+        return saveAsOption;
+    }
 
-	/// @@@@ "File reading (4 points) and writing"
-	public void saveFile(File newSave, Serializable data) {
+    public MenuItem getLoadNoteOption() {
+        return loadNoteOption;
+    }
 
-		try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(newSave))) {
+    public MenuItem getNewNoteOption() {
+        return newNoteOption;
+    }
 
-			System.out.println("Hi");
-			out.writeObject(data);
+    private void setupMenuItems() {
 
-		} catch (Exception e) {
+        saveOption = new MenuItem("Save");
+        saveAsOption = new MenuItem("Save As");
+        loadNoteOption = new MenuItem("Load Note");
+        newNoteOption = new MenuItem("New Note");
+        exportAsOption = new MenuItem("Export As Png");
 
-			e.printStackTrace();
+        context.getItems().addAll(saveOption, saveAsOption, loadNoteOption, newNoteOption, exportAsOption);
 
-		}
-	}
+    }
 
-	public Serializable loadFile(File loadingFile) {
+    /// @@@@ "File reading (4 points) and writing"
+    public void saveFile(File newSave, Serializable data) {
 
-		Serializable data = null;
+        try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(newSave))) {
 
-		try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(loadingFile))) {
+            System.out.println("Hi");
+            out.writeObject(data);
 
-			data = (Serializable) in.readObject();
+        } catch (Exception e) {
 
-		} catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
 
-			e.printStackTrace();
+        }
+    }
 
-		}
+    public Serializable loadFile(File loadingFile) {
 
-		return data;
-	}
+        Serializable data = null;
 
-	public FileChooser getFileChooser() {
+        try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(loadingFile))) {
 
-		return this.fileChooser;
+            data = (Serializable) in.readObject();
 
-	}
+        } catch (IOException | ClassNotFoundException e) {
 
-	public void updateFileName(String name) {
+            e.printStackTrace();
 
-		if (name != null)
-			this.currentFileName.setText("Working On: "+ name);
-	
-	}
+        }
+
+        return data;
+    }
+
+    public FileChooser getFileChooser() {
+
+        return this.fileChooser;
+
+    }
+
+    public void updateFileName(String name) {
+        if (name != null)
+            this.currentFileName.setText("Working On: " + name);
+
+    }
 
 }

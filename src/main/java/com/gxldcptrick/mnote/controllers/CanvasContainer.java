@@ -123,7 +123,7 @@ public class CanvasContainer implements Serializable {
 	private void initializeToolbar() {
 
 		if (toolbar == null)
-			toolbar = new CanvasToolbar();
+			toolbar = new CanvasToolbar(this.board.getCanvasBrush());
 
 		MenuItem clearCanvas = new MenuItem("Whiteboard");
 

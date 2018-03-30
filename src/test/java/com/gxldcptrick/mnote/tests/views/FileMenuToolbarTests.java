@@ -31,4 +31,28 @@ public class FileMenuToolbarTests {
         });
     }
 
+    @Test
+    public void canUpdateCurrentFileName(){
+
+        Platform.runLater(() -> {
+
+            //arrange
+            FileMenuToolbar menu = new FileMenuToolbar();
+
+            String expected = null;
+            String actual;
+            //act
+            menu.updateFileName(null);
+
+            actual = menu.getCurrentFileName();
+
+            //assert
+
+            assertEquals(expected, actual);
+
+        });
+
+    }
+
+
 }

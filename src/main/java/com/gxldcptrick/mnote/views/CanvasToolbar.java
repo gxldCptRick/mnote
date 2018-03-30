@@ -4,234 +4,216 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+
 import java.util.Arrays;
 import java.util.List;
 
-import com.gxldcptrick.mnote.models.SavableColor;
+import com.gxldcptrick.mnote.models.Brush;
+import com.gxldcptrick.mnote.models.enums.SpecialEffect;
 
 import javafx.event.ActionEvent;
 import javafx.geometry.Side;
+
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
+
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+
 import javafx.scene.paint.Color;
 
 public class CanvasToolbar implements Serializable {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 556677L;
-	private static final List<Double> increaseSizeValues;
+    /**
+     *
+     */
+    private static final long serialVersionUID = 556677L;
+    private static final List<Double> increaseSizeValues;
 
-	static {
+    static {
 
-		increaseSizeValues = Arrays.asList(.1, .2, .3, .4, .5, .6, .7, .8, .9, 1.0, 10.0, 100.0);
+        increaseSizeValues = Arrays.asList(.1, .2, .3, .4, .5, .6, .7, .8, .9, 1.0, 10.0, 100.0);
 
-	}
+    }
 
-	private double currentLineWidth;
+    private Brush userBrush;
 
-	private SavableColor lastColor;
+    private transient HBox layout;
+    private transient Label currentSize;
+    private transient ContextMenu contextMenu;
+    private transient Button eraseButton;
+    private transient ColorPicker colorPicker;
+    private transient ComboBox<Double> sizePicker;
+    private transient CheckBox check;
+    private transient CheckBox deletings;
 
-	private transient HBox layout;
-	private transient Color currentColor;
-	private transient Label currentSize;
-	private transient ContextMenu contextMenu;
-	private transient Button eraseButton;
-	private transient ColorPicker colorPicker;
-	private transient ComboBox<Double> sizePicker;
-	private transient CheckBox check;
-	private transient CheckBox deletings;
+    public CanvasToolbar(Brush userBrush) {
 
-	public CanvasToolbar() {
+        initializeToolbar(userBrush);
 
-		initializeToolbar();
+    }
 
-	}
+    public Pane getLayout() {
 
-	public Pane getLayout() {
+        return layout;
 
-		return layout;
+    }
 
-	}
+    public ContextMenu getContextMenu() {
 
-	public double getLineWidth() {
+        return this.contextMenu;
+    }
 
-		return this.currentLineWidth;
 
-	}
+    private void initializeErase() {
 
-	public Color getCurrentColor() {
+        this.eraseButton.setOnAction(event ->
+                this.contextMenu.show(eraseButton, Side.RIGHT, 0, 0)
+        );
 
-		return currentColor;
+    }
 
-	}
-	
-	public ContextMenu getContextMenu() {
-		
-		return this.contextMenu;
-	}
+    private void writeObject(ObjectOutputStream out) throws IOException {
 
-	
-	private void initializeErase() {
-		
-		this.eraseButton.setOnAction(event -> {
-			this.contextMenu.show(eraseButton, Side.RIGHT,0,0);
-			
-		});
-		
-	}
+        out.defaultWriteObject();
 
-	private void writeObject(ObjectOutputStream out) throws IOException {
+    }
 
-		this.lastColor = new SavableColor(this.currentColor);
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
 
-		out.defaultWriteObject();
+        in.defaultReadObject();
+        initializeToolbar(this.userBrush);
+    }
 
-	}
+    private void initializeToolbar(Brush userBrush) {
+        this.userBrush = userBrush;
+        this.contextMenu = new ContextMenu();
+        this.eraseButton = new Button("Clear");
+        this.eraseButton.setContextMenu(contextMenu);
+        this.check = new CheckBox("Add Special Effect");
+        this.deletings = new CheckBox("Delete Line");
+        this.initializeErase();
 
-	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        determineEffect();
 
-		initializeToolbar();
+        determineDeleting();
 
-		ObjectInputStream.GetField fields = in.readFields();
+        this.check.setOnAction(event -> determineEffect());
 
-		this.currentLineWidth = fields.get("currentLineWidth", .5);
+        this.deletings.setOnAction(event -> determineDeleting());
 
-		this.lastColor = (SavableColor) fields.get("lastColor", null);
-		
-		if (lastColor != null)
-			this.currentColor = this.lastColor.getColor();
 
-		this.colorPicker.setValue(this.currentColor);
+        currentSize = new Label("Current Line Width : " + this.userBrush.getCurrentWidth());
 
-		this.sizePicker.setValue(this.currentLineWidth);
+        layout = new HBox();
 
-	}
+        this.updateSize();
 
-	private void initializeToolbar() {
+        initializeColorPicker();
 
-		this.contextMenu = new ContextMenu();
-		this.eraseButton = new Button("Clear");
-		this.eraseButton.setContextMenu(contextMenu);
-		this.check = new CheckBox("Add Special Effect");
-		this.deletings = new CheckBox("Delete Line");
-		this.initializeErase();
-		
-		currentSize = new Label("Current Line Width : " + currentLineWidth);
+        initializeIncreaseSizeComboBox();
 
-		currentColor = Color.BLACK;
+        layout.setSpacing(10);
 
-		layout = new HBox();
+        layout.getChildren().addAll(currentSize, colorPicker, sizePicker, this.eraseButton, this.check, this.deletings);
 
-		this.currentLineWidth = .5;
+    }
 
-		this.updateSize();
+    private void determineDeleting() {
 
-		initializeColorPicker();
+        userBrush.setDeleting(deletings.isSelected());
 
-		initializeIncreaseSizeComboBox();
+    }
 
-		layout.setSpacing(10);
+    private void determineEffect() {
+        if (check.isSelected()) {
 
-		layout.getChildren().addAll(currentSize, colorPicker, sizePicker, this.eraseButton, this.check ,this.deletings);
+            this.userBrush.setEffect(SpecialEffect.GuassianBlur);
 
-	}
+        } else {
+            this.userBrush.setEffect(null);
+        }
+    }
 
-	private void initializeColorPicker() {
+    private void initializeColorPicker() {
 
-		this.colorPicker = new ColorPicker();
+        this.colorPicker = new ColorPicker();
 
-		colorPicker.setValue(Color.BLACK);
+        colorPicker.setValue(Color.BLACK);
 
-		colorPicker.setOnAction((event) -> {
+        colorPicker.setOnAction((event) -> {
 
-			Object source = event.getSource();
+            Object source = event.getSource();
 
-			if (source instanceof ColorPicker) {
+            if (source instanceof ColorPicker) {
 
-				ColorPicker picker = ColorPicker.class.cast(source);
+                ColorPicker picker = ColorPicker.class.cast(source);
 
-				currentColor = picker.getValue();
+                this.userBrush.setCurrentColor(picker.getValue());
+            }
+        });
 
-				System.out.println(picker.getValue());
-			}
-		});
+    }
 
-	}
+    private void initializeIncreaseSizeComboBox() {
 
-	private void initializeIncreaseSizeComboBox() {
+        this.sizePicker = new ComboBox<>();
 
-		this.sizePicker = new ComboBox<Double>();
+        sizePicker.getItems().addAll(CanvasToolbar.increaseSizeValues);
 
-		sizePicker.getItems().addAll(CanvasToolbar.increaseSizeValues);
+        sizePicker.setValue(this.userBrush.getCurrentWidth());
 
-		sizePicker.setValue(this.currentLineWidth);
+        sizePicker.setOnAction((ActionEvent event) -> {
 
-		sizePicker.setOnAction((ActionEvent event) -> {
+            Object source = event.getSource();
+            if (source instanceof ComboBox<?>) {
 
-			Object source = event.getSource();
-			if (source instanceof ComboBox<?>) {
+                @SuppressWarnings("unchecked")
+                ComboBox<Double> comboBox = (ComboBox<Double>) source;
+                this.userBrush.setCurrentWidth(comboBox.getValue());
 
-				@SuppressWarnings("unchecked")
-				ComboBox<Double> comboBox = (ComboBox<Double>) source;
+                updateSize();
 
-				currentLineWidth = comboBox.getValue();
-				updateSize();
+            }
+        });
 
-			}
-		});
+    }
 
-	}
+    private void updateSize() {
 
-	private void updateSize() {
+        currentSize.setText("Current Line Width: " + this.userBrush.getCurrentWidth());
 
-		currentSize.setText("Current Line Width: " + currentLineWidth);
+    }
 
-	}
+    public boolean equals(CanvasToolbar other) {
 
-	public boolean equals(CanvasToolbar other) {
+        return other.userBrush == this.userBrush;
 
-		return other != null && other.currentColor == this.currentColor
-				&& other.currentSize.getText().equals(this.currentSize.getText());
+    }
 
-	}
-	
-	public boolean isDelete() {
-		
-		return this.deletings.isSelected();
-	}
-	
-	public boolean isSpecial() {
-		
-		return this.check.isSelected();
-	}
+    @Override
+    public boolean equals(Object other) {
+        boolean equal = false;
 
-	@Override
-	public boolean equals(Object other) {
-		boolean equal = false;
+        if (getClass().isInstance(other)) {
 
-		if (other != null || CanvasToolbar.class.isInstance(other)) {
+            equal = equals(this.getClass().cast(other));
 
-			equals(this.getClass().cast(other));
+        }
 
-		}
+        return equal;
 
-		return equal;
+    }
 
-	}
+    @Override
+    public int hashCode() {
 
-	@Override
-	public int hashCode() {
-		
-		return currentColor.hashCode() ^ currentSize.hashCode();
-	}
-	
+        return this.userBrush.hashCode();
+    }
+
 
 }
