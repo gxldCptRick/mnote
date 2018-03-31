@@ -33,9 +33,10 @@ public class CanvasLines implements Serializable {
 	}
 
 	public CanvasLines() {
-		
-		
+
 		lines = new ArrayList<>();
+
+		currentLine = new CanvasLine();
 
 	}
 
@@ -57,13 +58,6 @@ public class CanvasLines implements Serializable {
 		startNewLine(Color.BLACK, 10);
 	
 	}
-
-	public boolean isLineStarted() {
-
-		return currentLine != null && !lines.contains(currentLine);
-
-	}
-	
 	
 	public boolean removeLine(Point2D point) {
 		
@@ -85,7 +79,7 @@ public class CanvasLines implements Serializable {
 		if(line == currentLine) {
 			
 			
-			this.currentLine = null;
+			this.currentLine = new CanvasLine();
 			
 		}
 		
@@ -142,11 +136,23 @@ public class CanvasLines implements Serializable {
 	
 	@Override
 	public int hashCode() {
-		
-		
+
+        System.out.println(lines != null);
+
+        System.out.println(currentLine != null);
+
 		return lines.hashCode() ^ currentLine.hashCode();
 		
 	}
 
+    public boolean isLineStarted() {
+	    return this.currentLine != new CanvasLine();
+    }
+
+//	@Override
+//    public String toString(){
+//
+//	    return this.lines.toString();
+//    }
 
 }

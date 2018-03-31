@@ -2,25 +2,18 @@ package com.gxldcptrick.mnote.views;
 
 import java.awt.Toolkit;
 import java.awt.image.RenderedImage;
-import java.util.ArrayList;
-import java.util.List;
 
 import com.gxldcptrick.mnote.models.Brush;
 import com.gxldcptrick.mnote.models.CanvasLines;
-import com.gxldcptrick.mnote.models.NoteData;
 import com.gxldcptrick.mnote.models.SavablePoint2D;
 import com.gxldcptrick.mnote.models.enums.SpecialEffect;
 
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.Event;
 import javafx.geometry.Point2D;
-import javafx.scene.Group;
-import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.control.TextField;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.InputEvent;
 import javafx.scene.input.MouseButton;
@@ -62,9 +55,9 @@ public class DrawingBoard extends ScrollPane {
 
 		mainDrawingCanvas.snapshot(null, image);
 
-		RenderedImage img  = SwingFXUtils.fromFXImage(image, null);
-		
-		return img;
+		RenderedImage img = SwingFXUtils.fromFXImage(image, null);
+
+        return img;
 	}
 	
 	public void clearAnnotations() {
@@ -72,8 +65,6 @@ public class DrawingBoard extends ScrollPane {
 		this.canvasGroup = new NoteGroup();
 
 		this.canvasGroup.getChildren().add(this.mainDrawingCanvas);
-
-		this.mainDrawingCanvas.setOnMouseClicked(this::mouseClicks);
 
 		this.setContent(this.canvasGroup);
 
@@ -134,7 +125,7 @@ public class DrawingBoard extends ScrollPane {
 		this.mainDrawingCanvas = new Canvas(width, height);
 
 		setUpDrawing();
-		setupNoteClicked();
+		setupCanvasClickEvents();
 
 	}
 
@@ -182,8 +173,11 @@ public class DrawingBoard extends ScrollPane {
 		});
 
 		this.mainDrawingCanvas.setOnMousePressed((event) -> {
-			if (!canvasBrush.isDeleting()) {
-				if (event != null && event.isPrimaryButtonDown()) {
+
+		    if (!canvasBrush.isDeleting()) {
+
+		        if (event != null && event.isPrimaryButtonDown()) {
+
 					GraphicsContext gc = mainDrawingCanvas.getGraphicsContext2D();
 					configureGraphics(gc);
 					lines.addNextPoint(new SavablePoint2D(event.getX(), event.getY()));
@@ -197,33 +191,31 @@ public class DrawingBoard extends ScrollPane {
 
 	}
 
-	private void setupNoteClicked() {
+	private void setupCanvasClickEvents() {
 
-		this.mainDrawingCanvas.setOnMouseClicked(this::mouseClicks);
+		this.mainDrawingCanvas.setOnMouseClicked(event -> {
+
+            if (this.canvasBrush.isDeleting()){
+
+                checkRemove(event);
+
+            } else if (event.getButton() == MouseButton.PRIMARY) {
+
+                GraphicsContext gc = mainDrawingCanvas.getGraphicsContext2D();
+
+                configureGraphics(gc);
+
+                gc.strokeOval(event.getX(), event.getY(), canvasBrush.getCurrentWidth(), canvasBrush.getCurrentWidth());
+
+                gc.closePath();
+
+                this.lines.addNextPoint(new SavablePoint2D(event.getX(), event.getY()));
+            }
+
+
+        });
 
 	}
-
-    private void mouseClicks(MouseEvent event) {
-
-        if (this.canvasBrush.isDeleting()){
-
-            checkRemove(event);
-
-        } else if (event.getButton() == MouseButton.PRIMARY) {
-
-            GraphicsContext gc = mainDrawingCanvas.getGraphicsContext2D();
-
-            configureGraphics(gc);
-
-            gc.strokeRect(event.getX(), event.getY(), canvasBrush.getCurrentWidth(),
-                    canvasBrush.getCurrentWidth());
-
-            gc.closePath();
-        }
-
-        Event.fireEvent(this.canvasGroup, event);
-
-    }
 
     private void setupScrollPaneEventFilters() {
 
@@ -336,6 +328,7 @@ public class DrawingBoard extends ScrollPane {
 		gc.setLineWidth(canvasBrush.getCurrentWidth());
 		gc.setStroke(canvasBrush.getCurrentColor());
 		gc.setLineCap(canvasBrush.getBrushCap());
+
 		SpecialEffect effect = this.canvasBrush.getEffect();
 
 		if (effect == null) {
@@ -347,7 +340,6 @@ public class DrawingBoard extends ScrollPane {
 			gc.setEffect(this.canvasBrush.getEffect().lineEffect);
 
 		}
-		lines.startNewLine();
 
 	}
 

@@ -1,5 +1,6 @@
 package com.gxldcptrick.mnote.models;
 
+import java.awt.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -19,6 +20,10 @@ public class CanvasLine implements Serializable {
     private List<SavablePoint2D> points;
     private SavableColor color;
     private SpecialEffect lineEffect;
+
+    public CanvasLine() {
+        this(Color.BLACK, .5);
+    }
 
     public CanvasLine(CanvasLine currentLine) {
 
@@ -43,7 +48,7 @@ public class CanvasLine implements Serializable {
 
     }
 
-    public CanvasLine(Color colorOfLine, int lineWidth) {
+    public CanvasLine(Color colorOfLine, double lineWidth) {
 
         this(new SavableColor(colorOfLine), lineWidth, null);
 
@@ -78,45 +83,66 @@ public class CanvasLine implements Serializable {
     }
 
     public void drawLine(GraphicsContext gc) {
-        gc.beginPath();
 
-        gc.setLineWidth(lineWidth);
+        if (this.points.size() > 1) {
+            gc.beginPath();
 
-        gc.setStroke(color.getColor());
+            setUpGraphics(gc);
 
-        if (this.lineEffect != null) {
+            SavablePoint2D startingPoint = getInitialPoint();
 
-            gc.setEffect(lineEffect.lineEffect);
+            if (startingPoint != null) {
 
-        } else {
+                Point2D initialPoint = startingPoint.get2DPoint();
 
-            gc.setEffect(null);
-        }
+                gc.moveTo(initialPoint.getX(), initialPoint.getY());
 
-        SavablePoint2D startingPoint = getInitialPoint();
-        if (startingPoint != null) {
 
-            Point2D initialPoint = startingPoint.get2DPoint();
+                points.forEach(savedPoint -> {
 
-            gc.moveTo(initialPoint.getX(), initialPoint.getY());
+                    if ((savedPoint != null) && (savedPoint != startingPoint)) {
 
-            Iterator<SavablePoint2D> iterator = points.iterator();
+                        Point2D point = savedPoint.get2DPoint();
 
-            while (iterator.hasNext()) {
-
-                Point2D nextPoint = iterator.next().get2DPoint();
-
-                if (nextPoint != initialPoint) {
-
-                    gc.lineTo(nextPoint.getX(), nextPoint.getY());
-                    gc.stroke();
-                }
+                        gc.lineTo(point.getX(), point.getY());
+                        gc.stroke();
+                    }
+                });
 
             }
 
-            gc.stroke();
+            gc.closePath();
+
+        } else if (points.size() > 0) {
+            SavablePoint2D initialPoint = points.get(0);
+
+            if (initialPoint != null) {
+
+                Point2D dot = initialPoint.get2DPoint();
+                gc.beginPath();
+
+                setUpGraphics(gc);
+
+                gc.strokeOval(dot.getX(), dot.getY(), this.lineWidth, this.lineWidth);
+
+                gc.closePath();
+
+            }
         }
-        gc.closePath();
+    }
+
+
+    private void setUpGraphics(GraphicsContext gc) {
+
+        if (this.lineEffect != null)
+            gc.setEffect(lineEffect.lineEffect);
+        else
+            gc.setEffect(null);
+
+        gc.setStroke(this.color.getColor());
+        gc.setLineWidth(this.lineWidth);
+
+
     }
 
     public SavablePoint2D getInitialPoint() {
@@ -134,7 +160,7 @@ public class CanvasLine implements Serializable {
     public boolean equals(CanvasLine line) {
 
         return line != null && line.points.equals(this.points) && line.lineWidth == this.lineWidth
-                && line.color.equals(this.color);
+                && line.color.equals(this.color) && line.lineEffect == this.lineEffect;
 
     }
 
@@ -158,7 +184,7 @@ public class CanvasLine implements Serializable {
     @Override
     public int hashCode() {
 
-        return this.points.hashCode() ^ Double.hashCode(this.lineWidth) ^ this.color.hashCode();
+        return this.points.hashCode() ^ Double.hashCode(this.lineWidth) ^ this.color.hashCode() ^ this.lineEffect.hashCode();
 
     }
 
