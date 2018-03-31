@@ -21,6 +21,8 @@ public class CanvasLine implements Serializable {
     private SavableColor color;
     private SpecialEffect lineEffect;
 
+    //<editor-fold desc = "Constructor">
+
     public CanvasLine() {
         this(Color.BLACK, .5);
     }
@@ -54,6 +56,26 @@ public class CanvasLine implements Serializable {
 
     }
 
+    //</editor-fold>
+
+    public List<SavablePoint2D> getPoints() {
+
+        return new ArrayList<>(this.points);
+
+    }
+
+    public SavablePoint2D getInitialPoint() {
+
+        SavablePoint2D point = null;
+
+        if (points.size() > 0) {
+            point = points.get(0);
+        }
+
+        return point;
+
+    }
+
     public void addNextPoint(SavablePoint2D nextPoint) {
 
         if (nextPoint != null)
@@ -63,21 +85,7 @@ public class CanvasLine implements Serializable {
 
     public boolean contains(Point2D point) {
 
-        boolean found = false;
-
-        Iterator<SavablePoint2D> iterator = this.points.iterator();
-
-        while (iterator.hasNext() && !found) {
-
-            Point2D linePoint = iterator.next().get2DPoint();
-
-            found = linePoint.distance(point) < 15;
-
-            System.out.println(linePoint.distance(point));
-
-            System.out.println(found);
-
-        }
+        boolean found = points.stream().filter(savedPoint -> savedPoint.get2DPoint().distance(point) < 15).count() > 0;
 
         return found;
     }
@@ -145,18 +153,7 @@ public class CanvasLine implements Serializable {
 
     }
 
-    public SavablePoint2D getInitialPoint() {
-
-        SavablePoint2D point = null;
-
-        if (points.size() > 0) {
-            point = points.get(0);
-        }
-
-        return point;
-
-    }
-
+    //<editor-fold desc = "Equality">
     public boolean equals(CanvasLine line) {
 
         return line != null && line.points.equals(this.points) && line.lineWidth == this.lineWidth
@@ -187,17 +184,12 @@ public class CanvasLine implements Serializable {
         return this.points.hashCode() ^ Double.hashCode(this.lineWidth) ^ this.color.hashCode() ^ this.lineEffect.hashCode();
 
     }
+//</editor-fold>
 
     @Override
     public String toString() {
 
         return points + " " + color + " " + lineWidth;
-
-    }
-
-    public List<SavablePoint2D> getPoints() {
-
-        return new ArrayList<>(this.points);
 
     }
 }

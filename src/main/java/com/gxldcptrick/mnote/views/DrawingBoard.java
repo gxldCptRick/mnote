@@ -21,187 +21,180 @@ import javafx.scene.input.MouseEvent;
 
 public class DrawingBoard extends ScrollPane {
 
-	private static final double MAX_CANVAS_WIDTH;
-	private static final double MAX_CANVAS_HEIGHT;
+    private static final double MAX_CANVAS_WIDTH;
+    private static final double MAX_CANVAS_HEIGHT;
 
-	static {
+    static {
 
-		MAX_CANVAS_WIDTH = Toolkit.getDefaultToolkit().getScreenSize().getWidth() * 3;
-		MAX_CANVAS_HEIGHT = Toolkit.getDefaultToolkit().getScreenSize().getHeight() * 1.5;
+        MAX_CANVAS_WIDTH = Toolkit.getDefaultToolkit().getScreenSize().getWidth() * 3;
+        MAX_CANVAS_HEIGHT = Toolkit.getDefaultToolkit().getScreenSize().getHeight() * 1.5;
 
-	}
+    }
 
-	private CanvasLines lines;
-	private Brush canvasBrush;
+    private CanvasLines lines;
+    private Brush canvasBrush;
+    private NoteGroup canvasGroup;
+    private Canvas canvas;
 
-	private Canvas mainDrawingCanvas;
-	private NoteGroup canvasGroup;
+    public DrawingBoard(double width, double height) {
 
-	public DrawingBoard(double width, double height) {
+        this.initialize(width, height);
 
-		this.initialize(width, height);
+    }
 
-	}
+    public Brush getCanvasBrush() {
 
-	public Brush getCanvasBrush() {
+        return this.canvasBrush;
+    }
 
-		return this.canvasBrush;
-	}
+    public RenderedImage captureImage() {
 
-	public RenderedImage captureImage() {
+        WritableImage image = new WritableImage((int) canvas.getWidth(),
+                (int) canvas.getHeight());
 
-		WritableImage image = new WritableImage((int) mainDrawingCanvas.getWidth(),
-				(int) mainDrawingCanvas.getHeight());
+        canvas.snapshot(null, image);
 
-		mainDrawingCanvas.snapshot(null, image);
-
-		RenderedImage img = SwingFXUtils.fromFXImage(image, null);
+        RenderedImage img = SwingFXUtils.fromFXImage(image, null);
 
         return img;
-	}
-	
-	public void clearAnnotations() {
+    }
 
-		this.canvasGroup = new NoteGroup();
+    public void clearAnnotations() {
 
-		this.canvasGroup.getChildren().add(this.mainDrawingCanvas);
+        this.canvasGroup = new NoteGroup();
 
-		this.setContent(this.canvasGroup);
+        this.canvasGroup.getChildren().add(this.canvas);
 
-	}
-	
-	
-	public void clearBoard() {
+        this.setContent(this.canvasGroup);
 
-		this.clearAnnotations();
-		this.clearLines();
-
-	}
-	
-	public void clearLines() {
-		clearDrawings();
-		this.lines = new CanvasLines();
-
-	}
-	
-	private void initialize(double width, double height) {
-
-		if (this.canvasBrush == null)
-			this.canvasBrush = new Brush();
-
-		if (this.canvasGroup == null)
-			canvasGroup = new NoteGroup();
-
-		this.initializeLines();
-		this.initializeCanvas(width, height);
-		this.initializeLayout();
-
-	}
+    }
 
 
+    public void clearBoard() {
 
-	private void initializeLines() {
+        this.clearAnnotations();
+        this.clearLines();
 
-		if (lines == null)
-			lines = new CanvasLines();
+    }
 
-	}
+    public void clearLines() {
+        clearDrawings();
+        this.lines = new CanvasLines();
 
-	
+    }
 
-	private void initializeLayout() {
+    private void initialize(double width, double height) {
 
-		this.canvasGroup.getChildren().add(mainDrawingCanvas);
+        if (this.canvasBrush == null)
+            this.canvasBrush = new Brush();
 
-		this.setContent(this.canvasGroup);
+        if (this.canvasGroup == null)
+            canvasGroup = new NoteGroup();
 
-		setupScrollPaneMousePanEvents();
+        this.initializeLines();
+        this.initializeCanvas(width, height);
+        this.initializeLayout();
 
-		setupScrollPaneEventFilters();
+    }
 
-	}
-	
-	private void initializeCanvas(double width, double height) {
-		this.mainDrawingCanvas = new Canvas(width, height);
 
-		setUpDrawing();
-		setupCanvasClickEvents();
+    private void initializeLines() {
 
-	}
+        if (lines == null)
+            lines = new CanvasLines();
 
-	private void setUpDrawing() {
+    }
 
-		this.mainDrawingCanvas.setOnMouseDragged((event) -> {
 
-			if (!this.canvasBrush.isDeleting()) {
-				if (event != null && event.isPrimaryButtonDown()) {
+    private void initializeLayout() {
 
-					checkIfInboundsOfView(event);
+        this.canvasGroup.getChildren().add(canvas);
 
-					checkIfInboundsOfCanvas(event);
+        this.setContent(this.canvasGroup);
 
-					GraphicsContext gc = mainDrawingCanvas.getGraphicsContext2D();
+        setupScrollPaneMousePanEvents();
 
-					lines.addNextPoint(new SavablePoint2D(event.getX(), event.getY()));
+    }
 
-					gc.lineTo(event.getX(), event.getY());
+    private void initializeCanvas(double width, double height) {
+        this.canvas = new Canvas(width, height);
 
-					gc.stroke();
-				}
-			}
+        setUpDrawing();
+        setupCanvasClickEvents();
 
-		});
+    }
 
-		this.mainDrawingCanvas.setOnMouseReleased((event) -> {
+    private void setUpDrawing() {
 
-			if (!canvasBrush.isDeleting()) {
+        this.canvas.setOnMouseDragged((event) -> {
 
-				if (event != null && lines.isLineStarted()) {
+            if ((event != null && event.isPrimaryButtonDown()) && !this.canvasBrush.isDeleting()) {
 
-					GraphicsContext gc = mainDrawingCanvas.getGraphicsContext2D();
+                checkIfInboundsOfCanvas(event);
 
-					lines.addNextPoint(new SavablePoint2D(event.getX(), event.getY()));
+                drawLine(event);
+            }
 
-					gc.lineTo(event.getX(), event.getY());
+        });
 
-					gc.stroke();
+        this.canvas.setOnMouseReleased((event) -> {
 
-					gc.closePath();
-				}
+            if ((event != null && lines.isLineStarted()) && !canvasBrush.isDeleting()) {
 
-			}
-		});
+                drawLine(event);
 
-		this.mainDrawingCanvas.setOnMousePressed((event) -> {
+                this.canvas.getGraphicsContext2D().closePath();
 
-		    if (!canvasBrush.isDeleting()) {
+            }
+        });
 
-		        if (event != null && event.isPrimaryButtonDown()) {
+        this.canvas.setOnMousePressed((event) -> {
 
-					GraphicsContext gc = mainDrawingCanvas.getGraphicsContext2D();
-					configureGraphics(gc);
-					lines.addNextPoint(new SavablePoint2D(event.getX(), event.getY()));
-					gc.moveTo(event.getX(), event.getY());
-					gc.stroke();
+            if ((event != null && event.isPrimaryButtonDown()) && !canvasBrush.isDeleting()) {
 
-				}
+                startLine(event);
 
-			}
-		});
+            }
+        });
 
-	}
+    }
 
-	private void setupCanvasClickEvents() {
+    private void startLine(MouseEvent event) {
 
-		this.mainDrawingCanvas.setOnMouseClicked(event -> {
+        GraphicsContext gc = canvas.getGraphicsContext2D();
 
-            if (this.canvasBrush.isDeleting()){
+        configureGraphics(gc);
+
+        lines.addNextPoint(new SavablePoint2D(event.getX(), event.getY()));
+
+        gc.moveTo(event.getX(), event.getY());
+
+        gc.stroke();
+    }
+
+    private void drawLine(MouseEvent event) {
+
+        GraphicsContext gc = canvas.getGraphicsContext2D();
+
+        lines.addNextPoint(new SavablePoint2D(event.getX(), event.getY()));
+
+        gc.lineTo(event.getX(), event.getY());
+
+        gc.stroke();
+
+    }
+
+    private void setupCanvasClickEvents() {
+
+        this.canvas.setOnMouseClicked(event -> {
+
+            if (this.canvasBrush.isDeleting()) {
 
                 checkRemove(event);
 
             } else if (event.getButton() == MouseButton.PRIMARY) {
 
-                GraphicsContext gc = mainDrawingCanvas.getGraphicsContext2D();
+                GraphicsContext gc = canvas.getGraphicsContext2D();
 
                 configureGraphics(gc);
 
@@ -215,132 +208,135 @@ public class DrawingBoard extends ScrollPane {
 
         });
 
-	}
-
-    private void setupScrollPaneEventFilters() {
-
-		this.addEventFilter(InputEvent.ANY, (event) -> {
-			if (event.getEventType().toString().equals("SCROLL"))
-				event.consume();
-		});
-
-	}
-
-	private void setupScrollPaneMousePanEvents() {
-		this.setOnMousePressed(event -> {
-
-			if (event.isSecondaryButtonDown())
-				this.setPannable(true);
-
-		});
-
-		this.setOnMouseReleased(event ->
-
-		this.setPannable(false));
-
-		this.setOnMouseDragged(event -> {
-
-			if (event.getX() + 100 > this.getWidth()) {
-
-				this.setHvalue(calculateJump(this.getHvalue(), this.getViewportBounds().getWidth(),
-						mainDrawingCanvas.getWidth(), 1));
-			} else if (event.getX() < 10) {
-
-				this.setHvalue(calculateJump(this.getHvalue(), this.getViewportBounds().getWidth(),
-						mainDrawingCanvas.getWidth(), -1));
-
-			}
-
-			if (event.getY() + 10 > this.getViewportBounds().getHeight()) {
-
-				this.setVvalue(calculateJump(this.getVvalue(), this.getViewportBounds().getHeight(),
-						mainDrawingCanvas.getHeight(), 1));
-
-			} else if (event.getY() < 10) {
-
-				this.setVvalue(calculateJump(this.getVvalue(), this.getViewportBounds().getHeight(),
-						mainDrawingCanvas.getHeight(), -1));
-
-			}
-
-		});
-
-	}
+    }
 
 
-	private void clearDrawings() {
+    private void setupScrollPaneMousePanEvents() {
 
-		GraphicsContext gc = mainDrawingCanvas.getGraphicsContext2D();
+        this.addEventFilter(InputEvent.ANY, (event) -> {
+            if (event.getEventType().toString().equals("SCROLL"))
+                event.consume();
+        });
 
-		gc.setEffect(null);
-		gc.clearRect(0, 0, mainDrawingCanvas.getWidth(), mainDrawingCanvas.getHeight());
+        this.setOnMousePressed(event -> {
 
-	}
+            if (event.isSecondaryButtonDown())
+                this.setPannable(true);
 
-	private void checkRemove(MouseEvent event) {
+        });
 
-		boolean removed = lines.removeLine(new Point2D(event.getX(), event.getY()));
+        this.setOnMouseReleased(event ->
 
-		if (removed) {
+                this.setPannable(false));
 
-			clearDrawings();
+        this.setOnMouseDragged(event -> {
 
-			this.lines.drawLines(mainDrawingCanvas.getGraphicsContext2D());
+            calculateHorizontalBound(event);
+            calculateVerticalBounds(event);
 
-			System.out.println(lines);
+        });
 
-		}
-	}
-	
-	private void checkIfInboundsOfView(MouseEvent event) {
+    }
 
-		Event.fireEvent(this, event);
+    private void calculateVerticalBounds(MouseEvent event) {
 
-	}
+        if (event.getY() + 10 > this.getViewportBounds().getHeight()) {
 
-	private void checkIfInboundsOfCanvas(MouseEvent event) {
+            this.setVvalue(calculateJump(this.getVvalue(), this.getViewportBounds().getHeight(),
+                    canvas.getHeight(), 1));
 
-		if (event.getX() + 10 > mainDrawingCanvas.getWidth()) {
+        } else if (event.getY() < 10) {
 
-			mainDrawingCanvas.setWidth(MAX_CANVAS_WIDTH);
-		}
+            this.setVvalue(calculateJump(this.getVvalue(), this.getViewportBounds().getHeight(),
+                    canvas.getHeight(), -1));
 
-		if (event.getY() + 10 > mainDrawingCanvas.getHeight()) {
+        }
 
-			mainDrawingCanvas.setHeight(MAX_CANVAS_HEIGHT);
-		}
+    }
 
-	}
+    private void calculateHorizontalBound(MouseEvent event) {
+        if (event.getX() + 100 > this.getWidth()) {
 
-	private double calculateJump(double currentSize, double sizeOfView, double sizeOfObject, double direction) {
+            this.setHvalue(calculateJump(this.getHvalue(), this.getViewportBounds().getWidth(),
+                    canvas.getWidth(), 1));
+        } else if (event.getX() < 10) {
 
-		return currentSize + (sizeOfView / sizeOfObject) * .1 * direction;
-	}
+            this.setHvalue(calculateJump(this.getHvalue(), this.getViewportBounds().getWidth(),
+                    canvas.getWidth(), -1));
 
-	
-	private void configureGraphics(GraphicsContext gc) {
+        }
+    }
 
-		gc.beginPath();
 
-		lines.startNewLine(this.canvasBrush.getCurrentColor(), this.canvasBrush.getCurrentWidth(),
-				this.canvasBrush.getEffect());
+    private void clearDrawings() {
 
-		gc.setLineWidth(canvasBrush.getCurrentWidth());
-		gc.setStroke(canvasBrush.getCurrentColor());
-		gc.setLineCap(canvasBrush.getBrushCap());
+        GraphicsContext gc = canvas.getGraphicsContext2D();
 
-		SpecialEffect effect = this.canvasBrush.getEffect();
+        gc.setEffect(null);
+        gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
 
-		if (effect == null) {
+    }
 
-			gc.setEffect(null);
+    private void checkRemove(MouseEvent event) {
 
-		} else {
+        boolean removed = lines.removeLine(new Point2D(event.getX(), event.getY()));
 
-			gc.setEffect(this.canvasBrush.getEffect().lineEffect);
+        if (removed) {
 
-		}
+            clearDrawings();
 
-	}
+            this.lines.drawLines(canvas.getGraphicsContext2D());
+
+            System.out.println(lines);
+
+        }
+    }
+
+    private void checkIfInboundsOfCanvas(MouseEvent event) {
+
+        Event.fireEvent(this, event);
+
+        if (event.getX() + 10 > canvas.getWidth()) {
+
+            canvas.setWidth(MAX_CANVAS_WIDTH);
+        }
+
+        if (event.getY() + 10 > canvas.getHeight()) {
+
+            canvas.setHeight(MAX_CANVAS_HEIGHT);
+        }
+
+    }
+
+    private double calculateJump(double currentSize, double sizeOfView, double sizeOfObject, double direction) {
+
+        return currentSize + (sizeOfView / sizeOfObject) * .1 * direction;
+    }
+
+
+    private void configureGraphics(GraphicsContext gc) {
+
+        gc.beginPath();
+
+        lines.startNewLine(this.canvasBrush.getCurrentColor(), this.canvasBrush.getCurrentWidth(),
+                this.canvasBrush.getEffect());
+
+        gc.setLineWidth(canvasBrush.getCurrentWidth());
+        gc.setStroke(canvasBrush.getCurrentColor());
+        gc.setLineCap(canvasBrush.getBrushCap());
+
+        SpecialEffect effect = this.canvasBrush.getEffect();
+
+        if (effect == null) {
+
+            gc.setEffect(null);
+
+        } else {
+
+            gc.setEffect(this.canvasBrush.getEffect().lineEffect);
+
+        }
+
+    }
 
 }

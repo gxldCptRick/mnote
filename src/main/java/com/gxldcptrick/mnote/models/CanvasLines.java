@@ -133,6 +133,10 @@ public class CanvasLines implements Serializable {
 		
 		return equal;
 	}
+
+    public boolean isLineStarted() {
+        return this.currentLine != new CanvasLine();
+    }
 	
 	@Override
 	public int hashCode() {
@@ -145,14 +149,10 @@ public class CanvasLines implements Serializable {
 		
 	}
 
-    public boolean isLineStarted() {
-	    return this.currentLine != new CanvasLine();
-    }
+	@Override
+    public String toString(){
 
-//	@Override
-//    public String toString(){
-//
-//	    return this.lines.toString();
-//    }
+	    return this.lines.toString();
+    }
 
 }
