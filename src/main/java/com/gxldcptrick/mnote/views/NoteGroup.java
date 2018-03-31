@@ -6,6 +6,9 @@ import javafx.scene.Node;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseButton;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,6 +22,20 @@ public class NoteGroup extends Group {
 		initialize();
 		
 	}
+
+	public void saveData(ObjectOutputStream out) throws IOException {
+
+		out.writeObject(notes);
+
+	}
+
+	public void reloadData(ObjectInputStream in) throws IOException, ClassNotFoundException {
+
+	    this.notes = (List<NoteData>) in.readObject();
+
+	    initialize();
+
+    }
 
 	private void initialize() {
 

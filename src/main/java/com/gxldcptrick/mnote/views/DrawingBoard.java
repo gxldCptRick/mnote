@@ -2,6 +2,9 @@ package com.gxldcptrick.mnote.views;
 
 import java.awt.Toolkit;
 import java.awt.image.RenderedImage;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 
 import com.gxldcptrick.mnote.models.Brush;
 import com.gxldcptrick.mnote.models.CanvasLines;
@@ -33,7 +36,7 @@ public class DrawingBoard extends ScrollPane {
 
     private CanvasLines lines;
     private Brush canvasBrush;
-    private NoteGroup canvasGroup;
+    private NoteGroup noteGroup;
     private Canvas canvas;
 
     public DrawingBoard(double width, double height) {
@@ -45,6 +48,29 @@ public class DrawingBoard extends ScrollPane {
     public Brush getCanvasBrush() {
 
         return this.canvasBrush;
+    }
+
+    public void saveData(ObjectOutputStream out) throws IOException {
+
+
+        out.writeObject(lines);
+        out.writeObject(canvasBrush);
+        noteGroup.saveData(out);
+        out.writeDouble(canvas.getWidth());
+        out.writeDouble(canvas.getHeight());
+
+    }
+
+    public void reloadData(ObjectInputStream in) throws IOException, ClassNotFoundException {
+
+        this.lines = (CanvasLines) in.readObject();
+        this.canvasBrush = (Brush) in.readObject();
+        this.noteGroup.reloadData(in);
+        double width = in.readDouble();
+        double height = in.readDouble();
+
+        initialize(width, height);
+
     }
 
     public RenderedImage captureImage() {
@@ -61,11 +87,11 @@ public class DrawingBoard extends ScrollPane {
 
     public void clearAnnotations() {
 
-        this.canvasGroup = new NoteGroup();
+        this.noteGroup = new NoteGroup();
 
-        this.canvasGroup.getChildren().add(this.canvas);
+        this.noteGroup.getChildren().add(this.canvas);
 
-        this.setContent(this.canvasGroup);
+        this.setContent(this.noteGroup);
 
     }
 
@@ -88,8 +114,8 @@ public class DrawingBoard extends ScrollPane {
         if (this.canvasBrush == null)
             this.canvasBrush = new Brush();
 
-        if (this.canvasGroup == null)
-            canvasGroup = new NoteGroup();
+        if (this.noteGroup == null)
+            noteGroup = new NoteGroup();
 
         this.initializeLines();
         this.initializeCanvas(width, height);
@@ -108,9 +134,9 @@ public class DrawingBoard extends ScrollPane {
 
     private void initializeLayout() {
 
-        this.canvasGroup.getChildren().add(canvas);
+        this.noteGroup.getChildren().add(canvas);
 
-        this.setContent(this.canvasGroup);
+        this.setContent(this.noteGroup);
 
         setupScrollPaneMousePanEvents();
 
@@ -255,6 +281,7 @@ public class DrawingBoard extends ScrollPane {
     }
 
     private void calculateHorizontalBound(MouseEvent event) {
+
         if (event.getX() + 100 > this.getWidth()) {
 
             this.setHvalue(calculateJump(this.getHvalue(), this.getViewportBounds().getWidth(),

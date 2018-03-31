@@ -17,135 +17,127 @@ import javafx.scene.layout.VBox;
 
 public class CanvasContainer implements Serializable {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID;
+    /**
+     *
+     */
+    private static final long serialVersionUID;
 
 
-	static {
+    static {
 
-		serialVersionUID = generateID("420 BLAZE IT");
+        serialVersionUID = generateID("420 BLAZE IT");
 
-	}
+    }
 
-	private static long generateID(String input) {
+    private static long generateID(String input) {
 
-		long counter = 0;
+        long counter = 0;
 
-		char[] inputs = input.toCharArray();
+        char[] inputs = input.toCharArray();
 
-		for (int i = 0; i < inputs.length; i++) {
+        for (int i = 0; i < inputs.length; i++) {
 
-			counter += inputs[i] + i;
+            counter += inputs[i] + i;
 
-		}
+        }
 
-		return counter;
-	}
+        return counter;
+    }
 
-	private CanvasToolbar toolbar;
-    private DrawingBoard board;
+    private CanvasToolbar toolbar;
 
-	private transient VBox layout;
+    private transient DrawingBoard board;
+    private transient VBox layout;
 
 
-	public CanvasContainer(double width, double height) {
+    public CanvasContainer(double width, double height) {
 
-		initialize(width, height);
+        initialize(width, height);
 
-	}
+    }
 
-	public Pane getLayout() {
+    public Pane getLayout() {
 
-		return this.layout;
+        return this.layout;
 
-	}
+    }
 
-	@SuppressWarnings("unchecked")
-	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+    @SuppressWarnings("unchecked")
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        in.defaultReadObject();
 
-		ObjectInputStream.GetField fields = in.readFields();
+        initialize(Toolkit.getDefaultToolkit().getScreenSize().getWidth(),
+                Toolkit.getDefaultToolkit().getScreenSize().getHeight());
 
-        this.toolbar = (CanvasToolbar) fields.get("toolbar", null);
+        board.reloadData(in);
 
-		initialize(Toolkit.getDefaultToolkit().getScreenSize().getWidth(),
-				Toolkit.getDefaultToolkit().getScreenSize().getHeight());
+    }
 
-	}
+    private void writeObject(ObjectOutputStream out) throws IOException {
 
-	private void writeObject(ObjectOutputStream out) throws IOException {
+        out.defaultWriteObject();
+        this.board.saveData(out);
 
-		out.defaultWriteObject();
+    }
 
-	}
+    private void initialize(double width, double height) {
 
-	private void initialize(double width, double height) {
-
-		initializeLayout();
+        initializeLayout();
 
         initializeBoard(width, height);
 
-		initializeToolbar();
+        initializeToolbar();
 
-		layout.getChildren().addAll(toolbar.getLayout(), this.board);
+        layout.getChildren().addAll(toolbar.getLayout(), this.board);
 
-	}
+    }
 
     private void initializeBoard(double width, double height) {
 
-	    this.board = new DrawingBoard(width, height);
+        if (board == null)
+            this.board = new DrawingBoard(width, height);
+
+    }
+
+    private void initializeLayout() {
+
+        if (layout == null)
+            layout = new VBox();
+
+        layout.setSpacing(5);
+    }
+
+    private void initializeToolbar() {
+
+        if (toolbar == null)
+            toolbar = new CanvasToolbar(this.board.getCanvasBrush());
+
+        MenuItem clearCanvas = new MenuItem("Whiteboard");
+
+        MenuItem clearDrawing = new MenuItem("Drawings");
+
+        MenuItem clearAnnotations = new MenuItem("Annotations");
+
+        toolbar.getContextMenu().getItems().addAll(clearCanvas, clearDrawing, clearAnnotations);
+
+        clearCanvas.setOnAction(event ->
+                board.clearBoard()
+        );
+
+        clearDrawing.setOnAction(event ->
+                board.clearLines()
+        );
+
+        clearAnnotations.setOnAction(event ->
+                board.clearAnnotations()
+        );
 
     }
 
 
-    private void initializeLayout() {
+    public RenderedImage getRenderedImage() {
 
-		if (layout == null)
-			layout = new VBox();
-
-		layout.setSpacing(5);
-	}
-
-//	private void printPoint(MouseEvent e){
-//
-//        System.out.println(e.getX() + ", " + e.getY());
-//
-//    }
-
-
-
-	private void initializeToolbar() {
-
-		if (toolbar == null)
-			toolbar = new CanvasToolbar(this.board.getCanvasBrush());
-
-		MenuItem clearCanvas = new MenuItem("Whiteboard");
-
-		MenuItem clearDrawing = new MenuItem("Drawings");
-
-		MenuItem clearAnnotations = new MenuItem("Annotations");
-
-		toolbar.getContextMenu().getItems().addAll(clearCanvas, clearDrawing, clearAnnotations);
-
-		clearCanvas.setOnAction(event ->
-			board.clearBoard()
-		);
-
-		clearDrawing.setOnAction(event ->
-			board.clearLines()
-		);
-
-		clearAnnotations.setOnAction(event ->
-			board.clearAnnotations()
-        );
-
-	}
-
-
-	public RenderedImage getRenderedImage() {
-
-		return board.captureImage();
-	}
+        return board.captureImage();
+    }
 
 }
