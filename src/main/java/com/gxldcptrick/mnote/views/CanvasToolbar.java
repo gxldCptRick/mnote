@@ -48,8 +48,8 @@ public class CanvasToolbar implements Serializable {
     private transient Button eraseButton;
     private transient ColorPicker colorPicker;
     private transient ComboBox<Double> sizePicker;
-    private transient CheckBox check;
     private transient CheckBox deletings;
+    private transient ComboBox<SpecialEffect> specialEffects;
 
     public CanvasToolbar(Brush userBrush) {
 
@@ -94,16 +94,13 @@ public class CanvasToolbar implements Serializable {
         this.contextMenu = new ContextMenu();
         this.eraseButton = new Button("Clear");
         this.eraseButton.setContextMenu(contextMenu);
-        this.check = new CheckBox("Add Special Effect");
+        this.specialEffects = new ComboBox<>();
         this.deletings = new CheckBox("Delete Line");
         this.initializeErase();
 
-        determineEffect();
-
         determineDeleting();
 
-        this.check.setOnAction(event -> determineEffect());
-
+        setupSpecialEffects();
         this.deletings.setOnAction(event -> determineDeleting());
 
 
@@ -119,7 +116,21 @@ public class CanvasToolbar implements Serializable {
 
         layout.setSpacing(10);
 
-        layout.getChildren().addAll(currentSize, colorPicker, sizePicker, this.eraseButton, this.check, this.deletings);
+        layout.getChildren().addAll(currentSize, colorPicker, sizePicker, this.eraseButton, this.specialEffects, this.deletings);
+
+    }
+
+    private void setupSpecialEffects() {
+
+        this.specialEffects.getItems().addAll(SpecialEffect.values());
+        this.specialEffects.setValue(SpecialEffect.None);
+
+        this.userBrush.setEffect(this.specialEffects.getValue());
+        this.specialEffects.setOnAction(event -> {
+
+            this.userBrush.setEffect(this.specialEffects.getValue());
+
+        });
 
     }
 
@@ -127,16 +138,6 @@ public class CanvasToolbar implements Serializable {
 
         userBrush.setDeleting(deletings.isSelected());
 
-    }
-
-    private void determineEffect() {
-        if (check.isSelected()) {
-
-            this.userBrush.setEffect(SpecialEffect.GuassianBlur);
-
-        } else {
-            this.userBrush.setEffect(null);
-        }
     }
 
     private void initializeColorPicker() {
