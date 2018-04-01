@@ -126,11 +126,7 @@ public class CanvasToolbar implements Serializable {
         this.specialEffects.setValue(SpecialEffect.None);
 
         this.userBrush.setEffect(this.specialEffects.getValue());
-        this.specialEffects.setOnAction(event -> {
-
-            this.userBrush.setEffect(this.specialEffects.getValue());
-
-        });
+        this.specialEffects.setOnAction(event -> this.userBrush.setEffect(this.specialEffects.getValue()));
 
     }
 
@@ -146,17 +142,7 @@ public class CanvasToolbar implements Serializable {
 
         colorPicker.setValue(Color.BLACK);
 
-        colorPicker.setOnAction((event) -> {
-
-            Object source = event.getSource();
-
-            if (source instanceof ColorPicker) {
-
-                ColorPicker picker = ColorPicker.class.cast(source);
-
-                this.userBrush.setCurrentColor(picker.getValue());
-            }
-        });
+        colorPicker.setOnAction((event) -> this.userBrush.setCurrentColor(this.colorPicker.getValue()));
 
     }
 
@@ -168,19 +154,7 @@ public class CanvasToolbar implements Serializable {
 
         sizePicker.setValue(this.userBrush.getCurrentWidth());
 
-        sizePicker.setOnAction((ActionEvent event) -> {
-
-            Object source = event.getSource();
-            if (source instanceof ComboBox<?>) {
-
-                @SuppressWarnings("unchecked")
-                ComboBox<Double> comboBox = (ComboBox<Double>) source;
-                this.userBrush.setCurrentWidth(comboBox.getValue());
-
-                updateSize();
-
-            }
-        });
+        sizePicker.setOnAction((event) -> this.userBrush.setCurrentWidth(this.sizePicker.getValue()));
 
     }
 
