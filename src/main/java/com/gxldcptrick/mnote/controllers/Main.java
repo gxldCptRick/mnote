@@ -34,10 +34,6 @@ public class Main extends Application {
 
         primaryStage.show();
 
-
-
-
-
     }
 
     private void initializeStage(Stage primaryStage) {
