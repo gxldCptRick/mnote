@@ -38,13 +38,16 @@ public class DrawingBoard extends ScrollPane implements Serializable{
 
     }
 
-    private CanvasLines lines;
-    private Brush canvasBrush;
-    private NoteGroup noteGroup;
-    private Canvas canvas;
+    private static CanvasLines lines;
+    private static Brush canvasBrush;
+    private static NoteGroup noteGroup;
+    private static Canvas canvas;
 
-    private ClientSocket socket;
+    private static ClientSocket socket;
 
+    public DrawingBoard() {
+
+    }
     public DrawingBoard(double width, double height) {
 
         this.initialize(width, height);
@@ -190,7 +193,7 @@ public class DrawingBoard extends ScrollPane implements Serializable{
 
     }
 
-    private void startLine(MouseEvent event) {
+    private static void startLine(MouseEvent event) {
         SavablePoint2D savablePoint2D = new SavablePoint2D(event.getX(), event.getY());
 
         socket.sendObject(savablePoint2D);
@@ -205,7 +208,27 @@ public class DrawingBoard extends ScrollPane implements Serializable{
         gc.stroke();
     }
 
-    private void drawLine(MouseEvent event) {
+    public static void startLine(SavablePoint2D points) {
+        GraphicsContext gc = canvas.getGraphicsContext2D();
+
+        configureGraphics(gc);
+
+        lines.addNextPoint(points);
+
+        gc.stroke();
+    }
+
+    public static void drawLine(SavablePoint2D point2D) {
+        GraphicsContext gc = canvas.getGraphicsContext2D();
+
+        lines.addNextPoint(point2D);
+
+        gc.lineTo(point2D.get2DPoint().getX(), point2D.get2DPoint().getY());
+
+        gc.stroke();
+    }
+
+    private static void drawLine(MouseEvent event) {
 
         SavablePoint2D savablePoint2D = new SavablePoint2D(event.getX(), event.getY());
         socket.sendObject(savablePoint2D);
@@ -350,18 +373,18 @@ public class DrawingBoard extends ScrollPane implements Serializable{
     }
 
 
-    private void configureGraphics(GraphicsContext gc) {
+    private static void configureGraphics(GraphicsContext gc) {
 
         gc.beginPath();
 
-        lines.startNewLine(this.canvasBrush.getCurrentColor(), this.canvasBrush.getCurrentWidth(),
-                this.canvasBrush.getEffect());
+        lines.startNewLine(canvasBrush.getCurrentColor(), canvasBrush.getCurrentWidth(),
+                canvasBrush.getEffect());
 
         gc.setLineWidth(canvasBrush.getCurrentWidth());
         gc.setStroke(canvasBrush.getCurrentColor());
         gc.setLineCap(canvasBrush.getBrushCap());
 
-        SpecialEffect effect = this.canvasBrush.getEffect();
+        SpecialEffect effect = canvasBrush.getEffect();
 
         if (effect == null) {
 
@@ -369,7 +392,7 @@ public class DrawingBoard extends ScrollPane implements Serializable{
 
         } else {
 
-            gc.setEffect(this.canvasBrush.getEffect().lineEffect);
+            gc.setEffect(canvasBrush.getEffect().lineEffect);
 
         }
 
