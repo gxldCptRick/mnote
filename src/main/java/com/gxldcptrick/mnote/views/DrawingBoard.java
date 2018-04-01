@@ -5,7 +5,11 @@ import java.awt.image.RenderedImage;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
+import com.gxldcptrick.mnote.controllers.ClientSocket;
 import com.gxldcptrick.mnote.models.Brush;
 import com.gxldcptrick.mnote.models.CanvasLines;
 import com.gxldcptrick.mnote.models.SavablePoint2D;
@@ -22,7 +26,7 @@ import javafx.scene.input.InputEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 
-public class DrawingBoard extends ScrollPane {
+public class DrawingBoard extends ScrollPane implements Serializable{
 
     private static final double MAX_CANVAS_WIDTH;
     private static final double MAX_CANVAS_HEIGHT;
@@ -39,9 +43,13 @@ public class DrawingBoard extends ScrollPane {
     private NoteGroup noteGroup;
     private Canvas canvas;
 
+    private ClientSocket socket;
+
     public DrawingBoard(double width, double height) {
 
         this.initialize(width, height);
+        socket = new ClientSocket();
+        socket.start();
 
     }
 
@@ -95,7 +103,6 @@ public class DrawingBoard extends ScrollPane {
 
     }
 
-
     public void clearBoard() {
 
         this.clearAnnotations();
@@ -123,14 +130,12 @@ public class DrawingBoard extends ScrollPane {
 
     }
 
-
     private void initializeLines() {
 
         if (lines == null)
             lines = new CanvasLines();
 
     }
-
 
     private void initializeLayout() {
 
@@ -186,12 +191,14 @@ public class DrawingBoard extends ScrollPane {
     }
 
     private void startLine(MouseEvent event) {
+        SavablePoint2D savablePoint2D = new SavablePoint2D(event.getX(), event.getY());
 
+        socket.sendObject(savablePoint2D);
         GraphicsContext gc = canvas.getGraphicsContext2D();
 
         configureGraphics(gc);
 
-        lines.addNextPoint(new SavablePoint2D(event.getX(), event.getY()));
+        lines.addNextPoint(savablePoint2D);
 
         gc.moveTo(event.getX(), event.getY());
 
@@ -200,9 +207,11 @@ public class DrawingBoard extends ScrollPane {
 
     private void drawLine(MouseEvent event) {
 
+        SavablePoint2D savablePoint2D = new SavablePoint2D(event.getX(), event.getY());
+        socket.sendObject(savablePoint2D);
         GraphicsContext gc = canvas.getGraphicsContext2D();
 
-        lines.addNextPoint(new SavablePoint2D(event.getX(), event.getY()));
+        lines.addNextPoint(savablePoint2D);
 
         gc.lineTo(event.getX(), event.getY());
 
