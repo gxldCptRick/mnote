@@ -25,12 +25,18 @@ public class Main extends Application {
     private FileMenuToolbar tools;
     private File recentlyOpenedFile;
 
+
+
     @Override
     public void start(Stage primaryStage) {
 
         initializeStage(primaryStage);
 
         primaryStage.show();
+
+
+
+
 
     }
 
