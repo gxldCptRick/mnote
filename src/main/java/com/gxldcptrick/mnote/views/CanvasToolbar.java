@@ -11,7 +11,6 @@ import java.util.List;
 import com.gxldcptrick.mnote.models.Brush;
 import com.gxldcptrick.mnote.models.enums.SpecialEffect;
 
-import javafx.event.ActionEvent;
 import javafx.geometry.Side;
 
 import javafx.scene.control.Button;
@@ -48,7 +47,7 @@ public class CanvasToolbar implements Serializable {
     private transient Button eraseButton;
     private transient ColorPicker colorPicker;
     private transient ComboBox<Double> sizePicker;
-    private transient CheckBox deletings;
+    private transient CheckBox deleting;
     private transient ComboBox<SpecialEffect> specialEffects;
 
     public CanvasToolbar(Brush userBrush) {
@@ -95,13 +94,13 @@ public class CanvasToolbar implements Serializable {
         this.eraseButton = new Button("Clear");
         this.eraseButton.setContextMenu(contextMenu);
         this.specialEffects = new ComboBox<>();
-        this.deletings = new CheckBox("Delete Line");
+        this.deleting = new CheckBox("Delete Line");
         this.initializeErase();
 
         determineDeleting();
 
         setupSpecialEffects();
-        this.deletings.setOnAction(event -> determineDeleting());
+        this.deleting.setOnAction(event -> determineDeleting());
 
 
         currentSize = new Label("Current Line Width : " + this.userBrush.getCurrentWidth());
@@ -116,7 +115,7 @@ public class CanvasToolbar implements Serializable {
 
         layout.setSpacing(10);
 
-        layout.getChildren().addAll(currentSize, colorPicker, sizePicker, this.eraseButton, this.specialEffects, this.deletings);
+        layout.getChildren().addAll(currentSize, colorPicker, sizePicker, this.eraseButton, this.specialEffects, this.deleting);
 
     }
 
@@ -132,7 +131,7 @@ public class CanvasToolbar implements Serializable {
 
     private void determineDeleting() {
 
-        userBrush.setDeleting(deletings.isSelected());
+        userBrush.setDeleting(deleting.isSelected());
 
     }
 
