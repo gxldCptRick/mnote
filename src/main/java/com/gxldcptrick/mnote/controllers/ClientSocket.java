@@ -7,63 +7,64 @@ import java.io.*;
 import java.net.Socket;
 
 public class ClientSocket extends Thread {
-    SavablePoint2D savablePoint2DSent = null;
-    DrawingBoard drawingBoard = new DrawingBoard();
+    private SavablePoint2D savablePoint2DSent = null;
+    private SavablePoint2D savablePoint2DRead = null;
+    private DrawingBoard drawingBoard = new DrawingBoard();
+    static private Socket socket;
+    static private ObjectOutputStream out;
+    static private ObjectInputStream in;
 
     @Override
     public void run() {
-        try (
-                Socket socket = new Socket("localhost", 4444);
-                ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
-                ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
-        ) {
 
+        Runnable send = () -> {
+            System.out.println("Send thread started");
             while (true) {
-                SavablePoint2D point2D;
-
-
-
-
-
-                //comment from here
-
-                try {
-                    point2D = (SavablePoint2D) in.readObject();
-                    System.out.println(point2D.get2DPoint().getX());
-                    drawingBoard.drawLine(point2D);
-
-                } catch (IOException e) {
-
-                } catch (ClassNotFoundException e) {
-                    e.printStackTrace();
-                }
-
-                //To here
-                //Uncomment block below
-
-
-
-/*
                 if (savablePoint2DSent != null) {
-                    System.out.println("Shoudl send somethings");
-                    out.writeObject(savablePoint2DSent);
+                    if (out == null) {
+                        System.out.println("NULL");
+                    }
+                    try {
+                        out.writeObject(savablePoint2DSent);
+                    } catch (IOException e) {
+                    }
                     savablePoint2DSent = null;
+
                 }
                 try {
                     Thread.sleep(125);
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
                 }
+            }
+        };
+        Runnable read = () -> {
+            System.out.println("Read thread started");
+            try {
+                while ((savablePoint2DRead = (SavablePoint2D) in.readObject()) != null) {
+                    drawingBoard.drawLine(savablePoint2DRead);
+                }
+            } catch (IOException e) {
 
-
-*/
-
+            } catch (ClassNotFoundException e) {
 
             }
 
-        } catch (IOException e) {
+        };
 
+        try {
+            socket = new Socket("localhost", 4444);
+            in = new ObjectInputStream(socket.getInputStream());
+            out = new ObjectOutputStream(socket.getOutputStream());
+
+
+            Thread s = new Thread(send);
+            Thread r = new Thread(read);
+            s.start();
+            r.start();
+        } catch (IOException e) {
         }
+
+
     }
 
     public void sendObject(SavablePoint2D savablePoint2D) {
