@@ -5,8 +5,10 @@ import javafx.geometry.Point2D;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 
+import java.io.Serializable;
 
-public class ClearPackage extends DrawingPackage {
+
+public class ClearPackage extends DrawingPackage implements Serializable {
 
 
     public ClearPackage() {
