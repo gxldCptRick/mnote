@@ -213,7 +213,7 @@ public class DrawingBoard extends ScrollPane implements Serializable {
     }
 
     public void drawLine(DrawingPackage aPackage) {
-        if (ClearPackage.class.isInstance(aPackage)) {
+        if (aPackage.getClear()) {
 
             this.clearLines();
 
@@ -358,7 +358,7 @@ public class DrawingBoard extends ScrollPane implements Serializable {
 
     private void clearDrawings() {
 
-        socket.sendObject(new ClearPackage());
+        socket.sendObject(new DrawingPackage(true));
         GraphicsContext gc = canvas.getGraphicsContext2D();
 
         gc.setEffect(null);
