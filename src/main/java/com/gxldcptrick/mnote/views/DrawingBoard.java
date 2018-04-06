@@ -8,10 +8,7 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
 import com.gxldcptrick.mnote.controllers.ClientSocket;
-import com.gxldcptrick.mnote.models.Brush;
-import com.gxldcptrick.mnote.models.CanvasLines;
-import com.gxldcptrick.mnote.models.DrawingPackage;
-import com.gxldcptrick.mnote.models.SavablePoint2D;
+import com.gxldcptrick.mnote.models.*;
 import com.gxldcptrick.mnote.models.enums.SpecialEffect;
 
 import javafx.embed.swing.SwingFXUtils;
@@ -216,7 +213,7 @@ public class DrawingBoard extends ScrollPane implements Serializable {
     }
 
     public void drawLine(DrawingPackage aPackage) {
-        if (aPackage.isEmpty()) {
+        if (ClearPackage.class.isInstance(aPackage)) {
 
             this.clearLines();
 
@@ -361,7 +358,7 @@ public class DrawingBoard extends ScrollPane implements Serializable {
 
     private void clearDrawings() {
 
-        socket.sendObject(new DrawingPackage(null, null, null));
+        socket.sendObject(new ClearPackage());
         GraphicsContext gc = canvas.getGraphicsContext2D();
 
         gc.setEffect(null);
