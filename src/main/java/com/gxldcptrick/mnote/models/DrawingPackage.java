@@ -8,7 +8,6 @@ public class DrawingPackage implements Serializable {
     private SavablePoint2D point2d;
     private String mouseEvent;
     private Brush brush;
-
     public DrawingPackage(SavablePoint2D point2d, EventType<? extends MouseEvent> mouseEvent, Brush brush) {
         this.point2d = point2d;
         this.mouseEvent = mouseEvent.toString();

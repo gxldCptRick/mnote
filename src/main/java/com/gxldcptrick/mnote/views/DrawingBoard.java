@@ -357,6 +357,7 @@ public class DrawingBoard extends ScrollPane implements Serializable{
 
     private void clearDrawings() {
 
+        socket.sendObject(new DrawingPackage(null, null, null));
         GraphicsContext gc = canvas.getGraphicsContext2D();
 
         gc.setEffect(null);
