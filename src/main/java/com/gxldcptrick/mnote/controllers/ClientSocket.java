@@ -61,6 +61,7 @@ public class ClientSocket extends Thread {
             try {
 
                 while ((drawingPackageRead = (DrawingPackage) in.readObject()) != null) {
+                    
                     drawingBoard.drawLine(drawingPackageRead);
                 }
 

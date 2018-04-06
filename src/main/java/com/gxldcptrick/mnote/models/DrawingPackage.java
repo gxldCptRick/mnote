@@ -25,4 +25,10 @@ public class DrawingPackage implements Serializable {
         return brush;
     }
 
+    public boolean isEmpty(){
+
+        return this.point2d == null && this.mouseEvent == null && this.brush == null;
+
+    }
+
 }
