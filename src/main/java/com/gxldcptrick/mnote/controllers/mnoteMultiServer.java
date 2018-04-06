@@ -1,5 +1,6 @@
 package com.gxldcptrick.mnote.controllers;
 
+import com.gxldcptrick.mnote.models.DrawingPackage;
 import com.gxldcptrick.mnote.models.SavablePoint2D;
 
 import java.io.IOException;
@@ -15,12 +16,13 @@ public class mnoteMultiServer {
         new mnoteMultiServer();
     }
 
-    public void sendDataToAll(SavablePoint2D point2D) {
+    public void sendDataToAll(DrawingPackage aPackage, int port) {
         for (Handler current : handlers) {
             try {
-                current.sendPoints(point2D);
+                if (current.port != port)
+                    current.sendPoints(aPackage);
             } catch (IOException e) {
-
+                e.printStackTrace();
             }
         }
     }
@@ -33,7 +35,7 @@ public class mnoteMultiServer {
                 noob.start();
             }
         } catch (IOException e) {
-
+            e.printStackTrace();
         }
     }
 
@@ -43,14 +45,21 @@ public class mnoteMultiServer {
         ObjectInputStream in;
         ObjectOutputStream out;
 
+        private int port;
+
 
         public Handler(Socket socket, mnoteMultiServer parent) {
             this.socket = socket;
             this.parent = parent;
+            this.port = socket.getPort();
         }
 
-        public void sendPoints(SavablePoint2D point2D) throws IOException {
-            out.writeObject(point2D);
+        public int getPort() {
+            return port;
+        }
+
+        public void sendPoints(DrawingPackage aPackage) throws IOException {
+            out.writeObject(aPackage);
         }
 
         @Override
@@ -61,21 +70,13 @@ public class mnoteMultiServer {
 
                 while (true) {
 
-                    Object point2D = in.readObject();
-
-                    if (SavablePoint2D.class.isInstance(point2D)) {
-
-                        parent.sendDataToAll((SavablePoint2D) point2D);
-
-                        System.out.println("Read savable point from somewhere");
-
-                    }
-
+                    Object aPackage = in.readObject();
+                    System.out.println("Read savable point from somewhere");
+                    parent.sendDataToAll((DrawingPackage) aPackage, port);
                 }
-            } catch (IOException e) {
-
-            } catch (ClassNotFoundException e) {
+            } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
+
             }
         }
     }

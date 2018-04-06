@@ -1,5 +1,6 @@
 package com.gxldcptrick.mnote.controllers;
 
+import com.gxldcptrick.mnote.models.DrawingPackage;
 import com.gxldcptrick.mnote.models.SavablePoint2D;
 import com.gxldcptrick.mnote.views.DrawingBoard;
 
@@ -8,13 +9,16 @@ import java.net.Socket;
 
 public class ClientSocket extends Thread {
     private SavablePoint2D savablePoint2DSent = null;
-    private SavablePoint2D savablePoint2DRead = null;
     private DrawingBoard drawingBoard;
+    private SavablePoint2D savablePoint2DRead = null;
+    private DrawingPackage drawingPackageSent = null;
+    private DrawingPackage drawingPackageRead = null;
 
     static private Socket socket;
     static private ObjectOutputStream out;
     static private ObjectInputStream in;
     private boolean connected;
+
     public ClientSocket(DrawingBoard board) {
         this.drawingBoard = board;
         connected = true;
@@ -29,18 +33,17 @@ public class ClientSocket extends Thread {
 
             while (connected) {
 
-                if (savablePoint2DSent != null) {
-
+                if (drawingPackageSent != null) {
                     if (out == null) {
                         System.out.println("NULL");
                     }
 
                     try {
-                        out.writeObject(savablePoint2DSent);
+                        out.writeObject(drawingPackageSent);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                    savablePoint2DSent = null;
+                    drawingPackageSent = null;
 
                 }
                 try {
@@ -48,7 +51,6 @@ public class ClientSocket extends Thread {
                 } catch (InterruptedException e) {
 
                     e.printStackTrace();
-
                 }
 
             }
@@ -59,16 +61,13 @@ public class ClientSocket extends Thread {
 
             try {
 
-                while ((savablePoint2DRead = (SavablePoint2D) in.readObject()) != null) {
-
-                    drawingBoard.drawLine(savablePoint2DRead);
-
+                while ((drawingPackageRead = (DrawingPackage) in.readObject()) != null) {
+                    drawingBoard.drawLine(drawingPackageRead);
                 }
 
             } catch (IOException | ClassNotFoundException e) {
 
                 e.printStackTrace();
-
             }
 
         };
@@ -84,20 +83,19 @@ public class ClientSocket extends Thread {
             s.start();
             r.start();
         } catch (IOException e) {
-
             e.printStackTrace();
-
         }
-
-
     }
 
-    public void killConnection(){
+    public void killConnection() {
 
         this.connected = false;
     }
 
-    public void sendPoint(SavablePoint2D savablePoint2D) {
-        savablePoint2DSent = savablePoint2D;
+    public void sendObject(DrawingPackage aPackage) {
+        drawingPackageSent = aPackage;
     }
 }
+
+
+

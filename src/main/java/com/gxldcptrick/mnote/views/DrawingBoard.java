@@ -10,6 +10,7 @@ import java.io.Serializable;
 import com.gxldcptrick.mnote.controllers.ClientSocket;
 import com.gxldcptrick.mnote.models.Brush;
 import com.gxldcptrick.mnote.models.CanvasLines;
+import com.gxldcptrick.mnote.models.DrawingPackage;
 import com.gxldcptrick.mnote.models.SavablePoint2D;
 import com.gxldcptrick.mnote.models.enums.SpecialEffect;
 
@@ -43,9 +44,6 @@ public class DrawingBoard extends ScrollPane implements Serializable{
 
     private static ClientSocket socket;
 
-    public DrawingBoard() {
-
-    }
     public DrawingBoard(double width, double height) {
 
         this.initialize(width, height);
@@ -191,10 +189,12 @@ public class DrawingBoard extends ScrollPane implements Serializable{
 
     }
 
-    private  void startLine(MouseEvent event) {
+    private void startLine(MouseEvent event) {
         SavablePoint2D savablePoint2D = new SavablePoint2D(event.getX(), event.getY());
 
-        socket.sendPoint(savablePoint2D);
+        DrawingPackage aPackage = new DrawingPackage(savablePoint2D, event.getEventType().toString(), getCanvasBrush());
+
+        socket.sendObject(aPackage);
         GraphicsContext gc = canvas.getGraphicsContext2D();
 
         configureGraphics(gc);
@@ -216,20 +216,35 @@ public class DrawingBoard extends ScrollPane implements Serializable{
         gc.stroke();
     }
 
-    public void drawLine(SavablePoint2D point2D) {
-        GraphicsContext gc = canvas.getGraphicsContext2D();
 
-        lines.addNextPoint(point2D);
+    public void drawLine(DrawingPackage aPackage) {
+        GraphicsContext gcClient = canvas.getGraphicsContext2D();
 
-        gc.lineTo(point2D.get2DPoint().getX(), point2D.get2DPoint().getY());
+        System.out.println(aPackage.getMouseEvent());
+        gcClient.setLineWidth(aPackage.getBrush().getCurrentWidth());
+        gcClient.setStroke(aPackage.getBrush().getCurrentColor());
+        gcClient.setLineCap(aPackage.getBrush().getBrushCap());
 
-        gc.stroke();
+        if (aPackage.getBrush().getEffect() == null)
+            gcClient.setEffect(null);
+        else
+            gcClient.setEffect(aPackage.getBrush().getEffect().lineEffect);
+
+        lines.addNextPoint(aPackage.getPoint2d());
+
+        gcClient.lineTo(aPackage.getPoint2d().get2DPoint().getX(), aPackage.getPoint2d().get2DPoint().getY());
+
+        gcClient.stroke();
     }
 
     private void drawLine(MouseEvent event) {
 
         SavablePoint2D savablePoint2D = new SavablePoint2D(event.getX(), event.getY());
-        socket.sendPoint(savablePoint2D);
+
+        DrawingPackage aPackage = new DrawingPackage(savablePoint2D, event.getEventType().toString(), getCanvasBrush());
+        System.out.println("Sending package");
+        socket.sendObject(aPackage);
+
         GraphicsContext gc = canvas.getGraphicsContext2D();
 
         lines.addNextPoint(savablePoint2D);
