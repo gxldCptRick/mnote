@@ -10,10 +10,11 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
 public class Brush implements Serializable {
+
+    private static long serialVersionUID = -7915164485747229844l;
     private double currentWidth;
     private StrokeLineCap brushCap;
     private boolean isDeleting;
-    private boolean isSpecial;
     private SpecialEffect effect;
     private  transient Color currentColor;
 
@@ -85,7 +86,36 @@ public class Brush implements Serializable {
 
         ois.defaultReadObject();
         this.currentColor = ((SavableColor) ois.readObject()).getColor();
+        System.out.println(this.currentColor);
 
     }
+
+    public void resetWithBrush(Brush brush) {
+
+        this.currentColor = brush.currentColor;
+        this.currentWidth = brush.currentWidth;
+        this.effect = brush.effect;
+        this.brushCap = brush.brushCap;
+        this.isDeleting = brush.isDeleting;
+    }
     //</editor-fold>
+
+    @Override
+    public String toString(){
+
+        String message = "";
+
+        message += isDeleting? "Deleting " : "Not Deleting ";
+
+        message += this.brushCap.toString() + " ";
+
+        message += this.currentColor + " ";
+
+        message += "Width: " + this.currentWidth + " ";
+
+        message += this.effect + " ";
+
+
+        return message;
+    }
 }

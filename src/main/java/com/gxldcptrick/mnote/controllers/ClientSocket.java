@@ -46,13 +46,6 @@ public class ClientSocket extends Thread {
                     drawingPackageSent = null;
 
                 }
-                try {
-                    Thread.sleep(125);
-                } catch (InterruptedException e) {
-
-                    e.printStackTrace();
-                }
-
             }
         };
         Runnable read = () -> {

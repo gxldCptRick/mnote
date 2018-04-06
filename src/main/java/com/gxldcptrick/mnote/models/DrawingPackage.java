@@ -1,5 +1,7 @@
 package com.gxldcptrick.mnote.models;
 
+import javafx.event.EventType;
+import javafx.scene.input.MouseEvent;
 import java.io.Serializable;
 
 public class DrawingPackage implements Serializable {
@@ -7,33 +9,20 @@ public class DrawingPackage implements Serializable {
     private String mouseEvent;
     private Brush brush;
 
-    public DrawingPackage(SavablePoint2D point2d, String mouseEvent, Brush brush) {
+    public DrawingPackage(SavablePoint2D point2d, EventType<? extends MouseEvent> mouseEvent, Brush brush) {
         this.point2d = point2d;
-        this.mouseEvent = mouseEvent;
+        this.mouseEvent = mouseEvent.toString();
         this.brush = brush;
     }
 
     public SavablePoint2D getPoint2d() {
         return point2d;
     }
-
-    public void setPoint2d(SavablePoint2D point2d) {
-        this.point2d = point2d;
-    }
-
     public String getMouseEvent() {
         return mouseEvent;
     }
-
-    public void setMouseEvent(String mouseEvent) {
-        this.mouseEvent = mouseEvent;
-    }
-
     public Brush getBrush() {
         return brush;
     }
 
-    public void setBrush(Brush brush) {
-        this.brush = brush;
-    }
 }
