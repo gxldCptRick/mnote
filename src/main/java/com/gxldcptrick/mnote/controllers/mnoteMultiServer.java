@@ -16,11 +16,10 @@ public class mnoteMultiServer {
     }
 
     public void sendDataToAll(SavablePoint2D point2D) {
-        for (Handler current: handlers) {
+        for (Handler current : handlers) {
             try {
                 current.sendPoints(point2D);
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
 
             }
         }
@@ -33,8 +32,7 @@ public class mnoteMultiServer {
                 handlers.add(noob);
                 noob.start();
             }
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
 
         }
     }
@@ -61,13 +59,20 @@ public class mnoteMultiServer {
                 out = new ObjectOutputStream(socket.getOutputStream());
                 in = new ObjectInputStream(socket.getInputStream());
 
-                while(true) {
-                    SavablePoint2D point2D = (SavablePoint2D)in.readObject();
-                    System.out.println("Read savable point from somewhere");
-                    parent.sendDataToAll(point2D);
+                while (true) {
+
+                    Object point2D = in.readObject();
+
+                    if (SavablePoint2D.class.isInstance(point2D)) {
+
+                        parent.sendDataToAll((SavablePoint2D) point2D);
+
+                        System.out.println("Read savable point from somewhere");
+
+                    }
+
                 }
-            }
-            catch(IOException e) {
+            } catch (IOException e) {
 
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();

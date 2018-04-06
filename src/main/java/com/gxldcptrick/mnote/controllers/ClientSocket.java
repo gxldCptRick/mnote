@@ -97,7 +97,7 @@ public class ClientSocket extends Thread {
         this.connected = false;
     }
 
-    public void sendObject(SavablePoint2D savablePoint2D) {
+    public void sendPoint(SavablePoint2D savablePoint2D) {
         savablePoint2DSent = savablePoint2D;
     }
 }

@@ -6,8 +6,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 
 import com.gxldcptrick.mnote.controllers.ClientSocket;
 import com.gxldcptrick.mnote.models.Brush;
@@ -196,7 +194,7 @@ public class DrawingBoard extends ScrollPane implements Serializable{
     private  void startLine(MouseEvent event) {
         SavablePoint2D savablePoint2D = new SavablePoint2D(event.getX(), event.getY());
 
-        socket.sendObject(savablePoint2D);
+        socket.sendPoint(savablePoint2D);
         GraphicsContext gc = canvas.getGraphicsContext2D();
 
         configureGraphics(gc);
@@ -231,7 +229,7 @@ public class DrawingBoard extends ScrollPane implements Serializable{
     private void drawLine(MouseEvent event) {
 
         SavablePoint2D savablePoint2D = new SavablePoint2D(event.getX(), event.getY());
-        socket.sendObject(savablePoint2D);
+        socket.sendPoint(savablePoint2D);
         GraphicsContext gc = canvas.getGraphicsContext2D();
 
         lines.addNextPoint(savablePoint2D);
