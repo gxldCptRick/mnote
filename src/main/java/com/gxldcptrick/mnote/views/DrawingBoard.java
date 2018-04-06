@@ -38,10 +38,10 @@ public class DrawingBoard extends ScrollPane implements Serializable{
 
     }
 
-    private static CanvasLines lines;
-    private static Brush canvasBrush;
-    private static NoteGroup noteGroup;
-    private static Canvas canvas;
+    private CanvasLines lines;
+    private Brush canvasBrush;
+    private NoteGroup noteGroup;
+    private Canvas canvas;
 
     private static ClientSocket socket;
 
@@ -51,7 +51,7 @@ public class DrawingBoard extends ScrollPane implements Serializable{
     public DrawingBoard(double width, double height) {
 
         this.initialize(width, height);
-        socket = new ClientSocket();
+        socket = new ClientSocket(this);
         socket.start();
 
     }
@@ -193,7 +193,7 @@ public class DrawingBoard extends ScrollPane implements Serializable{
 
     }
 
-    private static void startLine(MouseEvent event) {
+    private  void startLine(MouseEvent event) {
         SavablePoint2D savablePoint2D = new SavablePoint2D(event.getX(), event.getY());
 
         socket.sendObject(savablePoint2D);
@@ -208,7 +208,7 @@ public class DrawingBoard extends ScrollPane implements Serializable{
         gc.stroke();
     }
 
-    public static void startLine(SavablePoint2D points) {
+    public void startLine(SavablePoint2D points) {
         GraphicsContext gc = canvas.getGraphicsContext2D();
 
         configureGraphics(gc);
@@ -218,7 +218,7 @@ public class DrawingBoard extends ScrollPane implements Serializable{
         gc.stroke();
     }
 
-    public static void drawLine(SavablePoint2D point2D) {
+    public void drawLine(SavablePoint2D point2D) {
         GraphicsContext gc = canvas.getGraphicsContext2D();
 
         lines.addNextPoint(point2D);
@@ -228,7 +228,7 @@ public class DrawingBoard extends ScrollPane implements Serializable{
         gc.stroke();
     }
 
-    private static void drawLine(MouseEvent event) {
+    private void drawLine(MouseEvent event) {
 
         SavablePoint2D savablePoint2D = new SavablePoint2D(event.getX(), event.getY());
         socket.sendObject(savablePoint2D);
@@ -373,7 +373,7 @@ public class DrawingBoard extends ScrollPane implements Serializable{
     }
 
 
-    private static void configureGraphics(GraphicsContext gc) {
+    private void configureGraphics(GraphicsContext gc) {
 
         gc.beginPath();
 

@@ -35,7 +35,7 @@ public class CanvasContainer implements Serializable {
 
         char[] inputs = input.toCharArray();
 
-        for (int i = 0; i < inputs.length; i++) {
+        for (int i =  0; i < inputs.length; i++) {
 
             counter += inputs[i] + i;
 
