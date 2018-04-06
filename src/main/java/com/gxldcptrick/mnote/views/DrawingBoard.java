@@ -26,7 +26,7 @@ import javafx.scene.input.InputEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 
-public class DrawingBoard extends ScrollPane implements Serializable{
+public class DrawingBoard extends ScrollPane implements Serializable {
 
     private static final double MAX_CANVAS_WIDTH;
     private static final double MAX_CANVAS_HEIGHT;
@@ -201,8 +201,7 @@ public class DrawingBoard extends ScrollPane implements Serializable{
 
         try {
             Thread.sleep(125);
-        }
-        catch(Exception e) {
+        } catch (Exception e) {
 
         }
         GraphicsContext gc = canvas.getGraphicsContext2D();
@@ -217,36 +216,41 @@ public class DrawingBoard extends ScrollPane implements Serializable{
     }
 
     public void drawLine(DrawingPackage aPackage) {
-        GraphicsContext gcClient = canvas.getGraphicsContext2D();
-        Point2D point = aPackage.getPoint2d().get2DPoint();
-        String event = aPackage.getMouseEvent();
-        System.out.println(event);
-        if(event.equals(MouseEvent.MOUSE_PRESSED.toString())){
+        if (aPackage.isEmpty()) {
 
-            this.canvasBrush.resetWithBrush(aPackage.getBrush());
-            System.out.println(aPackage.getBrush());
-            configureGraphics(gcClient);
-            lines.addNextPoint(aPackage.getPoint2d());
-            gcClient.moveTo(point.getX(), point.getX());
-            gcClient.stroke();
+            this.clearLines();
+
+        } else {
+            GraphicsContext gcClient = canvas.getGraphicsContext2D();
+            Point2D point = aPackage.getPoint2d().get2DPoint();
+            String event = aPackage.getMouseEvent();
+            System.out.println(event);
+            if (event.equals(MouseEvent.MOUSE_PRESSED.toString())) {
+
+                this.canvasBrush.resetWithBrush(aPackage.getBrush());
+                System.out.println(aPackage.getBrush());
+                configureGraphics(gcClient);
+                lines.addNextPoint(aPackage.getPoint2d());
+                gcClient.moveTo(point.getX(), point.getX());
+                gcClient.stroke();
 
 
+            } else if (event.equals(MouseEvent.MOUSE_DRAGGED.toString()) || event.equals(MouseEvent.MOUSE_RELEASED.toString())) {
 
-        }else if(event.equals(MouseEvent.MOUSE_DRAGGED.toString()) || event.equals(MouseEvent.MOUSE_RELEASED.toString())){
 
+                lines.addNextPoint(aPackage.getPoint2d());
 
-            lines.addNextPoint(aPackage.getPoint2d());
+                gcClient.lineTo(point.getX(), point.getY());
 
-            gcClient.lineTo(point.getX(), point.getY());
+                gcClient.stroke();
 
-            gcClient.stroke();
+                if (event.equals(MouseEvent.MOUSE_RELEASED.toString())) {
 
-            if(event.equals(MouseEvent.MOUSE_RELEASED.toString())){
+                    gcClient.closePath();
 
-                gcClient.closePath();
+                }
 
             }
-
         }
     }
 
