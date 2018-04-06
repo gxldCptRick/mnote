@@ -20,6 +20,7 @@ public class mnoteMultiServer {
         for (Handler current : handlers) {
             try {
                 if (current.port != port)
+                    System.out.println("Sent package");
                     current.sendPoints(aPackage);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -31,6 +32,7 @@ public class mnoteMultiServer {
         try (java.net.ServerSocket serverSocket = new java.net.ServerSocket(4444);) {
             while (true) {
                 Handler noob = new Handler(serverSocket.accept(), this);
+                System.out.println("Client connected");
                 handlers.add(noob);
                 noob.start();
             }
@@ -69,7 +71,7 @@ public class mnoteMultiServer {
                 in = new ObjectInputStream(socket.getInputStream());
 
                 while (true) {
-
+                    System.out.println("Waiting for package...");
                     Object aPackage = in.readObject();
                     System.out.println("Read savable point from somewhere");
                     parent.sendDataToAll((DrawingPackage) aPackage, port);

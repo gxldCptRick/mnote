@@ -46,6 +46,12 @@ public class ClientSocket extends Thread {
                     drawingPackageSent = null;
 
                 }
+
+                try {
+                    Thread.sleep(1);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         };
         Runnable read = () -> {
@@ -66,7 +72,7 @@ public class ClientSocket extends Thread {
         };
 
         try {
-            socket = new Socket("localhost", 4444);
+            socket = new Socket("192.168.1.2", 4444);
             in = new ObjectInputStream(socket.getInputStream());
             out = new ObjectOutputStream(socket.getOutputStream());
 

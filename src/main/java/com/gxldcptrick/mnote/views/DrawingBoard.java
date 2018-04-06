@@ -198,6 +198,13 @@ public class DrawingBoard extends ScrollPane implements Serializable{
         System.out.println(aPackage.getMouseEvent());
 
         socket.sendObject(aPackage);
+
+        try {
+            Thread.sleep(125);
+        }
+        catch(Exception e) {
+
+        }
         GraphicsContext gc = canvas.getGraphicsContext2D();
 
         configureGraphics(gc);
