@@ -1,7 +1,6 @@
 package com.gxldcptrick.mnote.controllers;
 
 import com.gxldcptrick.mnote.models.DrawingPackage;
-import com.gxldcptrick.mnote.models.SavablePoint2D;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -17,14 +16,20 @@ public class mnoteMultiServer {
     }
 
     public void sendDataToAll(DrawingPackage aPackage, int port) {
+
         for (Handler current : handlers) {
             try {
-                if (current.port != port)
+
+                if (current.getPort() != port && current.isConnected())
                     System.out.println("Sent package");
+
                     current.sendPoints(aPackage);
+
             } catch (IOException e) {
+
                 e.printStackTrace();
             }
+
         }
     }
 
@@ -46,16 +51,17 @@ public class mnoteMultiServer {
         mnoteMultiServer parent;
         ObjectInputStream in;
         ObjectOutputStream out;
-
+        private static int portNumbers = 0;
         private int port;
 
 
         public Handler(Socket socket, mnoteMultiServer parent) {
             this.socket = socket;
             this.parent = parent;
-            this.port = socket.getPort();
+            this.port = portNumbers++;
         }
 
+        public boolean isConnected() { return socket.isConnected();}
         public int getPort() {
             return port;
         }
@@ -70,7 +76,7 @@ public class mnoteMultiServer {
                 out = new ObjectOutputStream(socket.getOutputStream());
                 in = new ObjectInputStream(socket.getInputStream());
 
-                while (true) {
+                while (socket.isConnected()) {
                     System.out.println("Waiting for package...");
                     Object aPackage = in.readObject();
                     System.out.println("Read savable point from somewhere");

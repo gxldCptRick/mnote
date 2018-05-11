@@ -58,74 +58,56 @@ public class CanvasLine implements Serializable {
 
     //</editor-fold>
 
-    public List<SavablePoint2D> getPoints() {
-
-        return new ArrayList<>(this.points);
-
-    }
-
     public SavablePoint2D getInitialPoint() {
-
         SavablePoint2D point = null;
 
         if (points.size() > 0) {
             point = points.get(0);
         }
-
         return point;
+    }
+
+    public List<SavablePoint2D> getPoints() {
+        return new ArrayList<>(this.points);
 
     }
 
     public void addNextPoint(SavablePoint2D nextPoint) {
-
         if (nextPoint != null)
             points.add(nextPoint);
 
     }
 
     public boolean contains(Point2D point) {
-
         boolean found = points.stream().filter(savedPoint -> savedPoint.get2DPoint().distance(point) < 15).count() > 0;
-
         return found;
     }
 
     public void drawLine(GraphicsContext gc) {
-
         if (this.points.size() > 1) {
             gc.beginPath();
-
             setUpGraphics(gc);
-
             SavablePoint2D startingPoint = getInitialPoint();
 
             if (startingPoint != null) {
-
                 Point2D initialPoint = startingPoint.get2DPoint();
-
                 gc.moveTo(initialPoint.getX(), initialPoint.getY());
 
-
                 points.forEach(savedPoint -> {
-
                     if ((savedPoint != null) && (savedPoint != startingPoint)) {
-
                         Point2D point = savedPoint.get2DPoint();
 
                         gc.lineTo(point.getX(), point.getY());
                         gc.stroke();
                     }
                 });
-
             }
 
             gc.closePath();
-
         } else if (points.size() > 0) {
             SavablePoint2D initialPoint = points.get(0);
 
             if (initialPoint != null) {
-
                 Point2D dot = initialPoint.get2DPoint();
                 gc.beginPath();
 
@@ -134,11 +116,9 @@ public class CanvasLine implements Serializable {
                 gc.strokeOval(dot.getX(), dot.getY(), this.lineWidth, this.lineWidth);
 
                 gc.closePath();
-
             }
         }
     }
-
 
     private void setUpGraphics(GraphicsContext gc) {
 
@@ -149,8 +129,6 @@ public class CanvasLine implements Serializable {
 
         gc.setStroke(this.color.getColor());
         gc.setLineWidth(this.lineWidth);
-
-
     }
 
     //<editor-fold desc = "Equality">

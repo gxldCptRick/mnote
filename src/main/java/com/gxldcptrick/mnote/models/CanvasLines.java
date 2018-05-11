@@ -21,114 +21,72 @@ public class CanvasLines implements Serializable {
 	private CanvasLine currentLine;
 
 	public List<CanvasLine> getLines() {
-
 		return new ArrayList<>(lines);
-
 	}
 
 	public CanvasLine getCurrentLine() {
-
 		return new CanvasLine(currentLine);
-
 	}
 
 	public CanvasLines() {
-
 		lines = new ArrayList<>();
-
 		currentLine = new CanvasLine();
-
 	}
 
 	public void startNewLine(Color colorOfLine, double lineWidth) {
-
 		startNewLine(colorOfLine,lineWidth, null);
 	}
 	
 	public void startNewLine(Color colorOfLine, double lineWidth, SpecialEffect specialEffect) {
-	
 		currentLine = new CanvasLine(colorOfLine, lineWidth , specialEffect);
-
 		lines.add(currentLine);
-
-	}
-	
-	public void startNewLine() {
-
-		startNewLine(Color.BLACK, 10);
-	
 	}
 	
 	public boolean removeLine(Point2D point) {
-		
 		boolean foundLine = false;
 		CanvasLine line = null;
-		
-		for(int i = lines.size() - 1; i > -1 && !foundLine; i--) {
-			
-			foundLine = lines.get(i).contains(point);
-			
-			if(foundLine) {
-				
-				line = lines.remove(i);
-			
-			}
 
+		for(int i = lines.size() - 1; i > -1 && !foundLine; i--) {
+			foundLine = lines.get(i).contains(point);
+			if(foundLine) {
+				line = lines.remove(i);
+			}
 		}
-		
 		if(line == currentLine) {
-			
-			
 			this.currentLine = new CanvasLine();
-			
 		}
-		
-		
-		
+
 		return foundLine;
-		
+	}
+
+	public void startNewLine() {
+		startNewLine(Color.BLACK, 10);
 	}
 
 	public void addNextPoint(SavablePoint2D savablePoint2D) {
-
 		if (savablePoint2D != null)
 			currentLine.addNextPoint(savablePoint2D);
-
 	}
 
 	public void drawLines(GraphicsContext gc) {
 		System.out.println("Drawing Lines ");
-
-		for (CanvasLine line : lines) {
-			
-			line.drawLine(gc);
-
-		}
-
+		this.lines.forEach((e) -> e.drawLine(gc));
 		if (currentLine != null && !lines.contains(currentLine)) {
-
 			currentLine.drawLine(gc);
-			
 		}
-
 	}
 	
 	public boolean equals(CanvasLines other) {
-		
 		return other != null && other.lines.equals(this.lines) && other.currentLine.equals(this.currentLine);
-	
 	}
 
 
 	@Override
 	public boolean equals(Object other) {
-
 		boolean equal = false;
 
 		if(CanvasLines.class.isInstance(other)) {
-			
 			equal = equals((CanvasLines) other);
-			
 		}
 		
 		return equal;
@@ -140,18 +98,12 @@ public class CanvasLines implements Serializable {
 	
 	@Override
 	public int hashCode() {
-
-        System.out.println(lines != null);
-
-        System.out.println(currentLine != null);
-
 		return lines.hashCode() ^ currentLine.hashCode();
 		
 	}
 
 	@Override
     public String toString(){
-
 	    return this.lines.toString();
     }
 

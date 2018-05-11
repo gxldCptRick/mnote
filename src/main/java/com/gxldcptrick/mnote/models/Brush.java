@@ -11,7 +11,8 @@ import java.io.Serializable;
 
 public class Brush implements Serializable {
 
-    private static long serialVersionUID = -7915164485747229844l;
+    private static long serialVersionUID = -696969l;
+
     private double currentWidth;
     private StrokeLineCap brushCap;
     private boolean isDeleting;
@@ -76,46 +77,18 @@ public class Brush implements Serializable {
 
    // <editor-fold desc = "Serilization">
     private void writeObject(ObjectOutputStream oos)throws IOException {
-
         oos.defaultWriteObject();
-        oos.writeObject(new SavableColor(this.currentColor));
 
+        oos.writeObject(new SavableColor(this.currentColor));
     }
 
     private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException{
-
         ois.defaultReadObject();
+
         this.currentColor = ((SavableColor) ois.readObject()).getColor();
+
         System.out.println(this.currentColor);
-
     }
 
-    public void resetWithBrush(Brush brush) {
-
-        this.currentColor = brush.currentColor;
-        this.currentWidth = brush.currentWidth;
-        this.effect = brush.effect;
-        this.brushCap = brush.brushCap;
-        this.isDeleting = brush.isDeleting;
-    }
     //</editor-fold>
-
-    @Override
-    public String toString(){
-
-        String message = "";
-
-        message += isDeleting? "Deleting " : "Not Deleting ";
-
-        message += this.brushCap.toString() + " ";
-
-        message += this.currentColor + " ";
-
-        message += "Width: " + this.currentWidth + " ";
-
-        message += this.effect + " ";
-
-
-        return message;
-    }
 }

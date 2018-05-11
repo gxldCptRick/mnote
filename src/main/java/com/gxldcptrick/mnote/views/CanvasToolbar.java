@@ -34,13 +34,10 @@ public class CanvasToolbar implements Serializable {
     private static final List<Double> increaseSizeValues;
 
     static {
-
         increaseSizeValues = Arrays.asList(.1, .2, .3, .4, .5, .6, .7, .8, .9, 1.0, 10.0, 100.0);
-
     }
 
     private Brush userBrush;
-
     private transient HBox layout;
     private transient Label currentSize;
     private transient ContextMenu contextMenu;
@@ -51,39 +48,29 @@ public class CanvasToolbar implements Serializable {
     private transient ComboBox<SpecialEffect> specialEffects;
 
     public CanvasToolbar(Brush userBrush) {
-
         initializeToolbar(userBrush);
-
     }
 
     public Pane getLayout() {
-
         return layout;
-
     }
 
     public ContextMenu getContextMenu() {
-
         return this.contextMenu;
     }
 
 
     private void initializeErase() {
-
         this.eraseButton.setOnAction(event ->
                 this.contextMenu.show(eraseButton, Side.RIGHT, 0, 0)
         );
-
     }
 
     private void writeObject(ObjectOutputStream out) throws IOException {
-
         out.defaultWriteObject();
-
     }
 
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-
         in.defaultReadObject();
         initializeToolbar(this.userBrush);
     }
@@ -102,7 +89,6 @@ public class CanvasToolbar implements Serializable {
         setupSpecialEffects();
         this.deleting.setOnAction(event -> determineDeleting());
 
-
         currentSize = new Label("Current Line Width : " + this.userBrush.getCurrentWidth());
 
         layout = new HBox();
@@ -120,33 +106,26 @@ public class CanvasToolbar implements Serializable {
     }
 
     private void setupSpecialEffects() {
-
         this.specialEffects.getItems().addAll(SpecialEffect.values());
         this.specialEffects.setValue(SpecialEffect.None);
 
         this.userBrush.setEffect(this.specialEffects.getValue());
         this.specialEffects.setOnAction(event -> this.userBrush.setEffect(this.specialEffects.getValue()));
-
     }
 
     private void determineDeleting() {
-
         userBrush.setDeleting(deleting.isSelected());
-
     }
 
     private void initializeColorPicker() {
-
         this.colorPicker = new ColorPicker();
 
         colorPicker.setValue(Color.BLACK);
 
         colorPicker.setOnAction((event) -> this.userBrush.setCurrentColor(this.colorPicker.getValue()));
-
     }
 
     private void initializeIncreaseSizeComboBox() {
-
         this.sizePicker = new ComboBox<>();
 
         sizePicker.getItems().addAll(CanvasToolbar.increaseSizeValues);
@@ -154,19 +133,14 @@ public class CanvasToolbar implements Serializable {
         sizePicker.setValue(this.userBrush.getCurrentWidth());
 
         sizePicker.setOnAction((event) -> this.userBrush.setCurrentWidth(this.sizePicker.getValue()));
-
     }
 
     private void updateSize() {
-
         currentSize.setText("Current Line Width: " + this.userBrush.getCurrentWidth());
-
     }
 
     public boolean equals(CanvasToolbar other) {
-
         return other.userBrush == this.userBrush;
-
     }
 
     @Override
@@ -174,20 +148,14 @@ public class CanvasToolbar implements Serializable {
         boolean equal = false;
 
         if (getClass().isInstance(other)) {
-
             equal = equals(this.getClass().cast(other));
-
         }
 
         return equal;
-
     }
 
     @Override
     public int hashCode() {
-
         return this.userBrush.hashCode();
     }
-
-
 }

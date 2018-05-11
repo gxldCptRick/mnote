@@ -6,13 +6,12 @@ import com.gxldcptrick.mnote.views.DrawingBoard;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.function.Consumer;
 
 public class ClientSocket extends Thread {
-    private SavablePoint2D savablePoint2DSent = null;
     private DrawingBoard drawingBoard;
-    private SavablePoint2D savablePoint2DRead = null;
-    private DrawingPackage drawingPackageSent = null;
-    private DrawingPackage drawingPackageRead = null;
+    private DrawingPackage drawingPackageSent;
+    private DrawingPackage drawingPackageRead;
 
     static private Socket socket;
     static private ObjectOutputStream out;
@@ -24,15 +23,15 @@ public class ClientSocket extends Thread {
         connected = true;
     }
 
+    public void killConnection() {
+        this.connected = false;
+    }
+
     @Override
     public void run() {
-
         Runnable send = () -> {
-
             System.out.println("Send thread started");
-
             while (connected) {
-
                 if (drawingPackageSent != null) {
                     if (out == null) {
                         System.out.println("NULL");
@@ -43,8 +42,8 @@ public class ClientSocket extends Thread {
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                    drawingPackageSent = null;
 
+                    drawingPackageSent = null;
                 }
 
                 try {
@@ -54,47 +53,39 @@ public class ClientSocket extends Thread {
                 }
             }
         };
+
         Runnable read = () -> {
-
             System.out.println("Read thread started");
-
             try {
-
+                System.out.println("drawing pack is not null : " + drawingPackageRead != null);
                 while ((drawingPackageRead = (DrawingPackage) in.readObject()) != null) {
-                    
                     drawingBoard.drawLine(drawingPackageRead);
                 }
-
             } catch (IOException | ClassNotFoundException e) {
-
                 e.printStackTrace();
             }
-
         };
 
         try {
-            socket = new Socket("192.168.1.2", 4444);
+            socket = new Socket("localhost", 4444);
             in = new ObjectInputStream(socket.getInputStream());
             out = new ObjectOutputStream(socket.getOutputStream());
 
-
             Thread s = new Thread(send);
             Thread r = new Thread(read);
+
             s.start();
             r.start();
+
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public void killConnection() {
-
-        this.connected = false;
-    }
-
     public void sendObject(DrawingPackage aPackage) {
         drawingPackageSent = aPackage;
     }
+
 }
 
 

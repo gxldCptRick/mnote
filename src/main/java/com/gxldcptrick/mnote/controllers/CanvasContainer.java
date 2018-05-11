@@ -16,31 +16,22 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 
 public class CanvasContainer implements Serializable {
-
     /**
      *
      */
     private static final long serialVersionUID;
 
-
     static {
-
         serialVersionUID = generateID("420 BLAZE IT");
-
     }
 
     private static long generateID(String input) {
-
         long counter = 0;
-
         char[] inputs = input.toCharArray();
 
         for (int i =  0; i < inputs.length; i++) {
-
             counter += inputs[i] + i;
-
         }
-
         return counter;
     }
 
@@ -51,15 +42,11 @@ public class CanvasContainer implements Serializable {
 
 
     public CanvasContainer(double width, double height) {
-
         initialize(width, height);
-
     }
 
     public Pane getLayout() {
-
         return this.layout;
-
     }
 
     @SuppressWarnings("unchecked")
@@ -70,18 +57,14 @@ public class CanvasContainer implements Serializable {
                 Toolkit.getDefaultToolkit().getScreenSize().getHeight());
 
         board.reloadData(in);
-
     }
 
     private void writeObject(ObjectOutputStream out) throws IOException {
-
         out.defaultWriteObject();
         this.board.saveData(out);
-
     }
 
     private void initialize(double width, double height) {
-
         initializeLayout();
 
         initializeBoard(width, height);
@@ -89,26 +72,25 @@ public class CanvasContainer implements Serializable {
         initializeToolbar();
 
         layout.getChildren().addAll(toolbar.getLayout(), this.board);
-
     }
 
     private void initializeBoard(double width, double height) {
-
         if (board == null)
             this.board = new DrawingBoard(width, height);
-
     }
 
     private void initializeLayout() {
-
         if (layout == null)
             layout = new VBox();
 
         layout.setSpacing(5);
     }
 
-    private void initializeToolbar() {
+    public void killNetworkConnection(){
+        this.board.killSockets();
+    }
 
+    private void initializeToolbar() {
         if (toolbar == null)
             toolbar = new CanvasToolbar(this.board.getCanvasBrush());
 
@@ -131,13 +113,10 @@ public class CanvasContainer implements Serializable {
         clearAnnotations.setOnAction(event ->
                 board.clearAnnotations()
         );
-
     }
 
 
     public RenderedImage getRenderedImage() {
-
         return board.captureImage();
     }
-
 }

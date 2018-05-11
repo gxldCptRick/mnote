@@ -38,31 +38,23 @@ public class FileMenuToolbar extends HBox {
     }
 
     public FileMenuToolbar() {
-
         currentFileName = new Label("Current File: none");
-
-        file = new Button("File");
-
         context = new ContextMenu();
-
+        file = new Button("File");
         fileChooser = new FileChooser();
         File initialDirectory = new File("../../mnote/");
-
         if (!initialDirectory.isDirectory())
             initialDirectory.mkdir();
 
         fileChooser.setInitialDirectory(initialDirectory);
         fileChooser.setSelectedExtensionFilter(new ExtensionFilter("mnote files", ".co"));
         fileChooser.setInitialFileName(DEFAULT_FILE_NAME);
-
         file.setContextMenu(context);
 
         setupMenuItems();
 
         file.setOnAction(event -> {
-
             context.show(file, Side.BOTTOM, 0, 0);
-
         });
 
         getChildren().addAll(file, currentFileName);
@@ -71,7 +63,6 @@ public class FileMenuToolbar extends HBox {
     }
 
     public void resetFileName() {
-
         this.fileChooser.setInitialFileName(DEFAULT_FILE_NAME);
     }
 
@@ -97,7 +88,6 @@ public class FileMenuToolbar extends HBox {
     }
 
     private void setupMenuItems() {
-
         saveOption = new MenuItem("Save");
         saveAsOption = new MenuItem("Save As");
         loadNoteOption = new MenuItem("Load Note");
@@ -105,24 +95,9 @@ public class FileMenuToolbar extends HBox {
         exportAsOption = new MenuItem("Export As Png");
 
         context.getItems().addAll(saveOption, saveAsOption, loadNoteOption, newNoteOption, exportAsOption);
-
     }
 
     /// @@@@ "File reading (4 points) and writing"
-    public void saveFile(File newSave, Serializable data) {
-
-        try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(newSave))) {
-
-            System.out.println("Hi");
-            out.writeObject(data);
-
-        } catch (Exception e) {
-
-            e.printStackTrace();
-
-        }
-    }
-
     public Serializable loadFile(File loadingFile) {
 
         Serializable data = null;
@@ -140,16 +115,21 @@ public class FileMenuToolbar extends HBox {
         return data;
     }
 
+    public void saveFile(File newSave, Serializable data) {
+        try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(newSave))) {
+            System.out.println("Hi");
+            out.writeObject(data);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public FileChooser getFileChooser() {
-
         return this.fileChooser;
-
     }
 
     public void updateFileName(String name) {
         if (name != null)
             this.currentFileName.setText("Working On: " + name);
-
     }
-
 }
