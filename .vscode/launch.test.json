@@ -1,0 +1,30 @@
+{
+    "run": {
+        "default": "",
+        "items": [
+            {
+                "name": "mnote",
+                "projectName": "mnote",
+                "workingDirectory": "c:\\programming_files\\java\\mnote",
+                "args": [],
+                "vmargs": [],
+                "env": {},
+                "preLaunchTask": ""
+            }
+        ]
+    },
+    "debug": {
+        "default": "",
+        "items": [
+            {
+                "name": "mnote",
+                "projectName": "mnote",
+                "workingDirectory": "c:\\programming_files\\java\\mnote",
+                "args": [],
+                "vmargs": [],
+                "env": {},
+                "preLaunchTask": ""
+            }
+        ]
+    }
+}

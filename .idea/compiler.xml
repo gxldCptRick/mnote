@@ -7,12 +7,10 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="mnote" />
-        <module name="onenoteproject" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="mnote" target="1.8" />
-      <module name="onenoteproject" target="1.8" />
+      <module name="mnote" target="11" />
     </bytecodeTargetLevel>
   </component>
 </project>

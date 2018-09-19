@@ -1,28 +1,27 @@
 package com.gxldcptrick.mnote.tests.models;
 
 import static com.gxldcptrick.mnote.tests.IOMethods.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.File;
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import com.gxldcptrick.mnote.models.CanvasLine;
-import com.gxldcptrick.mnote.models.CanvasLines;
-import com.gxldcptrick.mnote.models.SavablePoint2D;
-
+import com.gxldcptrick.mnote.FXView.models.CanvasLine;
+import com.gxldcptrick.mnote.FXView.models.CanvasLines;
+import com.gxldcptrick.mnote.FXView.models.SavablePoint2D;
 
 public class CanvasLinesTest {
 
 	@Test
 	public void newLineIsNotNull() {
-	
+
 		// arrange
 		CanvasLines lines = new CanvasLines();
 		CanvasLine badCase = null;
 		CanvasLine actual;
-		
+
 		// act
 		lines.startNewLine();
 		actual = lines.getCurrentLine();
@@ -42,15 +41,15 @@ public class CanvasLinesTest {
 
 		// act
 		lines.startNewLine();
-		
+
 		firstLine = lines.getCurrentLine();
 
 		lines.startNewLine();
-		
+
 		lines.addNextPoint(differingPoint);
 
 		secondLine = lines.getCurrentLine();
-		
+
 		// assert
 		assertNotEquals(firstLine, secondLine);
 
@@ -73,8 +72,8 @@ public class CanvasLinesTest {
 	}
 
 	@Test
-public 	void canvasLinesAreSavable() {
-		
+	public void canvasLinesAreSavable() {
+
 		// arrange
 		CanvasLines expected = new CanvasLines();
 		CanvasLines actual;
@@ -86,18 +85,15 @@ public 	void canvasLinesAreSavable() {
 
 		System.out.println(expected.getLines());
 		System.out.println(actual.getLines());
-		
+
 		// assert
 		assertNotEquals(actual, null);
-		
+
 		assertEquals(expected, actual);
 
 	}
-	
-	
-														/*Helper Methods for the tests*/	
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
+	/* Helper Methods for the tests */
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 }
