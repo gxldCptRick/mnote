@@ -8,26 +8,64 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.Objects;
 
 public class Brush implements Serializable {
-
-    private static long serialVersionUID = -696969l;
-
+    private static long serialVersionUID = -696969L;
     private double currentWidth;
     private StrokeLineCap brushCap;
     private boolean isDeleting;
     private SpecialEffect effect;
-    private  transient Color currentColor;
+    private  SavableColor currentColor;
 
     public Brush(){
-
-        currentWidth = .5;
-        brushCap = StrokeLineCap.ROUND;
-        currentColor = Color.BLACK;
-
+        this(.5, StrokeLineCap.ROUND, false, SpecialEffect.None, Color.BLACK);
     }
 
-    //<editor-fold desc = "Getters and Setters">
+    public Brush(double currentWidth, StrokeLineCap brushCap, boolean isDeleting, SpecialEffect effect, Color currentColor){
+        this.setCurrentWidth(currentWidth);
+        this.setBrushCap(brushCap);
+        this.setDeleting(isDeleting);
+        this.setEffect(effect);
+        this.setCurrentColor(new SavableColor(currentColor.getRed(), currentColor.getGreen(), currentColor.getBlue(), currentColor.getOpacity()));
+    }
+
+    public boolean equals(Brush otherBrush){
+        var isEqual = false;
+
+        if(otherBrush != null){
+            isEqual = Double.compare(otherBrush.getCurrentWidth(), getCurrentWidth()) == 0 &&
+                    isDeleting() == otherBrush.isDeleting() &&
+                    getBrushCap() == otherBrush.getBrushCap() &&
+                    getEffect() == otherBrush.getEffect() &&
+                    Objects.equals(getCurrentColor(), otherBrush.getCurrentColor());
+        }
+
+        return isEqual;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        var isEqual = false;
+        if (this == o) isEqual =  true;
+        else if (o != null && getClass() == o.getClass()) isEqual = equals(Brush.class.cast(o));
+
+        return isEqual;
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(getCurrentWidth(), getBrushCap(), isDeleting(), getEffect(), getCurrentColor());
+    }
+
+    public SavableColor getCurrentColor() {
+        return currentColor;
+    }
+
+    public void setCurrentColor(SavableColor currentColor) {
+        this.currentColor = currentColor;
+    }
 
     public boolean isDeleting() {
         return isDeleting;
@@ -53,18 +91,6 @@ public class Brush implements Serializable {
         this.brushCap = brushCap;
     }
 
-    public boolean isSpecial() {
-        return effect != null;
-    }
-
-    public Color getCurrentColor() {
-        return currentColor;
-    }
-
-    public void setCurrentColor(Color currentColor) {
-        this.currentColor = currentColor;
-    }
-
     public double getCurrentWidth() {
         return currentWidth;
     }
@@ -73,22 +99,4 @@ public class Brush implements Serializable {
         this.currentWidth = currentWidth;
     }
 
-    //</editor-fold>
-
-   // <editor-fold desc = "Serilization">
-    private void writeObject(ObjectOutputStream oos)throws IOException {
-        oos.defaultWriteObject();
-
-        oos.writeObject(new SavableColor(this.currentColor));
-    }
-
-    private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException{
-        ois.defaultReadObject();
-
-        this.currentColor = ((SavableColor) ois.readObject()).getColor();
-
-        System.out.println(this.currentColor);
-    }
-
-    //</editor-fold>
 }

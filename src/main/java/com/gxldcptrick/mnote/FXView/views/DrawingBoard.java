@@ -141,7 +141,7 @@ public class DrawingBoard extends ScrollPane implements Serializable {
 
     private void startLine(MouseEvent event) {
         SavablePoint2D savablePoint2D = new SavablePoint2D(event.getX(), event.getY());
-        DrawingPackage aPackage = new DrawingPackage(savablePoint2D, event.getEventType(), getCanvasBrush(), true);
+        DrawingPackage aPackage = new DrawingPackage(savablePoint2D, event.getEventType(), getCanvasBrush(), true, false);
         System.out.println(aPackage.getMouseEvent());
         System.out.println(event.getEventType());
         GraphicsContext gc = userCanvas.getGraphicsContext2D();
@@ -153,7 +153,7 @@ public class DrawingBoard extends ScrollPane implements Serializable {
 
     private void drawLine(MouseEvent event) {
         SavablePoint2D savablePoint2D = new SavablePoint2D(event.getX(), event.getY());
-        DrawingPackage aPackage = new DrawingPackage(savablePoint2D, event.getEventType(), getCanvasBrush(), false);
+        DrawingPackage aPackage = new DrawingPackage(savablePoint2D, event.getEventType(), getCanvasBrush(), false, false);
         GraphicsContext gc = userCanvas.getGraphicsContext2D();
         lines.addNextPoint(savablePoint2D);
         gc.lineTo(event.getX(), event.getY());
@@ -244,9 +244,9 @@ public class DrawingBoard extends ScrollPane implements Serializable {
 
     private void configureGraphics(GraphicsContext gc, Brush canvasBrush) {
         gc.beginPath();
-        lines.startNewLine(canvasBrush.getCurrentColor(), canvasBrush.getCurrentWidth(), canvasBrush.getEffect());
+        lines.startNewLine(canvasBrush.getCurrentColor().getColor(), canvasBrush.getCurrentWidth(), canvasBrush.getEffect());
         gc.setLineWidth(canvasBrush.getCurrentWidth());
-        gc.setStroke(canvasBrush.getCurrentColor());
+        gc.setStroke(canvasBrush.getCurrentColor().getColor());
         gc.setLineCap(canvasBrush.getBrushCap());
         var effect = canvasBrush.getEffect();
         gc.setEffect(effect.lineEffect);

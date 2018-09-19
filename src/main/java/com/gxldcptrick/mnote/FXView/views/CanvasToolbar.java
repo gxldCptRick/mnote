@@ -11,6 +11,7 @@ import java.util.List;
 import com.gxldcptrick.mnote.FXView.models.Brush;
 import com.gxldcptrick.mnote.FXView.enums.SpecialEffect;
 
+import com.gxldcptrick.mnote.FXView.models.SavableColor;
 import javafx.geometry.Side;
 
 import javafx.scene.control.Button;
@@ -28,6 +29,7 @@ import javafx.scene.paint.Color;
 public class CanvasToolbar implements Serializable {
     private static final long serialVersionUID = 556677L;
     private static final List<Double> increaseSizeValues;
+
     static {
         increaseSizeValues = Arrays.asList(.1, .2, .3, .4, .5, .6, .7, .8, .9, 1.0, 10.0, 100.0);
     }
@@ -55,7 +57,7 @@ public class CanvasToolbar implements Serializable {
     }
 
 
-    private void initializeEraseButton(){
+    private void initializeEraseButton() {
         this.contextMenu = new ContextMenu();
         this.eraseButton = new Button("Clear");
         this.eraseButton.setContextMenu(contextMenu);
@@ -92,7 +94,7 @@ public class CanvasToolbar implements Serializable {
         currentSize = new Label("Current Line Width : " + this.userBrush.getCurrentWidth());
     }
 
-    private void initializeLayout(){
+    private void initializeLayout() {
         layout = new HBox();
         layout.setSpacing(10);
         layout.getChildren().addAll(currentSize, colorPicker, sizePicker, this.eraseButton, this.specialEffects, this.deleting);
@@ -113,7 +115,10 @@ public class CanvasToolbar implements Serializable {
     private void initializeColorPicker() {
         this.colorPicker = new ColorPicker();
         colorPicker.setValue(Color.BLACK);
-        colorPicker.setOnAction((event) -> this.userBrush.setCurrentColor(this.colorPicker.getValue()));
+        colorPicker.setOnAction((event) -> {
+            var color = this.colorPicker.getValue();
+            this.userBrush.setCurrentColor(new SavableColor(color.getRed(), color.getGreen(), color.getBlue(), color.getOpacity()));
+        });
     }
 
     private void initializeIncreaseSizeComboBox() {

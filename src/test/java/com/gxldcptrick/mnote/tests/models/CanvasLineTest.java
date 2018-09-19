@@ -6,6 +6,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.io.File;
 import java.util.List;
 
+import com.gxldcptrick.mnote.FXView.enums.SpecialEffect;
+import com.gxldcptrick.mnote.FXView.models.SavableColor;
 import org.junit.jupiter.api.Test;
 
 import com.gxldcptrick.mnote.FXView.models.CanvasLine;

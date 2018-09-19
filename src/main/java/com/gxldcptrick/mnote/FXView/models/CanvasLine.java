@@ -2,6 +2,7 @@ package com.gxldcptrick.mnote.FXView.models;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import com.gxldcptrick.mnote.FXView.enums.SpecialEffect;
@@ -22,38 +23,28 @@ public class CanvasLine implements Serializable {
     //<editor-fold desc = "Constructor">
 
     public CanvasLine() {
-        this(Color.BLACK, .5);
+        this((SavableColor) null, .5, SpecialEffect.None);
     }
 
     public CanvasLine(CanvasLine currentLine) {
-
         this(currentLine.color, currentLine.lineWidth, currentLine.lineEffect);
         this.points = new ArrayList<>(currentLine.points);
     }
 
     public CanvasLine(SavableColor color, double lineWidth, SpecialEffect effect) {
-
         this.color = color;
         this.lineWidth = lineWidth;
         this.points = new ArrayList<>();
-
-        if (effect != null)
-            this.lineEffect = effect;
-
+        if (effect != null) this.lineEffect = effect;
     }
-
+    public CanvasLine(Color color, double lineWidth){
+        this(color, lineWidth, SpecialEffect.None);
+    }
     public CanvasLine(Color colorOfLine, double lineWidth, SpecialEffect specialEffect) {
 
-        this(new SavableColor(colorOfLine), lineWidth, specialEffect);
+        this(new SavableColor(colorOfLine.getRed(), colorOfLine.getGreen(), colorOfLine.getBlue(), colorOfLine.getOpacity()), lineWidth, specialEffect);
 
     }
-
-    public CanvasLine(Color colorOfLine, double lineWidth) {
-
-        this(new SavableColor(colorOfLine), lineWidth, null);
-
-    }
-
     //</editor-fold>
 
     public SavablePoint2D getInitialPoint() {
