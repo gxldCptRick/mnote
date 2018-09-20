@@ -29,11 +29,12 @@ public class ClientConnection implements AutoCloseable {
 
     public void sendPackageToClient(DrawingPackage packet) {
         try{
-            var writableStream = new PrintStream(socket.getOutputStream());
+            var writableStream = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
             var jsonPacket = objectMapper.writeValueAsString(packet);
-            System.out.println(jsonPacket);
-            writableStream.println(jsonPacket);
+            writableStream.write(jsonPacket);
+            writableStream.newLine();
             writableStream.flush();
+            System.out.println("Sending Packet on: " + socket.getPort());
         }catch(IOException e){
             e.printStackTrace();
         }
@@ -41,11 +42,16 @@ public class ClientConnection implements AutoCloseable {
 
     public void start() {
         try(var readingStream = new BufferedReader(new InputStreamReader(socket.getInputStream()))){
-            while(socket.isConnected()){
+            while(!socket.isClosed()){
                 var input = readingStream.readLine();
-                System.out.println(input);
-                var value = objectMapper.readValue(input, DrawingPackage.class);
-                this.clientSendingArgs.invoke(this, new DrawingEventArgs(value));
+                if(input != null && !input.isBlank()){
+                    System.out.println("Reading Stuff on " + socket.getPort() + ": " + input);
+                    var value = objectMapper.readValue(input, DrawingPackage.class);
+                    this.clientSendingArgs.invoke(this, new DrawingEventArgs(value));
+                }
+                else {
+                    socket.close();
+                }
             }
         }catch(EOFException e){
             System.out.println("Client Ended by sending nothing");

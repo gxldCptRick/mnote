@@ -6,17 +6,22 @@ import com.gxldcptrick.mnote.commonLib.EventListener;
 
 import java.io.IOException;
 
-public class mnoteMultiServer {
-    public static void main(String[] args) { new mnoteMultiServer().start(); }
-    private mnoteMultiServer() {
+public class MNoteMultiServer {
+    private boolean online;
+    public static void main(String[] args) { new MNoteMultiServer().start(); }
+    public MNoteMultiServer() {
         connectedClients = new Event<>();
     }
-    private void start() {
+    public void Stop(){
+        online = false;
+    }
+    public void start() {
+        online = true;
         try (var serverSocket = new java.net.ServerSocket(4444)) {
-            while (!serverSocket.isClosed()) {
-
+            while (!serverSocket.isClosed() && online) {
                 /// creating a new client connection based on the request on the server socket.
                 var clientConnection = new ClientConnection(serverSocket.accept());
+                if(!online) break;
                 EventListener<DrawingEventArgs> callback = (sender, args) -> {
                     if(sender != clientConnection) clientConnection.sendPackageToClient(args.POINT);
                 };
@@ -25,7 +30,7 @@ public class mnoteMultiServer {
                 System.out.println("Client Connected on port " + clientConnection.getPort());
 
                 /// connecting the server to the client so that the client is able to just send all the data to everyone.
-                clientConnection.clientSendingArgs.subscribe((sender, args) -> this.sendDataToAll(clientConnection, args.POINT));
+                clientConnection.clientSendingArgs.subscribe((sender, args) -> this.sendDataToAll(clientConnection, args));
                 Thread clientThread  = new Thread(() -> {
                     /// starting the initial connection to the client and wait for a response.
                     clientConnection.start();
@@ -49,8 +54,8 @@ public class mnoteMultiServer {
     }
 
     private Event<EventListener<DrawingEventArgs>, DrawingEventArgs> connectedClients;
-    private void sendDataToAll(ClientConnection connection , DrawingPackage aPackage) {
-        connectedClients.invoke(connection, new DrawingEventArgs(aPackage));
+    private void sendDataToAll(ClientConnection connection , DrawingEventArgs aPackage) {
+        connectedClients.invoke(connection, aPackage);
     }
 }
 

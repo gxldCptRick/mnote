@@ -2,13 +2,15 @@ package com.gxldcptrick.mnote.commonLib;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 public class Event<TEventListener extends EventListener<TArgs>, TArgs extends EventArgs> {
 
     private Collection<TEventListener> listeners;
 
     public Event(){
-        this(new HashSet<>());
+        this(new ConcurrentLinkedQueue<>());
     }
 
     public Event(Collection<TEventListener> listeners){
@@ -28,4 +30,7 @@ public class Event<TEventListener extends EventListener<TArgs>, TArgs extends Ev
         }
     }
 
+    public boolean isEmpty() {
+        return this.listeners.isEmpty();
+    }
 }
