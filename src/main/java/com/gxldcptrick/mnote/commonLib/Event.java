@@ -2,6 +2,8 @@ package com.gxldcptrick.mnote.commonLib;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentSkipListSet;
 
@@ -18,7 +20,7 @@ public class Event<TEventListener extends EventListener<TArgs>, TArgs extends Ev
     }
 
     public void subscribe(TEventListener listener){
-            if(listener == null) throw new IllegalArgumentException("Listener to subscribe cannot be null.");
+        Objects.requireNonNull(listener, "Cannot subscribe a null Listener");
             listeners.add(listener);
     }
     public boolean unsubscribe(TEventListener listener){
@@ -30,7 +32,7 @@ public class Event<TEventListener extends EventListener<TArgs>, TArgs extends Ev
         }
     }
 
-    public boolean isEmpty() {
-        return this.listeners.isEmpty();
+    public int getSize() {
+        return listeners.size();
     }
 }

@@ -41,7 +41,6 @@ public class CanvasLine implements Serializable {
         this(color, lineWidth, SpecialEffect.None);
     }
     public CanvasLine(Color colorOfLine, double lineWidth, SpecialEffect specialEffect) {
-
         this(new SavableColor(colorOfLine.getRed(), colorOfLine.getGreen(), colorOfLine.getBlue(), colorOfLine.getOpacity()), lineWidth, specialEffect);
 
     }

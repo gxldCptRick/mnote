@@ -71,10 +71,6 @@ public class CanvasContainer implements Serializable {
         layout.setSpacing(5);
     }
 
-    public void killNetworkConnection(){
-        this.whiteBoard.killSockets();
-    }
-
     private void initializeToolbar() {
         if (toolbar == null) toolbar = new CanvasToolbar(this.whiteBoard.getCanvasBrush());
         MenuItem clearCanvas = new MenuItem("Whiteboard");

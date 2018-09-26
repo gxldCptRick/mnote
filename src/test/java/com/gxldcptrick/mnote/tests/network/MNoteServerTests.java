@@ -1,8 +1,9 @@
 package com.gxldcptrick.mnote.tests.network;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.gxldcptrick.mnote.FXView.enums.PointType;
 import com.gxldcptrick.mnote.FXView.models.Brush;
-import com.gxldcptrick.mnote.FXView.models.DrawingPackage;
+import com.gxldcptrick.mnote.network.DrawingPackage;
 import com.gxldcptrick.mnote.FXView.models.SavablePoint2D;
 import com.gxldcptrick.mnote.network.MNoteMultiServer;
 
@@ -57,7 +58,7 @@ public class MNoteServerTests {
 
     @Test
     public void ClientIsAbleToSendASinglePacketToClient() throws InterruptedException, IOException {
-        server = new MNoteMultiServer();
+        server = new MNoteMultiServer(5);
         var pointSent = generatePointToSend();
         mapper = new ObjectMapper();
         SpawnThreadsForWork(server::start, this.sendPointsToClient(pointSent), this.recievePointFromServer(pointSent));
@@ -93,9 +94,7 @@ public class MNoteServerTests {
     private DrawingPackage generatePointToSend() {
         var pointSent = new DrawingPackage();
         pointSent.setPoint2d(new SavablePoint2D(100, 100));
-        pointSent.setMouseEvent("Clicked");
-        pointSent.setEndOrStart(false);
-        pointSent.setClearingCanvas(false);
+        pointSent.setType(PointType.MID);
         pointSent.setBrush(new Brush());
         return pointSent;
     }

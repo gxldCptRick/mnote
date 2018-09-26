@@ -82,8 +82,7 @@ public class SavablePoint2D implements Serializable {
     public int hashCode() {
         return Objects.hash(getX(), getY());
     }
-
-    /**
+  /**
 	 * recreates the 2d point that was stored in the x and y values of the point and returns it as a new object.
 	 * @return new point created with x and y values
 	 */

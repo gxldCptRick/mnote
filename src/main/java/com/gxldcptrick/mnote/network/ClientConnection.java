@@ -3,38 +3,42 @@ package com.gxldcptrick.mnote.network;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gxldcptrick.mnote.commonLib.Event;
 import com.gxldcptrick.mnote.commonLib.EventListener;
-import com.gxldcptrick.mnote.FXView.models.DrawingPackage;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.UUID;
 
 public class ClientConnection implements AutoCloseable {
 
     private final ObjectMapper objectMapper;
-    private Socket socket;
+    private final Socket socket;
     public int getPort(){ return socket.getPort(); }
+    public final UUID clientID;
+    private final BufferedWriter clientOutput;
     public Event<EventListener<DrawingEventArgs> , DrawingEventArgs> clientSendingArgs;
 
-    public ClientConnection(Socket socket){
+    public ClientConnection(Socket socket, UUID clientID) throws IOException{
         this.socket = socket;
+        this.clientID = clientID;
+        this.clientOutput = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
         this.clientSendingArgs = new Event<>();
         this.objectMapper = new ObjectMapper();
-
     }
 
     @Override
     public void close() throws IOException {
         if(socket != null && !socket.isClosed()) socket.close();
+        if(clientOutput != null) clientOutput.close();
     }
 
     public void sendPackageToClient(DrawingPackage packet) {
-        try{
-            var writableStream = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+        try {
             var jsonPacket = objectMapper.writeValueAsString(packet);
-            writableStream.write(jsonPacket);
-            writableStream.newLine();
-            writableStream.flush();
-            System.out.println("Sending Packet on: " + socket.getPort());
+            this.clientOutput.write(jsonPacket);
+            this.clientOutput.newLine();
+            this.clientOutput.flush();
+            System.out.println("Sending Packet for: " + this.clientID);
+            System.out.println("Package: " + jsonPacket);
         }catch(IOException e){
             e.printStackTrace();
         }
@@ -47,6 +51,7 @@ public class ClientConnection implements AutoCloseable {
                 if(input != null && !input.isBlank()){
                     System.out.println("Reading Stuff on " + socket.getPort() + ": " + input);
                     var value = objectMapper.readValue(input, DrawingPackage.class);
+                    value.setClientUUID(clientID.toString());
                     this.clientSendingArgs.invoke(this, new DrawingEventArgs(value));
                 }
                 else {

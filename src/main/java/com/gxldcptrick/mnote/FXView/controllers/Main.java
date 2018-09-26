@@ -43,7 +43,8 @@ public class Main extends Application {
 
     @Override
     public void stop() {
-        this.drawSurface.killNetworkConnection();
+        // TODO: Make a Stop Thing
+
     }
 
     private void initializeStage() {

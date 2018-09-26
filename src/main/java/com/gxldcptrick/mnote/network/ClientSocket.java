@@ -1,7 +1,5 @@
 package com.gxldcptrick.mnote.network;
 
-import com.gxldcptrick.mnote.FXView.models.DrawingPackage;
-
 import java.io.*;
 import java.net.Socket;
 
@@ -35,8 +33,8 @@ public class ClientSocket extends Thread {
         Runnable read = () -> {
             System.out.println("Read thread started");
             try {
-                while ((drawingPackageRead = DrawingPackage.class.cast(serverInput.readObject())) != null) {
-                    System.out.println("drawing pack is not null : " + drawingPackageRead != null);
+                while ((drawingPackageRead = (DrawingPackage) serverInput.readObject()) != null) {
+                    System.out.println("Drawing pack is not null : " + drawingPackageRead != null);
                 }
             } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();

@@ -3,36 +3,22 @@ package com.gxldcptrick.mnote.FXView.views;
 import java.awt.image.RenderedImage;
 import java.io.*;
 
-import com.gxldcptrick.mnote.network.*;
 import com.gxldcptrick.mnote.FXView.models.*;
 import com.gxldcptrick.mnote.FXView.enums.SpecialEffect;
 
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.Event;
 import javafx.geometry.Point2D;
-import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.canvas.*;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.WritableImage;
-import javafx.scene.input.InputEvent;
-import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
+import javafx.scene.input.*;
 
 public class DrawingBoard extends ScrollPane implements Serializable {
-    private static ClientSocket socket;
-
     private CanvasLines lines;
     private Brush canvasBrush;
     private transient NoteGroup noteGroup;
     private transient Canvas userCanvas;
-
-    public static ClientSocket getSocket() {
-        return socket;
-    }
-
-    public static void SetClientSocket(ClientSocket socket) {
-        DrawingBoard.socket = socket;
-    }
 
     public DrawingBoard(double width, double height) {
         this.initialize(width, height);
@@ -116,8 +102,8 @@ public class DrawingBoard extends ScrollPane implements Serializable {
             if (event != null) {
                 if ((event.isPrimaryButtonDown()) && !this.canvasBrush.isDeleting()) {
                     checkIfInboundsOfCanvas(event);
+                    drawLine(event);
                 }
-                drawLine(event);
             }
         });
         this.userCanvas.setOnMouseReleased((event) -> {
@@ -128,21 +114,13 @@ public class DrawingBoard extends ScrollPane implements Serializable {
         });
         this.userCanvas.setOnMousePressed((event) -> {
             if ((event != null && event.isPrimaryButtonDown()) && !canvasBrush.isDeleting()) {
-                System.out.println("Starting Line");
                 startLine(event);
             }
         });
     }
 
-    public void killSockets() {
-        if (socket != null && socket.isAlive())
-            socket.killConnection();
-    }
-
     private void startLine(MouseEvent event) {
         SavablePoint2D savablePoint2D = new SavablePoint2D(event.getX(), event.getY());
-        DrawingPackage aPackage = new DrawingPackage(savablePoint2D, event.getEventType(), getCanvasBrush(), true, false);
-        System.out.println(aPackage.getMouseEvent());
         System.out.println(event.getEventType());
         GraphicsContext gc = userCanvas.getGraphicsContext2D();
         configureGraphics(gc);
@@ -153,7 +131,6 @@ public class DrawingBoard extends ScrollPane implements Serializable {
 
     private void drawLine(MouseEvent event) {
         SavablePoint2D savablePoint2D = new SavablePoint2D(event.getX(), event.getY());
-        DrawingPackage aPackage = new DrawingPackage(savablePoint2D, event.getEventType(), getCanvasBrush(), false, false);
         GraphicsContext gc = userCanvas.getGraphicsContext2D();
         lines.addNextPoint(savablePoint2D);
         gc.lineTo(event.getX(), event.getY());
@@ -239,7 +216,7 @@ public class DrawingBoard extends ScrollPane implements Serializable {
     }
 
     private void configureGraphics(GraphicsContext gc) {
-        configureGraphics(gc, this.canvasBrush);
+        configureGraphics(gc, getCanvasBrush());
     }
 
     private void configureGraphics(GraphicsContext gc, Brush canvasBrush) {
