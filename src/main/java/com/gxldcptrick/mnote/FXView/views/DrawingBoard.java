@@ -2,10 +2,12 @@ package com.gxldcptrick.mnote.FXView.views;
 
 import java.awt.image.RenderedImage;
 import java.io.*;
+import java.net.Socket;
 
 import com.gxldcptrick.mnote.FXView.models.*;
 import com.gxldcptrick.mnote.FXView.enums.SpecialEffect;
 
+import com.gxldcptrick.mnote.network.ClientSocket;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.Event;
 import javafx.geometry.Point2D;
@@ -19,6 +21,17 @@ public class DrawingBoard extends ScrollPane implements Serializable {
     private Brush canvasBrush;
     private transient NoteGroup noteGroup;
     private transient Canvas userCanvas;
+
+    private transient ClientSocket clientSocket;
+
+    public ClientSocket getClientSocket() {
+        return clientSocket;
+    }
+
+    public void setClientSocket(ClientSocket clientSocket) {
+        this.clientSocket = clientSocket;
+    }
+
 
     public DrawingBoard(double width, double height) {
         this.initialize(width, height);

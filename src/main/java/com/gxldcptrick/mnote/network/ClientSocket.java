@@ -14,6 +14,7 @@ public class ClientSocket extends Thread {
 
     public ClientSocket() {
         connected = true;
+        run();
     }
 
     public void killConnection() {
@@ -30,22 +31,25 @@ public class ClientSocket extends Thread {
 
     @Override
     public void run() {
-        Runnable read = () -> {
-            System.out.println("Read thread started");
-            try {
-                while ((drawingPackageRead = (DrawingPackage) serverInput.readObject()) != null) {
-                    System.out.println("Drawing pack is not null : " + drawingPackageRead != null);
-                }
-            } catch (IOException | ClassNotFoundException e) {
-                e.printStackTrace();
-            }
-        };
+//        Runnable read = () -> {
+//            System.out.println("Read thread started");
+//            try {
+//                while ((drawingPackageRead = (DrawingPackage) serverInput.readObject()) != null) {
+//                    System.out.println("Drawing pack is not null : " + drawingPackageRead != null);
+//                }
+//            } catch (IOException | ClassNotFoundException e) {
+//                e.printStackTrace();
+//            }
+//        };
         try {
             socket = new Socket("localhost", 4444);
             serverInput = new ObjectInputStream(socket.getInputStream());
             out = new ObjectOutputStream(socket.getOutputStream());
-            Thread r = new Thread(read);
-            r.start();
+            out.writeObject(new DrawingPackage());
+            System.out.println("WTF");
+
+//            Thread r = new Thread(read);
+//            r.start();
         } catch (IOException e) {
             e.printStackTrace();
         }

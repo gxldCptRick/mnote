@@ -14,13 +14,15 @@ public class ClientConnection implements AutoCloseable {
     private final Socket socket;
     public int getPort(){ return socket.getPort(); }
     public final UUID clientID;
-    private final BufferedWriter clientOutput;
+    private final ObjectOutputStream clientOutput;
+    private final ObjectInputStream clientInput;
     public Event<EventListener<DrawingEventArgs> , DrawingEventArgs> clientSendingArgs;
 
     public ClientConnection(Socket socket, UUID clientID) throws IOException{
         this.socket = socket;
         this.clientID = clientID;
-        this.clientOutput = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+        this.clientOutput = new ObjectOutputStream(socket.getOutputStream());
+        this.clientInput = new ObjectInputStream(socket.getInputStream());
         this.clientSendingArgs = new Event<>();
         this.objectMapper = new ObjectMapper();
     }
@@ -34,8 +36,7 @@ public class ClientConnection implements AutoCloseable {
     public void sendPackageToClient(DrawingPackage packet) {
         try {
             var jsonPacket = objectMapper.writeValueAsString(packet);
-            this.clientOutput.write(jsonPacket);
-            this.clientOutput.newLine();
+            this.clientOutput.writeObject(jsonPacket);
             this.clientOutput.flush();
             System.out.println("Sending Packet for: " + this.clientID);
             System.out.println("Package: " + jsonPacket);
@@ -45,24 +46,31 @@ public class ClientConnection implements AutoCloseable {
     }
 
     public void start() {
-        try(var readingStream = new BufferedReader(new InputStreamReader(socket.getInputStream()))){
-            while(!socket.isClosed()){
-                var input = readingStream.readLine();
-                if(input != null && !input.isBlank()){
-                    System.out.println("Reading Stuff on " + socket.getPort() + ": " + input);
-                    var value = objectMapper.readValue(input, DrawingPackage.class);
-                    value.setClientUUID(clientID.toString());
-                    this.clientSendingArgs.invoke(this, new DrawingEventArgs(value));
-                }
-                else {
-                    socket.close();
-                }
+        DrawingPackage drawingPackage;
+        try {
+            while ((drawingPackage = (DrawingPackage) clientInput.readObject()){
+
             }
-        }catch(EOFException e){
-            System.out.println("Client Ended by sending nothing");
-        }
-        catch(IOException e){
-            e.printStackTrace();
-        }
+        } catch (IOException | ClassNotFoundException e) {}
+
+//        try(var readingStream = new BufferedReader(new InputStreamReader(socket.getInputStream()))){
+//            while(!socket.isClosed()){
+//                var input = readingStream.readLine();
+//                if(input != null && !input.isEmpty()){
+//                    System.out.println("Reading Stuff on " + socket.getPort() + ": " + input);
+//                    var value = objectMapper.readValue(input, DrawingPackage.class);
+//                    value.setClientUUID(clientID.toString());
+//                    this.clientSendingArgs.invoke(this, new DrawingEventArgs(value));
+//                }
+//                else {
+//                    socket.close();
+//                }
+//            }
+//        }catch(EOFException e){
+//            System.out.println("Client Ended by sending nothing");
+//        }
+//        catch(IOException e){
+//            e.printStackTrace();
+//        }
     }
 }

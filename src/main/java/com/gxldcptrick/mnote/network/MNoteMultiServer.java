@@ -18,6 +18,8 @@ public class MNoteMultiServer {
     private Map<ClientConnection, List<DrawingEventArgs>> collectionOfLinesForClient;
     private final int NumberOfAllowableUsers;
 
+    private DrawingPackage drawingPackage;
+
     public static void main(String[] args) { new MNoteMultiServer(10).start(); }
     public MNoteMultiServer(){ this(5); }
     public MNoteMultiServer(int numberOfAllowableUsers) {
@@ -37,6 +39,9 @@ public class MNoteMultiServer {
                 if(packetSendingEvent.getSize() < this.NumberOfAllowableUsers){
                     /// creating a new client connection based on the request on the server socket.
                     var clientConnection = new ClientConnection(serverSocket.accept(), UUID.randomUUID());
+                    drawingPackage = new DrawingPackage();
+                    drawingPackage.setClientUUID(clientConnection.clientID.toString());
+                    clientConnection.sendPackageToClient(drawingPackage);
                     if(!online) break;
                     EventListener<DrawingEventArgs> callback = (sender, args) -> {
                         if(sender != clientConnection) clientConnection.sendPackageToClient(args.POINT);

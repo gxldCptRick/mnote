@@ -6,9 +6,10 @@ import com.gxldcptrick.mnote.FXView.enums.PointType;
 import com.gxldcptrick.mnote.FXView.models.Brush;
 import com.gxldcptrick.mnote.FXView.models.SavablePoint2D;
 
+import java.io.Serializable;
 import java.util.Objects;
 
-public class DrawingPackage{
+public class DrawingPackage implements Serializable {
     private SavablePoint2D point2d;
     private Brush brush;
     private PointType type;

@@ -5,10 +5,15 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.Optional;
 
 import com.gxldcptrick.mnote.FXView.views.CanvasToolbar;
 
 import com.gxldcptrick.mnote.FXView.views.DrawingBoard;
+import com.gxldcptrick.mnote.network.ClientSocket;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.MenuItem;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -64,6 +69,27 @@ public class CanvasContainer implements Serializable {
 
     private void initializeBoard(double width, double height) {
         if (whiteBoard == null) this.whiteBoard = new DrawingBoard(width, height);
+
+        promptUserToConnectToServer();
+    }
+
+    private void promptUserToConnectToServer() {
+        ButtonType connect = new ButtonType("Connect to Server", ButtonBar.ButtonData.OK_DONE);
+        ButtonType noConnect = new ButtonType("Don't Connect", ButtonBar.ButtonData.CANCEL_CLOSE);
+
+        Alert alert = new Alert(Alert.AlertType.INFORMATION, "Do you want to connect to the server",
+                connect, noConnect);
+        alert.setTitle("Connect to server");
+
+        Optional<ButtonType> result = alert.showAndWait();
+        System.out.println(result.toString());
+        System.out.println();
+
+        if (result.orElse(noConnect) == connect){
+            this.whiteBoard.setClientSocket(new ClientSocket());
+        }
+
+
     }
 
     private void initializeLayout() {
