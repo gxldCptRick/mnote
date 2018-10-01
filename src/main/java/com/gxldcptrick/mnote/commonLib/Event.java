@@ -12,11 +12,7 @@ public class Event<TEventListener extends EventListener<TArgs>, TArgs extends Ev
     private Collection<TEventListener> listeners;
 
     public Event(){
-        this(new ConcurrentLinkedQueue<>());
-    }
-
-    public Event(Collection<TEventListener> listeners){
-        this.listeners = listeners;
+        this.listeners = new ConcurrentLinkedQueue<>();
     }
 
     public void subscribe(TEventListener listener){

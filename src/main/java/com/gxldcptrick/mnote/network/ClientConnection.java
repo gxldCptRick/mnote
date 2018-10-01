@@ -8,9 +8,12 @@ import java.io.*;
 import java.net.Socket;
 import java.util.UUID;
 
-public class ClientConnection implements AutoCloseable {
+public class ClientConnection implements AutoCloseable, Runnable {
+    private static final ObjectMapper objectMapper;
+    static {
+        objectMapper = new ObjectMapper();
+    }
 
-    private final ObjectMapper objectMapper;
     private final Socket socket;
     public int getPort(){ return socket.getPort(); }
     public final UUID clientID;
@@ -22,7 +25,6 @@ public class ClientConnection implements AutoCloseable {
         this.clientID = clientID;
         this.clientOutput = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
         this.clientSendingArgs = new Event<>();
-        this.objectMapper = new ObjectMapper();
     }
 
     @Override
@@ -44,7 +46,8 @@ public class ClientConnection implements AutoCloseable {
         }
     }
 
-    public void start() {
+    @Override
+    public void run() {
         try(var readingStream = new BufferedReader(new InputStreamReader(socket.getInputStream()))){
             while(!socket.isClosed()){
                 var input = readingStream.readLine();

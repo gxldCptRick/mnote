@@ -10,13 +10,15 @@ import javafx.scene.layout.HBox;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 
+import javax.swing.*;
+
 public class FileMenuToolbar extends HBox {
 
     private static final String DEFAULT_FILE_NAME = "default.co";
-
+    private ContextMenu networkContext;
     private Button file;
-
-    private ContextMenu context;
+    private Button network;
+    private ContextMenu fileContext;
     private MenuItem saveOption;
     private MenuItem exportAsOption;
     private MenuItem saveAsOption;
@@ -25,6 +27,8 @@ public class FileMenuToolbar extends HBox {
     private FileChooser fileChooser;
 
     private Label currentFileName;
+    private MenuItem startSession;
+    private MenuItem joinSession;
 
     public String getCurrentFileName() {
         return currentFileName.getText();
@@ -32,31 +36,41 @@ public class FileMenuToolbar extends HBox {
 
     public FileMenuToolbar() {
         currentFileName = new Label("Current File: none");
-        context = new ContextMenu();
+        fileContext = new ContextMenu();
+        networkContext = new ContextMenu();
         file = new Button("File");
+        network = new Button("Network");
         fileChooser = new FileChooser();
-        File initialDirectory = new File("../../mnote/");
-        if (!initialDirectory.isDirectory())
-            initialDirectory.mkdir();
-
+        File initialDirectory = new File("./mnote/");
+        if (!initialDirectory.isDirectory()) initialDirectory.mkdir();
         fileChooser.setInitialDirectory(initialDirectory);
         fileChooser.setSelectedExtensionFilter(new ExtensionFilter("mnote files", ".co"));
         fileChooser.setInitialFileName(DEFAULT_FILE_NAME);
-        file.setContextMenu(context);
-
+        file.setContextMenu(fileContext);
+        network.setContextMenu(networkContext);
         setupMenuItems();
+        setupNetworkItems();
 
         file.setOnAction(event -> {
-            context.show(file, Side.BOTTOM, 0, 0);
+            fileContext.show(file, Side.BOTTOM, 0, 0);
+        });
+        network.setOnAction(event -> {
+            networkContext.show(network, Side.BOTTOM, 0, 0);
         });
 
-        getChildren().addAll(file, currentFileName);
+        getChildren().addAll(file, currentFileName, network);
 
         this.setSpacing(10);
     }
 
     public void resetFileName() {
         this.fileChooser.setInitialFileName(DEFAULT_FILE_NAME);
+    }
+
+    private void setupNetworkItems(){
+        this.startSession = new MenuItem("Start Session");
+        this.joinSession = new MenuItem("Join Session");
+        networkContext.getItems().addAll(startSession, joinSession);
     }
 
     private void setupMenuItems() {
@@ -66,7 +80,15 @@ public class FileMenuToolbar extends HBox {
         newNoteOption = new MenuItem("New Note");
         exportAsOption = new MenuItem("Export As Png");
 
-        context.getItems().addAll(saveOption, saveAsOption, loadNoteOption, newNoteOption, exportAsOption);
+        fileContext.getItems().addAll(saveOption, saveAsOption, loadNoteOption, newNoteOption, exportAsOption);
+    }
+
+    public void setJoinSessionAction(EventHandler<ActionEvent> event){
+        if(event != null) joinSession.setOnAction(event);
+    }
+
+    public void setStartSessionAction(EventHandler<ActionEvent> event){
+        if(event != null) startSession.setOnAction(event);
     }
 
     public void setSaveAction(EventHandler<ActionEvent> event){

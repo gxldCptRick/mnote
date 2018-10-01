@@ -4,7 +4,6 @@ import com.gxldcptrick.mnote.commonLib.Event;
 import com.gxldcptrick.mnote.commonLib.EventListener;
 
 import java.io.IOException;
-import java.sql.SQLOutput;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -50,7 +49,7 @@ public class MNoteMultiServer {
                     /// adding the new connection to the executor service.
                     clientConnnectionService.submit(() -> {
                         /// starting the initial connection to the client and wait for a response.
-                        clientConnection.start();
+                        clientConnection.run();
                         /// removing the client from the send all data event so that it can speed up the process.
                         packetSendingEvent.unsubscribe(callback);
                         try{
