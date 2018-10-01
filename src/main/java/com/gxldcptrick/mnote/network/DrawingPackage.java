@@ -9,7 +9,7 @@ import com.gxldcptrick.mnote.FXView.models.SavablePoint2D;
 import java.io.Serializable;
 import java.util.Objects;
 
-public class DrawingPackage implements Serializable {
+public class DrawingPackage {
     private SavablePoint2D point2d;
     private Brush brush;
     private PointType type;
@@ -46,15 +46,18 @@ public class DrawingPackage implements Serializable {
     }
 
     public void setClientUUID(String clientUUID) {
-        ClientUUID = clientUUID;
+        if (clientUUID != null)
+            ClientUUID = clientUUID;
     }
 
     public void setBrush(Brush brush) {
-        this.brush = brush;
+        if (brush != null)
+            this.brush = brush;
     }
 
     public void setPoint2d(SavablePoint2D point2d) {
-        this.point2d = point2d;
+        if (point2d != null)
+            this.point2d = point2d;
     }
 
     @JsonProperty("point")
@@ -70,6 +73,7 @@ public class DrawingPackage implements Serializable {
         return ClientUUID;
     }
     public void setType(PointType type) {
-        this.type = type;
+        if (type != null)
+            this.type = type;
     }
 }

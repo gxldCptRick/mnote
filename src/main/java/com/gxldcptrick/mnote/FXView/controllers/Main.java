@@ -1,6 +1,11 @@
 package com.gxldcptrick.mnote.FXView.controllers;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gxldcptrick.mnote.FXView.controllers.CanvasContainer;
+import com.gxldcptrick.mnote.FXView.enums.PointType;
+import com.gxldcptrick.mnote.FXView.models.Brush;
+import com.gxldcptrick.mnote.FXView.models.SavablePoint2D;
 import com.gxldcptrick.mnote.FXView.views.FileMenuToolbar;
 
 import java.awt.Toolkit;
@@ -10,6 +15,7 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
+import com.gxldcptrick.mnote.network.DrawingPackage;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.scene.Scene;

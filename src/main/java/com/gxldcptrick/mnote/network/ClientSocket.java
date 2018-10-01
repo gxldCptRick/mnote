@@ -1,5 +1,7 @@
 package com.gxldcptrick.mnote.network;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.io.*;
 import java.net.Socket;
 
@@ -8,8 +10,10 @@ public class ClientSocket extends Thread {
     private DrawingPackage drawingPackageRead;
 
     static private Socket socket;
-    static private ObjectOutputStream out;
-    static private ObjectInputStream serverInput;
+    static private BufferedWriter out;
+    static private BufferedReader serverInput;
+
+    private ObjectMapper objectMapper;
     private boolean connected;
 
     public ClientSocket() {
@@ -31,25 +35,28 @@ public class ClientSocket extends Thread {
 
     @Override
     public void run() {
-//        Runnable read = () -> {
-//            System.out.println("Read thread started");
-//            try {
-//                while ((drawingPackageRead = (DrawingPackage) serverInput.readObject()) != null) {
-//                    System.out.println("Drawing pack is not null : " + drawingPackageRead != null);
-//                }
-//            } catch (IOException | ClassNotFoundException e) {
-//                e.printStackTrace();
-//            }
-//        };
+        Runnable read = () -> {
+            System.out.println("Read thread started");
+            String jsonReceived;
+            try {
+                while ((jsonReceived = serverInput.readLine()) != null) {
+                    System.out.println(jsonReceived);
+
+                    drawingPackageRead = objectMapper.readValue(jsonReceived, DrawingPackage.class);
+                    System.out.println("Drawing pack is not null : " + drawingPackageRead != null);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        };
         try {
             socket = new Socket("localhost", 4444);
-            serverInput = new ObjectInputStream(socket.getInputStream());
-            out = new ObjectOutputStream(socket.getOutputStream());
-            out.writeObject(new DrawingPackage());
-            System.out.println("WTF");
+            serverInput = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+            objectMapper = new ObjectMapper();
 
-//            Thread r = new Thread(read);
-//            r.start();
+            Thread r = new Thread(read);
+            r.start();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -57,7 +64,8 @@ public class ClientSocket extends Thread {
 
     public void sendPackageToServer(DrawingPackage drawingPackage) {
         try {
-            out.writeObject(drawingPackage);
+            out.write(objectMapper.writeValueAsString(drawingPackage));
+            System.out.println("packet sent :: sendPackageToServer()");
             WaitToSendPackets();
         } catch (IOException e) {
             e.printStackTrace();

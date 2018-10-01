@@ -1,5 +1,8 @@
 package com.gxldcptrick.mnote.network;
 
+import com.gxldcptrick.mnote.FXView.enums.PointType;
+import com.gxldcptrick.mnote.FXView.models.Brush;
+import com.gxldcptrick.mnote.FXView.models.SavablePoint2D;
 import com.gxldcptrick.mnote.commonLib.Event;
 import com.gxldcptrick.mnote.commonLib.EventListener;
 
@@ -39,9 +42,11 @@ public class MNoteMultiServer {
                 if(packetSendingEvent.getSize() < this.NumberOfAllowableUsers){
                     /// creating a new client connection based on the request on the server socket.
                     var clientConnection = new ClientConnection(serverSocket.accept(), UUID.randomUUID());
+
                     drawingPackage = new DrawingPackage();
                     drawingPackage.setClientUUID(clientConnection.clientID.toString());
                     clientConnection.sendPackageToClient(drawingPackage);
+
                     if(!online) break;
                     EventListener<DrawingEventArgs> callback = (sender, args) -> {
                         if(sender != clientConnection) clientConnection.sendPackageToClient(args.POINT);

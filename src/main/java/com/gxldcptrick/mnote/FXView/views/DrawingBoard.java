@@ -2,12 +2,15 @@ package com.gxldcptrick.mnote.FXView.views;
 
 import java.awt.image.RenderedImage;
 import java.io.*;
-import java.net.Socket;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.gxldcptrick.mnote.FXView.enums.PointType;
 import com.gxldcptrick.mnote.FXView.models.*;
 import com.gxldcptrick.mnote.FXView.enums.SpecialEffect;
 
 import com.gxldcptrick.mnote.network.ClientSocket;
+import com.gxldcptrick.mnote.network.DrawingPackage;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.Event;
 import javafx.geometry.Point2D;
@@ -23,6 +26,7 @@ public class DrawingBoard extends ScrollPane implements Serializable {
     private transient Canvas userCanvas;
 
     private transient ClientSocket clientSocket;
+    private transient boolean connectedToServer = false;
 
     public ClientSocket getClientSocket() {
         return clientSocket;
@@ -30,6 +34,7 @@ public class DrawingBoard extends ScrollPane implements Serializable {
 
     public void setClientSocket(ClientSocket clientSocket) {
         this.clientSocket = clientSocket;
+        connectedToServer = true;
     }
 
 
@@ -140,6 +145,11 @@ public class DrawingBoard extends ScrollPane implements Serializable {
         lines.addNextPoint(savablePoint2D);
         gc.moveTo(event.getX(), event.getY());
         gc.stroke();
+
+        if (connectedToServer) {
+            clientSocket.sendPackageToServer(new DrawingPackage(savablePoint2D, canvasBrush, PointType.BEGIN));
+            System.out.println("Should have sent Packet :: startLine()");
+        }
     }
 
     private void drawLine(MouseEvent event) {
@@ -148,6 +158,11 @@ public class DrawingBoard extends ScrollPane implements Serializable {
         lines.addNextPoint(savablePoint2D);
         gc.lineTo(event.getX(), event.getY());
         gc.stroke();
+
+        if (connectedToServer){
+            clientSocket.sendPackageToServer(new DrawingPackage(savablePoint2D, canvasBrush, PointType.MID));
+            System.out.println("Should have sent Packet :: drawLine()");
+        }
     }
 
     private void setupCanvasClickEvents() {

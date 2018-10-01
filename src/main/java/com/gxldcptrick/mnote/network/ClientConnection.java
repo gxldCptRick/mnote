@@ -14,15 +14,15 @@ public class ClientConnection implements AutoCloseable {
     private final Socket socket;
     public int getPort(){ return socket.getPort(); }
     public final UUID clientID;
-    private final ObjectOutputStream clientOutput;
-    private final ObjectInputStream clientInput;
+    private final BufferedWriter clientOutput;
+    private final BufferedReader clientInput;
     public Event<EventListener<DrawingEventArgs> , DrawingEventArgs> clientSendingArgs;
 
     public ClientConnection(Socket socket, UUID clientID) throws IOException{
         this.socket = socket;
         this.clientID = clientID;
-        this.clientOutput = new ObjectOutputStream(socket.getOutputStream());
-        this.clientInput = new ObjectInputStream(socket.getInputStream());
+        this.clientInput = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        this.clientOutput = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
         this.clientSendingArgs = new Event<>();
         this.objectMapper = new ObjectMapper();
     }
@@ -36,7 +36,8 @@ public class ClientConnection implements AutoCloseable {
     public void sendPackageToClient(DrawingPackage packet) {
         try {
             var jsonPacket = objectMapper.writeValueAsString(packet);
-            this.clientOutput.writeObject(jsonPacket);
+            this.clientOutput.write(jsonPacket);
+            this.clientOutput.newLine();
             this.clientOutput.flush();
             System.out.println("Sending Packet for: " + this.clientID);
             System.out.println("Package: " + jsonPacket);
@@ -46,13 +47,6 @@ public class ClientConnection implements AutoCloseable {
     }
 
     public void start() {
-        DrawingPackage drawingPackage;
-        try {
-            while ((drawingPackage = (DrawingPackage) clientInput.readObject()){
-
-            }
-        } catch (IOException | ClassNotFoundException e) {}
-
 //        try(var readingStream = new BufferedReader(new InputStreamReader(socket.getInputStream()))){
 //            while(!socket.isClosed()){
 //                var input = readingStream.readLine();
@@ -72,5 +66,20 @@ public class ClientConnection implements AutoCloseable {
 //        catch(IOException e){
 //            e.printStackTrace();
 //        }
+
+        try {
+            String jsonReceived;
+            DrawingPackage dPackage;
+            System.out.println("Waiting for packets....");
+            while((jsonReceived = clientInput.readLine()) != null) {
+                System.out.println(jsonReceived);
+                dPackage = objectMapper.readValue(jsonReceived, DrawingPackage.class);
+                dPackage.setClientUUID(clientID.toString());
+                this.clientSendingArgs.invoke(this, new DrawingEventArgs(dPackage));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 }

@@ -88,8 +88,6 @@ public class CanvasContainer implements Serializable {
         if (result.orElse(noConnect) == connect){
             this.whiteBoard.setClientSocket(new ClientSocket());
         }
-
-
     }
 
     private void initializeLayout() {
