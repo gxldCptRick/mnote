@@ -8,7 +8,6 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
-import com.gxldcptrick.mnote.FXView.views.NetworkView;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -121,7 +120,6 @@ public class Main extends Application {
 
     private void initializeTools() {
         tools = new FileMenuToolbar();
-        setupNetwork();
         setUpFile();
     }
 
@@ -131,18 +129,6 @@ public class Main extends Application {
         tools.setLoadAction(this::loadAction);
         tools.setNewNoteAction(this::newNoteAction);
         tools.setExportAsAction(this::exportAsAction);
-    }
-
-    private void setupNetwork() {
-        EventHandler<ActionEvent> bogus = (event) -> {
-          var hi = new Stage();
-          var content = new NetworkView();
-          hi.setScene(new Scene(content.getView(), 400, 300));
-          hi.focusedProperty().addListener((value, old, newer) -> { if(!newer) hi.close();});
-          hi.show();
-        };
-        tools.setJoinSessionAction(bogus);
-        tools.setStartSessionAction(bogus);
     }
 
     private void setUpCanvasBindings(Pane canvas, Stage primaryStage) {
