@@ -1,25 +1,20 @@
 package com.gxldcptrick.mnote.commonLib;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.*;
 
-public class Event<TEventListener extends EventListener<TArgs>, TArgs extends EventArgs> {
+public class Event<TArgs extends EventArgs> {
 
-    private Collection<TEventListener> listeners;
+    private Collection<EventListener<TArgs>> listeners;
 
     public Event(){
-        this.listeners = new ConcurrentLinkedQueue<>();
+        this.listeners = new ArrayList<>();
     }
 
-    public void subscribe(TEventListener listener){
-        Objects.requireNonNull(listener, "Cannot subscribe a null Listener");
+    public void subscribe(EventListener<TArgs> listener){
+        Objects.requireNonNull(listener, "listener Cannot Be Null");
             listeners.add(listener);
     }
-    public boolean unsubscribe(TEventListener listener){
+    public boolean unsubscribe(EventListener<TArgs> listener){
         return listeners.remove(listener);
     }
     public void invoke(Object sender, TArgs args){

@@ -1,6 +1,5 @@
-package com.gxldcptrick.mnote.network;
+package com.gxldcptrick.mnote.network.data.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.gxldcptrick.mnote.FXView.enums.PointType;
 import com.gxldcptrick.mnote.FXView.models.Brush;

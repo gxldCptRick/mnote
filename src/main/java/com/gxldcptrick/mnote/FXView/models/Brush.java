@@ -48,7 +48,7 @@ public class Brush implements Serializable {
     public boolean equals(Object o) {
         var isEqual = false;
         if (this == o) isEqual =  true;
-        else if (o != null && getClass() == o.getClass()) isEqual = equals(Brush.class.cast(o));
+        else if (o != null && getClass() == o.getClass()) isEqual = equals((Brush) o);
 
         return isEqual;
     }

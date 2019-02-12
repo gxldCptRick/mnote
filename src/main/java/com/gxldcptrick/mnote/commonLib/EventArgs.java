@@ -1,8 +1,8 @@
 package com.gxldcptrick.mnote.commonLib;
 
 public class EventArgs {
-    public static EventArgs empty;
+    public final static EventArgs EMPTY;
     static {
-        empty = new EventArgs();
+        EMPTY = new EventArgs();
     }
 }

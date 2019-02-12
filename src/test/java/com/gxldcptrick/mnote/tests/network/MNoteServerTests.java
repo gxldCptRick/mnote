@@ -3,7 +3,7 @@ package com.gxldcptrick.mnote.tests.network;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gxldcptrick.mnote.FXView.enums.PointType;
 import com.gxldcptrick.mnote.FXView.models.Brush;
-import com.gxldcptrick.mnote.network.DrawingPackage;
+import com.gxldcptrick.mnote.network.data.model.DrawingPackage;
 import com.gxldcptrick.mnote.FXView.models.SavablePoint2D;
 import com.gxldcptrick.mnote.network.MNoteMultiServer;
 

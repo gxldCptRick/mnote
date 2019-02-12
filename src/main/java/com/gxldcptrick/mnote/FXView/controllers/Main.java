@@ -1,5 +1,6 @@
 package com.gxldcptrick.mnote.FXView.controllers;
-import com.gxldcptrick.mnote.FXView.views.FileMenuToolbar;
+import com.gxldcptrick.mnote.FXView.components.CanvasContainer;
+import com.gxldcptrick.mnote.FXView.components.FileMenuToolbar;
 
 import java.awt.Toolkit;
 import java.awt.image.RenderedImage;
@@ -10,7 +11,6 @@ import javax.imageio.ImageIO;
 
 import javafx.application.Application;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.Pane;
@@ -43,7 +43,6 @@ public class Main extends Application {
     @Override
     public void stop() {
         // TODO: Make a Stop Thing
-
     }
 
     private void initializeStage() {
@@ -57,12 +56,12 @@ public class Main extends Application {
 
     private void initializeMainLayout() {
         mainLayout = new VBox();
-        mainLayout.getChildren().addAll(tools, drawSurface.getLayout());
+        mainLayout.getChildren().addAll(tools, drawSurface.getLayoutNode());
     }
 
     private void initializeDrawSurface() {
         drawSurface = new CanvasContainer(Screen_Width, Screen_Height);
-        setUpCanvasBindings(drawSurface.getLayout(), this.mainStage);
+        setUpCanvasBindings(drawSurface.getLayoutNode(), this.mainStage);
     }
 
     private void saveAction(ActionEvent event) {
@@ -86,9 +85,9 @@ public class Main extends Application {
     private void loadAction(ActionEvent event) {
         File oldSave = tools.getFileChooser().showOpenDialog(this.mainStage);
         if (oldSave != null && oldSave.getName().endsWith(".co")) {
-            mainLayout.getChildren().remove(this.drawSurface.getLayout());
+            mainLayout.getChildren().remove(this.drawSurface.getLayoutNode());
             this.drawSurface = (CanvasContainer) tools.loadFile(oldSave);
-            Pane canvas = drawSurface.getLayout();
+            Pane canvas = drawSurface.getLayoutNode();
             mainLayout.getChildren().add(canvas);
             this.setUpCanvasBindings(canvas, this.mainStage);
             updateToolBarText(oldSave);

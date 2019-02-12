@@ -1,4 +1,4 @@
-package com.gxldcptrick.mnote.FXView.controllers;
+package com.gxldcptrick.mnote.FXView.components;
 
 import java.awt.image.RenderedImage;
 import java.io.IOException;
@@ -6,9 +6,10 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
-import com.gxldcptrick.mnote.FXView.views.CanvasToolbar;
-
-import com.gxldcptrick.mnote.FXView.views.DrawingBoard;
+import com.gxldcptrick.mnote.FXView.controllers.CanvasDrawingController;
+import com.gxldcptrick.mnote.commonLib.Event;
+import com.gxldcptrick.mnote.commonLib.EventArgs;
+import com.gxldcptrick.mnote.commonLib.EventListener;
 import javafx.scene.control.MenuItem;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -31,28 +32,27 @@ public class CanvasContainer implements Serializable {
     private CanvasToolbar toolbar;
     private double width;
     private double height;
+    private CanvasDrawingController canvasController;
     private transient DrawingBoard whiteBoard;
     private transient VBox layout;
 
-     public CanvasContainer(double width, double height) {
+    public CanvasContainer(double width, double height) {
         this.width = width;
         this.height = height;
         initialize(width, height);
     }
 
-    public Pane getLayout() {
+    public Pane getLayoutNode() {
         return this.layout;
     }
 
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
         in.defaultReadObject();
         initialize(this.width, this.height);
-        whiteBoard.reloadData(in);
     }
 
     private void writeObject(ObjectOutputStream out) throws IOException {
         out.defaultWriteObject();
-        this.whiteBoard.saveData(out);
     }
 
     private void initialize(double width, double height) {
@@ -60,6 +60,7 @@ public class CanvasContainer implements Serializable {
         initializeBoard(width, height);
         initializeToolbar();
         layout.getChildren().addAll(toolbar.getLayout(), this.whiteBoard);
+        this.canvasController = new CanvasDrawingController(this.whiteBoard);
     }
 
     private void initializeBoard(double width, double height) {
@@ -72,14 +73,18 @@ public class CanvasContainer implements Serializable {
     }
 
     private void initializeToolbar() {
-        if (toolbar == null) toolbar = new CanvasToolbar(this.whiteBoard.getCanvasBrush());
+        if (toolbar == null) toolbar = new CanvasToolbar(this.canvasController.getBrush());
         MenuItem clearCanvas = new MenuItem("Whiteboard");
         MenuItem clearDrawing = new MenuItem("Drawings");
         MenuItem clearAnnotations = new MenuItem("Annotations");
         toolbar.getContextMenu().getItems().addAll(clearCanvas, clearDrawing, clearAnnotations);
-        clearCanvas.setOnAction(event -> whiteBoard.clearBoard());
-        clearDrawing.setOnAction(event -> whiteBoard.clearLines());
-        clearAnnotations.setOnAction(event -> whiteBoard.clearAnnotations());
+        clearCanvas.setOnAction(event -> {
+            this.canvasController.clearNotes();
+            this.canvasController.clearLines();
+            this.whiteBoard.clearDrawings();
+        });
+        clearDrawing.setOnAction(event -> whiteBoard.clearDrawings());
+        clearAnnotations.setOnAction(event -> whiteBoard.clearGroup());
     }
 
     public RenderedImage getRenderedImage() {

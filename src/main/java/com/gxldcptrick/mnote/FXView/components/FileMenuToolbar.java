@@ -1,4 +1,4 @@
-package com.gxldcptrick.mnote.FXView.views;
+package com.gxldcptrick.mnote.FXView.components;
 
 import java.io.*;
 

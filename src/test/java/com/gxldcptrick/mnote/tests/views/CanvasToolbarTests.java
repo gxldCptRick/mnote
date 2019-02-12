@@ -8,8 +8,7 @@ import java.io.File;
 import com.gxldcptrick.mnote.FXView.models.Brush;
 import org.junit.jupiter.api.Test;
 
-import com.gxldcptrick.mnote.tests.TestApp;
-import com.gxldcptrick.mnote.FXView.views.CanvasToolbar;
+import com.gxldcptrick.mnote.FXView.components.CanvasToolbar;
 
 import javafx.application.Platform;
 

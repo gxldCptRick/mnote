@@ -2,8 +2,7 @@ package com.gxldcptrick.mnote.tests.views;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.gxldcptrick.mnote.tests.TestApp;
-import com.gxldcptrick.mnote.FXView.views.FileMenuToolbar;
+import com.gxldcptrick.mnote.FXView.components.FileMenuToolbar;
 import javafx.application.Platform;
 import org.junit.jupiter.api.Test;
 

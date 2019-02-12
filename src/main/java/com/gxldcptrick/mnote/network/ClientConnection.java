@@ -3,6 +3,7 @@ package com.gxldcptrick.mnote.network;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gxldcptrick.mnote.commonLib.Event;
 import com.gxldcptrick.mnote.commonLib.EventListener;
+import com.gxldcptrick.mnote.network.data.model.DrawingPackage;
 
 import java.io.*;
 import java.net.Socket;

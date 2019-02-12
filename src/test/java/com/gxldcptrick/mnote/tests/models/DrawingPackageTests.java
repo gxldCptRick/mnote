@@ -2,7 +2,7 @@ package com.gxldcptrick.mnote.tests.models;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gxldcptrick.mnote.FXView.models.Brush;
-import com.gxldcptrick.mnote.network.DrawingPackage;
+import com.gxldcptrick.mnote.network.data.model.DrawingPackage;
 import com.gxldcptrick.mnote.FXView.models.SavablePoint2D;
 import org.junit.jupiter.api.Test;
 
