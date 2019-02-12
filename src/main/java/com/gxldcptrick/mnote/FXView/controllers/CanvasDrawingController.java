@@ -6,22 +6,17 @@ import javafx.scene.Group;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 
-import java.util.ArrayList;
-import java.util.List;
 
 public class CanvasDrawingController {
     private CanvasLines lines;
-    private Notes data;
     private Brush currentBrush;
     public CanvasDrawingController(final DrawingBoard board){
         lines = new CanvasLines();
-        data = new Notes();
         currentBrush = new Brush();
-        board.canvasMouseDragEvent.subscribe(this::drawingLines);
-        board.canvasMouseDownEvent.subscribe(this::startLine);
-        board.canvasMouseUpEvent.subscribe(this::endLine);
-        board.canvasClickedEvent.subscribe(this::deleteLine);
-        board.noteDoubleClickedEvent.subscribe(this::addNoteToScreen);
+        board.canvasMouseDrag.subscribe(this::drawingLines);
+        board.canvasMouseDown.subscribe(this::startLine);
+        board.canvasMouseUp.subscribe(this::endLine);
+        board.canvasClicked.subscribe(this::deleteLine);
     }
 
     public Brush getBrush(){
@@ -29,11 +24,10 @@ public class CanvasDrawingController {
     }
 
     public void DetachFromBoard(final DrawingBoard board){
-        board.canvasMouseDragEvent.unsubscribe(this::drawingLines);
-        board.canvasMouseDownEvent.unsubscribe(this::startLine);
-        board.canvasMouseUpEvent.unsubscribe(this::endLine);
-        board.canvasClickedEvent.unsubscribe(this::deleteLine);
-        board.noteDoubleClickedEvent.unsubscribe(this::addNoteToScreen);
+        board.canvasMouseDrag.unsubscribe(this::drawingLines);
+        board.canvasMouseDown.unsubscribe(this::startLine);
+        board.canvasMouseUp.unsubscribe(this::endLine);
+        board.canvasClicked.unsubscribe(this::deleteLine);
     }
 
     private void drawingLines(Object sender, MouseEventArgs e){
@@ -76,6 +70,10 @@ public class CanvasDrawingController {
         lines.drawLines(canvas.getGraphicsContext2D());
     }
 
+    public void redrawSavedLines(Canvas canvas){
+        lines.drawLines(canvas.getGraphicsContext2D());
+    }
+
     public void repostNotes(DrawingBoard board){
         var noteBoard = board.getNoteSurface();
 
@@ -87,16 +85,6 @@ public class CanvasDrawingController {
             var canvas = (Canvas) sender;
             redrawSavedLines(canvas);
         }
-    }
-
-    private void addNoteToScreen(Object sender, MouseEventArgs e){
-        if(sender instanceof Group){
-            var group = (Group) sender;
-        }
-    }
-
-    public void clearNotes(){
-        this.data.clear();
     }
 
     public void clearLines(){

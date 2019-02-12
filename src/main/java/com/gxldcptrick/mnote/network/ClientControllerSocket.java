@@ -1,7 +1,7 @@
 package com.gxldcptrick.mnote.network;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.gxldcptrick.mnote.commonLib.Event;
+import com.gxldcptrick.mnote.commonLib.Delegate;
 import com.gxldcptrick.mnote.commonLib.EventListener;
 import com.gxldcptrick.mnote.network.data.model.DrawingPackage;
 
@@ -16,11 +16,11 @@ public class ClientControllerSocket implements AutoCloseable, Runnable{
     private Socket serverConnection;
     private BufferedWriter serverOutput;
     private boolean connected;
-    public Event<EventListener<DrawingEventArgs>, DrawingEventArgs> packetReadEvent;
+    public Delegate<EventListener<DrawingEventArgs>, DrawingEventArgs> packetReadDelegate;
 
     public ClientControllerSocket(Socket serverConnnection) {
         this.serverConnection = serverConnnection;
-        this.packetReadEvent = new Event<>();
+        this.packetReadDelegate = new Delegate<>();
         connected = true;
     }
 
@@ -49,7 +49,7 @@ public class ClientControllerSocket implements AutoCloseable, Runnable{
             do{
                 var jsonSent = reader.readLine();
                 var jackPackage = mapper.readValue(jsonSent, DrawingPackage.class);
-                this.packetReadEvent.invoke(this, new DrawingEventArgs(jackPackage));
+                this.packetReadDelegate.invoke(this, new DrawingEventArgs(jackPackage));
             } while(connected);
         }catch(IOException e){
 

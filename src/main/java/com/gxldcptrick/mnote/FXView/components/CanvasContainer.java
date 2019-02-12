@@ -7,9 +7,6 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
 import com.gxldcptrick.mnote.FXView.controllers.CanvasDrawingController;
-import com.gxldcptrick.mnote.commonLib.Event;
-import com.gxldcptrick.mnote.commonLib.EventArgs;
-import com.gxldcptrick.mnote.commonLib.EventListener;
 import javafx.scene.control.MenuItem;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;

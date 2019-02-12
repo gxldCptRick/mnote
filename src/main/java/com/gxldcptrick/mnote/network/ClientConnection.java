@@ -1,7 +1,7 @@
 package com.gxldcptrick.mnote.network;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.gxldcptrick.mnote.commonLib.Event;
+import com.gxldcptrick.mnote.commonLib.Delegate;
 import com.gxldcptrick.mnote.commonLib.EventListener;
 import com.gxldcptrick.mnote.network.data.model.DrawingPackage;
 
@@ -19,13 +19,13 @@ public class ClientConnection implements AutoCloseable, Runnable {
     public int getPort(){ return socket.getPort(); }
     public final UUID clientID;
     private final BufferedWriter clientOutput;
-    public Event<EventListener<DrawingEventArgs> , DrawingEventArgs> clientSendingArgs;
+    public Delegate<EventListener<DrawingEventArgs> , DrawingEventArgs> clientSendingArgs;
 
     public ClientConnection(Socket socket, UUID clientID) throws IOException{
         this.socket = socket;
         this.clientID = clientID;
         this.clientOutput = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-        this.clientSendingArgs = new Event<>();
+        this.clientSendingArgs = new Delegate<>();
     }
 
     @Override

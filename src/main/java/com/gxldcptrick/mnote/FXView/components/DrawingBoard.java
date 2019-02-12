@@ -5,6 +5,7 @@ import java.awt.image.RenderedImage;
 import com.gxldcptrick.mnote.FXView.models.*;
 import com.gxldcptrick.mnote.FXView.enums.SpecialEffect;
 
+import com.gxldcptrick.mnote.commonLib.Delegate;
 import com.gxldcptrick.mnote.commonLib.Event;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.Group;
@@ -16,19 +17,32 @@ import javafx.scene.input.*;
 public class DrawingBoard extends ScrollPane {
     private transient Group noteSurface;
     private transient Canvas drawSurface;
-    public final Event<MouseEventArgs> canvasMouseDragEvent;
-    public final Event<MouseEventArgs> canvasMouseDownEvent;
-    public final Event<MouseEventArgs> canvasMouseUpEvent;
-    public final Event<MouseEventArgs> canvasClickedEvent;
-    public final Event<MouseEventArgs> noteDoubleClickedEvent;
+    public final Event<MouseEventArgs> canvasMouseDrag;
+    public final Event<MouseEventArgs> canvasMouseDown;
+    public final Event<MouseEventArgs> canvasMouseUp;
+    public final Event<MouseEventArgs> canvasClicked;
+    public final Event<MouseEventArgs> noteDoubleClicked;
+    private final Delegate<MouseEventArgs> canvasMouseDragDelegate;
+    private final Delegate<MouseEventArgs> canvasMouseDownDelegate;
+    private final Delegate<MouseEventArgs> canvasMouseUpDelegate;
+    private final Delegate<MouseEventArgs> canvasClickedDelegate;
+    private final Delegate<MouseEventArgs> noteDoubleClickedDelegate;
+
+
+
     public DrawingBoard(double width, double height) {
         this.initialize(width, height);
         this.noteSurface = new Group();
-        this.canvasMouseDownEvent = new Event<>();
-        this.canvasMouseDragEvent = new Event<>();
-        this.canvasMouseUpEvent = new Event<>();
-        this.canvasClickedEvent = new Event<>();
-        this.noteDoubleClickedEvent = new Event<>();
+        this.canvasClickedDelegate = new Delegate<>();
+        this.canvasMouseDownDelegate = new Delegate<>();
+        this.canvasMouseDragDelegate = new Delegate<>();
+        this.canvasMouseUpDelegate = new Delegate<>();
+        this.noteDoubleClickedDelegate = new Delegate<>();
+        this.canvasMouseDown = new Event<>(this.canvasMouseDownDelegate);
+        this.canvasMouseDrag = new Event<>(this.canvasMouseDragDelegate);
+        this.canvasMouseUp = new Event<>(this.canvasMouseUpDelegate);
+        this.canvasClicked = new Event<>(this.canvasClickedDelegate);
+        this.noteDoubleClicked = new Event<>(this.noteDoubleClickedDelegate);
     }
 
     public Canvas getDrawSurface(){
@@ -67,15 +81,17 @@ public class DrawingBoard extends ScrollPane {
     }
 
     private void setUpDrawing() {
-        this.drawSurface.setOnMouseDragged((e) -> this.canvasMouseDragEvent.invoke(this.drawSurface, new MouseEventArgs(e)));
-        this.drawSurface.setOnMouseReleased((e) -> this.canvasMouseUpEvent.invoke(this.drawSurface, new MouseEventArgs(e)));
-        this.drawSurface.setOnMousePressed((e) -> this.canvasMouseDownEvent.invoke(this.drawSurface, new MouseEventArgs(e)));
-        this.noteSurface.setOnMouseClicked((e) -> this.noteDoubleClickedEvent.invoke(this.noteSurface, new MouseEventArgs(e)));
+        this.drawSurface.setOnMouseDragged((e) -> this.canvasMouseDragDelegate.invoke(this.drawSurface, new MouseEventArgs(e)));
+        this.drawSurface.setOnMouseReleased((e) -> this.canvasMouseUpDelegate.invoke(this.drawSurface, new MouseEventArgs(e)));
+        this.drawSurface.setOnMousePressed((e) -> this.canvasMouseDownDelegate.invoke(this.drawSurface, new MouseEventArgs(e)));
+        this.noteSurface.setOnMouseClicked((e) -> this.noteDoubleClickedDelegate.invoke(this.noteSurface, new MouseEventArgs(e)));
     }
 
     private void setupCanvasClickEvents() {
         this.drawSurface.setOnMouseClicked(event -> {
-           this.canvasClickedEvent.invoke(this.drawSurface, new MouseEventArgs(event));
+            if(event.getClickCount() == 2){
+                this.canvasClickedDelegate.invoke(this.drawSurface, new MouseEventArgs(event));
+            }
         });
     }
 
