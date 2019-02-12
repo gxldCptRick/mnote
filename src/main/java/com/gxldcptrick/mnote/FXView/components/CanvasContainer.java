@@ -55,9 +55,9 @@ public class CanvasContainer implements Serializable {
     private void initialize(double width, double height) {
         initializeLayout();
         initializeBoard(width, height);
+        this.canvasController = new CanvasDrawingController(this.whiteBoard);
         initializeToolbar();
         layout.getChildren().addAll(toolbar.getLayout(), this.whiteBoard);
-        this.canvasController = new CanvasDrawingController(this.whiteBoard);
     }
 
     private void initializeBoard(double width, double height) {
@@ -70,14 +70,12 @@ public class CanvasContainer implements Serializable {
     }
 
     private void initializeToolbar() {
-        if (toolbar == null) toolbar = new CanvasToolbar(this.canvasController.getBrush());
+        if (toolbar == null) toolbar = new CanvasToolbar(this.canvasController.brush);
         MenuItem clearCanvas = new MenuItem("Whiteboard");
         MenuItem clearDrawing = new MenuItem("Drawings");
         MenuItem clearAnnotations = new MenuItem("Annotations");
         toolbar.getContextMenu().getItems().addAll(clearCanvas, clearDrawing, clearAnnotations);
         clearCanvas.setOnAction(event -> {
-            this.canvasController.clearNotes();
-            this.canvasController.clearLines();
             this.whiteBoard.clearDrawings();
         });
         clearDrawing.setOnAction(event -> whiteBoard.clearDrawings());

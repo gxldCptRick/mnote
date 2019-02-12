@@ -31,8 +31,8 @@ public class DrawingBoard extends ScrollPane {
 
 
     public DrawingBoard(double width, double height) {
-        this.initialize(width, height);
         this.noteSurface = new Group();
+        this.initialize(width, height);
         this.canvasClickedDelegate = new Delegate<>();
         this.canvasMouseDownDelegate = new Delegate<>();
         this.canvasMouseDragDelegate = new Delegate<>();
