@@ -18,27 +18,23 @@ import javafx.scene.input.*;
 public class DrawingBoard extends ScrollPane {
     private transient Group noteSurface;
     private transient Canvas drawSurface;
-    public final Event<MouseEventArgs> canvasMouseDrag;
-    public final Event<MouseEventArgs> canvasMouseDown;
-    public final Event<MouseEventArgs> canvasMouseUp;
-    public final Event<MouseEventArgs> canvasClicked;
-    public final Event<MouseEventArgs> noteDoubleClicked;
-    public final Event<EventArgs> canvasCleared;
-    public final Event<EventArgs> notesCleared(){
 
-    }
-    private final Delegate<MouseEventArgs> canvasMouseDragDelegate;
-    private final Delegate<MouseEventArgs> canvasMouseDownDelegate;
-    private final Delegate<MouseEventArgs> canvasMouseUpDelegate;
-    private final Delegate<MouseEventArgs> canvasClickedDelegate;
-    private final Delegate<MouseEventArgs> noteDoubleClickedDelegate;
-    public final Delegate<EventArgs> canvasClearedDelegate;
-    public final Delegate<EventArgs> notesClearedDelegate;
+    private Delegate<MouseEventArgs> canvasMouseDragDelegate;
+    private Delegate<MouseEventArgs> canvasMouseDownDelegate;
+    private Delegate<MouseEventArgs> canvasMouseUpDelegate;
+    private Delegate<MouseEventArgs> canvasClickedDelegate;
+    private Delegate<MouseEventArgs> noteDoubleClickedDelegate;
+    public Delegate<EventArgs> canvasClearedDelegate;
+    public Delegate<EventArgs> notesClearedDelegate;
 
 
     public DrawingBoard(double width, double height) {
         this.noteSurface = new Group();
         this.initialize(width, height);
+        this.createInitialEvents();
+    }
+
+    private void createInitialEvents(){
         this.canvasClickedDelegate = new Delegate<>();
         this.canvasMouseDownDelegate = new Delegate<>();
         this.canvasMouseDragDelegate = new Delegate<>();
@@ -46,13 +42,28 @@ public class DrawingBoard extends ScrollPane {
         this.noteDoubleClickedDelegate = new Delegate<>();
         this.canvasClearedDelegate = new Delegate<>();
         this.notesClearedDelegate = new Delegate<>();
-        this.canvasMouseDown = new Event<>(this.canvasMouseDownDelegate);
-        this.canvasMouseDrag = new Event<>(this.canvasMouseDragDelegate);
-        this.canvasMouseUp = new Event<>(this.canvasMouseUpDelegate);
-        this.canvasClicked = new Event<>(this.canvasClickedDelegate);
-        this.noteDoubleClicked = new Event<>(this.noteDoubleClickedDelegate);
-        this.canvasCleared = new Event<>(this.canvasClearedDelegate);
-        this.notesCleared = new Event<>(this.notesClearedDelegate);
+    }
+
+    public final Event<MouseEventArgs> canvasMouseDrag(){
+        return this.canvasMouseDragDelegate;
+    }
+    public final Event<MouseEventArgs> canvasMouseDown(){
+        return this.canvasMouseUpDelegate;
+    }
+    public final Event<MouseEventArgs> canvasMouseUp(){
+        return this.canvasMouseUpDelegate;
+    }
+    public final Event<MouseEventArgs> canvasClicked () {
+        return this.canvasClickedDelegate;
+    }
+    public final Event<MouseEventArgs> noteDoubleClicked(){
+        return this.noteDoubleClickedDelegate;
+    }
+    public final Event<EventArgs> canvasCleared () {
+        return this.canvasClearedDelegate;
+    }
+    public final Event<EventArgs> notesCleared(){
+        return this.notesClearedDelegate;
     }
 
     public Canvas getDrawSurface(){

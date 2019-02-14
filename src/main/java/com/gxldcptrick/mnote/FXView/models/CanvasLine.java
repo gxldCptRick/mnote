@@ -97,7 +97,7 @@ public class CanvasLine implements Serializable {
                 Point2D dot = initialPoint.get2DPoint();
                 gc.beginPath();
                 setUpGraphics(gc);
-                gc.strokeOval(dot.getX(), dot.getY(), );
+                //gc.strokeOval(dot.getX(), dot.getY(), );
                 gc.closePath();
             }
         }

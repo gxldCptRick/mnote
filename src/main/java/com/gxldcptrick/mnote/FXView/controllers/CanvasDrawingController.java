@@ -15,16 +15,16 @@ public class CanvasDrawingController extends  DrawingBoardListener{
 
     @Override
     public void attachToBoardEvents(final DrawingBoard board){
-        board.canvasMouseDrag.subscribe(this::drawingLines);
-        board.canvasMouseDown.subscribe(this::startLine);
-        board.canvasMouseUp.subscribe(this::endLine);
+        board.canvasMouseDrag().subscribe(this::drawingLines);
+        board.canvasMouseDown().subscribe(this::startLine);
+        board.canvasMouseUp().subscribe(this::endLine);
     }
 
     @Override
     public void detachFromBoardEvents(DrawingBoard board) {
-        board.canvasMouseDrag.unsubscribe(this::drawingLines);
-        board.canvasMouseDown.unsubscribe(this::startLine);
-        board.canvasMouseUp.unsubscribe(this::endLine);
+        board.canvasMouseDrag().unsubscribe(this::drawingLines);
+        board.canvasMouseDown().unsubscribe(this::startLine);
+        board.canvasMouseUp().unsubscribe(this::endLine);
     }
 
     private void drawingLines(Object sender, MouseEventArgs e){

@@ -16,7 +16,7 @@ public class NoteController extends DrawingBoardListener{
 
     @Override
     public void attachToBoardEvents(final DrawingBoard board){
-        board.noteDoubleClicked.subscribe(this::addNoteToGroup);
+        board.noteDoubleClicked().subscribe(this::addNoteToGroup);
     }
 
     @Override

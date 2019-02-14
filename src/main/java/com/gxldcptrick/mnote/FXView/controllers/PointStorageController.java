@@ -4,6 +4,7 @@ import com.gxldcptrick.mnote.FXView.components.DrawingBoard;
 import com.gxldcptrick.mnote.FXView.models.Brush;
 import com.gxldcptrick.mnote.FXView.models.CanvasLines;
 import com.gxldcptrick.mnote.FXView.models.MouseEventArgs;
+import com.gxldcptrick.mnote.FXView.models.SavablePoint2D;
 import javafx.scene.canvas.Canvas;
 
 public class PointStorageController extends DrawingBoardListener{
@@ -17,7 +18,7 @@ public class PointStorageController extends DrawingBoardListener{
 
     @Override
     protected void attachToBoardEvents(DrawingBoard board) {
-       board.canvasMouseDrag.subscribe(this::recordDrawingLine);
+       board.canvasMouseDrag().subscribe(this::recordDrawingLine);
     }
 
     @Override
@@ -27,7 +28,7 @@ public class PointStorageController extends DrawingBoardListener{
     private void recordDrawingLine(Object sender, MouseEventArgs e){
        if(sender instanceof Canvas){
            var nativeEvent = e.event;
-           lines.addNextPoint();
+           lines.addNextPoint(new SavablePoint2D(nativeEvent.getX(), nativeEvent.getY()));
        }
     }
 

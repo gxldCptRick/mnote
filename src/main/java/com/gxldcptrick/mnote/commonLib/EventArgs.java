@@ -5,6 +5,6 @@ public  class EventArgs {
     static {
         EMPTY = new EventArgs();
     }
-    private EventArgs(){
+    protected EventArgs(){
     }
 }
