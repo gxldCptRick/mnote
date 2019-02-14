@@ -24,8 +24,8 @@ public class DrawingBoard extends ScrollPane {
     private Delegate<MouseEventArgs> canvasMouseUpDelegate;
     private Delegate<MouseEventArgs> canvasClickedDelegate;
     private Delegate<MouseEventArgs> noteDoubleClickedDelegate;
-    public Delegate<EventArgs> canvasClearedDelegate;
-    public Delegate<EventArgs> notesClearedDelegate;
+    private Delegate<EventArgs> canvasClearedDelegate;
+    private Delegate<EventArgs> notesClearedDelegate;
 
 
     public DrawingBoard(double width, double height) {
