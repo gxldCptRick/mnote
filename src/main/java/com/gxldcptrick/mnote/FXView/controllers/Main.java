@@ -6,6 +6,7 @@ import java.awt.Toolkit;
 import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.Optional;
 
 import javax.imageio.ImageIO;
 
@@ -128,6 +129,8 @@ public class Main extends Application {
         tools.setLoadAction(this::loadAction);
         tools.setNewNoteAction(this::newNoteAction);
         tools.setExportAsAction(this::exportAsAction);
+        tools.setStartSessionAction(this::startSession);
+        tools.setJoinSessionAction(this::joinSession);
     }
 
     private void setUpCanvasBindings(Pane canvas, Stage primaryStage) {
@@ -166,6 +169,35 @@ public class Main extends Application {
                 this.tools.updateFileName(recentlyOpenedFile.getName());
             }
         }
+    }
+
+    private void joinSession(ActionEvent actionEvent) {
+        TextInputDialog dialog = new TextInputDialog("localhost");
+        dialog.setTitle("Connect to server");
+        dialog.setHeaderText("Connecting to server!");
+        showDialogBox(dialog);
+    }
+
+    private void startSession(ActionEvent actionEvent) {
+        TextInputDialog dialog = new TextInputDialog("localhost");
+        dialog.setTitle("Starting server");
+        dialog.setHeaderText("Starting up a server");
+        showDialogBox(dialog);
+    }
+
+    private void showDialogBox(TextInputDialog dialog) {
+        dialog.setContentText("Enter server address");
+        Optional<String> result = dialog.showAndWait();
+        if (valid(result.toString())){
+
+        }
+        else{
+            new Alert(Alert.AlertType.ERROR, "Not a valid address", ButtonType.OK).show();
+        }
+    }
+
+    private boolean valid(String result){
+        return !result.isBlank();
     }
     public static void main(String[] args) {
         launch(args);
