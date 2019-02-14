@@ -99,4 +99,13 @@ public class Brush implements Serializable {
         this.currentWidth = currentWidth;
     }
 
+
+    @Override
+    public String toString(){
+        return String.format("color: %s, width: %s, effect: %s, cap: %s",
+                this.getCurrentColor().getColor(),
+                this.getCurrentWidth(),
+                this.getEffect(),
+                this.getBrushCap());
+    }
 }

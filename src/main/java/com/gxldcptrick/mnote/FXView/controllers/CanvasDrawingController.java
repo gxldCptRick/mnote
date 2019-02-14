@@ -6,49 +6,59 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 
 
-public class CanvasDrawingController {
+public class CanvasDrawingController extends  DrawingBoardListener{
     public final Brush brush;
     public CanvasDrawingController(final DrawingBoard board){
-        brush = new Brush();
+       super(board);
+       brush = new Brush();
+    }
+
+    @Override
+    public void attachToBoardEvents(final DrawingBoard board){
         board.canvasMouseDrag.subscribe(this::drawingLines);
         board.canvasMouseDown.subscribe(this::startLine);
         board.canvasMouseUp.subscribe(this::endLine);
     }
 
-    public void DetachFromBoard(final DrawingBoard board){
+    @Override
+    public void detachFromBoardEvents(DrawingBoard board) {
         board.canvasMouseDrag.unsubscribe(this::drawingLines);
         board.canvasMouseDown.unsubscribe(this::startLine);
         board.canvasMouseUp.unsubscribe(this::endLine);
     }
 
     private void drawingLines(Object sender, MouseEventArgs e){
-        System.out.println(sender);
+        System.out.println("Before if in drawingLines");
         if(sender instanceof Canvas){
-            System.out.println(sender);
+            System.out.println("inside DrawingLines");
             var canvas = (Canvas) sender;
             var nativeEvent = e.event;
             var context = canvas.getGraphicsContext2D();
-            context.lineTo(nativeEvent.getScreenX(), nativeEvent.getScreenY());
+            System.out.println(String.format("(%s, %s)", nativeEvent.getX(), nativeEvent.getY()));
+            context.lineTo(nativeEvent.getX(), nativeEvent.getY());
+            context.stroke();
         }
     }
     private void startLine(Object sender, MouseEventArgs e){
-        System.out.println("Before if");
+        System.out.println("Before if in start line");
         if(sender instanceof Canvas){
-            System.out.println(sender);
+            System.out.println("inside start line");
             var canvas = (Canvas) sender;
             var nativeEvent = e.event;
             var context = canvas.getGraphicsContext2D();
-            context.beginPath();
             configureContext(context);
-            context.moveTo(nativeEvent.getScreenX(), nativeEvent.getScreenY());
+            context.beginPath();
+            context.moveTo(nativeEvent.getX(), nativeEvent.getY());
+            context.stroke();
         }
     }
 
     private void configureContext(GraphicsContext context) {
+        System.out.println(brush);
         context.setLineCap(brush.getBrushCap());
         context.setEffect(brush.getEffect().lineEffect);
         context.setLineWidth(brush.getCurrentWidth());
-        context.setFill(brush.getCurrentColor().getColor());
+        context.setStroke(brush.getCurrentColor().getColor());
     }
 
     private void endLine(Object sender, MouseEventArgs e){
@@ -56,7 +66,10 @@ public class CanvasDrawingController {
             var canvas = (Canvas) sender;
             var nativeEvent = e.event;
             var context = canvas.getGraphicsContext2D();
-            context.moveTo(nativeEvent.getScreenX(), nativeEvent.getScreenY());
+            System.out.println(String.format("(%s, %s)", nativeEvent.getX(), nativeEvent.getY()));
+            context.lineTo(nativeEvent.getX(), nativeEvent.getY());
+            context.stroke();
+            context.closePath();
         }
     }
 }

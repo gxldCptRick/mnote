@@ -38,10 +38,13 @@ public class CanvasLines implements Serializable {
 	}
 	
 	public void startNewLine(Color colorOfLine, double lineWidth, SpecialEffect specialEffect) {
+		startNewLine(new Brush(lineWidth, ));
+	}
+
+	public void startNewLine(Brush brush){
 		currentLine = new CanvasLine(colorOfLine, lineWidth , specialEffect);
 		lines.add(currentLine);
 	}
-	
 	public boolean removeLine(Point2D point) {
 		boolean foundLine = false;
 		CanvasLine line = null;
