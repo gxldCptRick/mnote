@@ -32,7 +32,6 @@ public class Brush implements Serializable {
 
     public boolean equals(Brush otherBrush){
         var isEqual = false;
-
         if(otherBrush != null){
             isEqual = Double.compare(otherBrush.getCurrentWidth(), getCurrentWidth()) == 0 &&
                     isDeleting() == otherBrush.isDeleting() &&
@@ -40,7 +39,6 @@ public class Brush implements Serializable {
                     getEffect() == otherBrush.getEffect() &&
                     Objects.equals(getCurrentColor(), otherBrush.getCurrentColor());
         }
-
         return isEqual;
     }
 
@@ -99,4 +97,13 @@ public class Brush implements Serializable {
         this.currentWidth = currentWidth;
     }
 
+
+    @Override
+    public String toString(){
+        return String.format("color: %s, width: %s, effect: %s, cap: %s",
+                this.getCurrentColor().getColor(),
+                this.getCurrentWidth(),
+                this.getEffect(),
+                this.getBrushCap());
+    }
 }

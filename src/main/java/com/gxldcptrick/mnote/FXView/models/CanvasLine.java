@@ -10,15 +10,13 @@ import com.gxldcptrick.mnote.FXView.enums.SpecialEffect;
 import javafx.geometry.Point2D;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.StrokeLineCap;
 
 public class CanvasLine implements Serializable {
 
     private static final long serialVersionUID = 7230L;
-
-    private double lineWidth;
-    private List<SavablePoint2D> points;
-    private SavableColor color;
-    private SpecialEffect lineEffect;
+    private final List<SavablePoint2D> points;
+    private final Brush brush;
 
     //<editor-fold desc = "Constructor">
 
@@ -27,22 +25,23 @@ public class CanvasLine implements Serializable {
     }
 
     public CanvasLine(CanvasLine currentLine) {
-        this(currentLine.color, currentLine.lineWidth, currentLine.lineEffect);
-        this.points = new ArrayList<>(currentLine.points);
+        this(currentLine.brush);
+        this.points.addAll(currentLine.points);
+    }
+    public CanvasLine(Brush brush){
+        this.brush = brush;
+        this.points = new ArrayList<>();
     }
 
     public CanvasLine(SavableColor color, double lineWidth, SpecialEffect effect) {
-        this.color = color;
-        this.lineWidth = lineWidth;
-        this.points = new ArrayList<>();
-        if (effect != null) this.lineEffect = effect;
+        this(new Brush(lineWidth, StrokeLineCap.ROUND, false,effect, color.getColor()));
     }
     public CanvasLine(Color color, double lineWidth){
         this(color, lineWidth, SpecialEffect.None);
     }
+
     public CanvasLine(Color colorOfLine, double lineWidth, SpecialEffect specialEffect) {
         this(new SavableColor(colorOfLine.getRed(), colorOfLine.getGreen(), colorOfLine.getBlue(), colorOfLine.getOpacity()), lineWidth, specialEffect);
-
     }
     //</editor-fold>
 
@@ -92,17 +91,13 @@ public class CanvasLine implements Serializable {
             }
 
             gc.closePath();
-        } else if (points.size() > 0) {
+        } else if (points.size() == 1) {
             SavablePoint2D initialPoint = points.get(0);
-
             if (initialPoint != null) {
                 Point2D dot = initialPoint.get2DPoint();
                 gc.beginPath();
-
                 setUpGraphics(gc);
-
-                gc.strokeOval(dot.getX(), dot.getY(), this.lineWidth, this.lineWidth);
-
+                //gc.strokeOval(dot.getX(), dot.getY(), );
                 gc.closePath();
             }
         }
@@ -110,52 +105,33 @@ public class CanvasLine implements Serializable {
 
     private void setUpGraphics(GraphicsContext gc) {
 
-        if (this.lineEffect != null)
-            gc.setEffect(lineEffect.lineEffect);
-        else
-            gc.setEffect(null);
-
-        gc.setStroke(this.color.getColor());
-        gc.setLineWidth(this.lineWidth);
+        gc.setEffect(this.brush.getEffect().lineEffect);
+        gc.setStroke(this.brush.getCurrentColor().getColor());
+        gc.setLineWidth(this.brush.getCurrentWidth());
     }
 
     //<editor-fold desc = "Equality">
     public boolean equals(CanvasLine line) {
-
-        return line != null && line.points.equals(this.points) && line.lineWidth == this.lineWidth
-                && line.color.equals(this.color) && line.lineEffect == this.lineEffect;
-
+        return line != null && line.points.equals(this.points) && this.brush.equals(line.brush);
     }
 
     // @@@@ "Overriding and benefiting from equals and hashcode."
-
     @Override
     public boolean equals(Object other) {
-
         boolean equal = false;
-
-        if (getClass().isInstance(other)) {
-
-            equal = equals(getClass().cast(other));
-
+        if (other instanceof  CanvasLine) {
+            equal = equals((CanvasLine) other);
         }
-
         return equal;
-
     }
 
     @Override
     public int hashCode() {
-
-        return this.points.hashCode() ^ Double.hashCode(this.lineWidth) ^ this.color.hashCode() ^ this.lineEffect.hashCode();
-
+        return this.points.hashCode() ^ this.brush.hashCode();
     }
 //</editor-fold>
-
     @Override
     public String toString() {
-
-        return points + " " + color + " " + lineWidth;
-
+        return String.format("%s: %s", this.brush, this.points);
     }
 }

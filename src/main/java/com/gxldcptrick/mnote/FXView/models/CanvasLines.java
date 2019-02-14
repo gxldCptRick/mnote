@@ -9,6 +9,7 @@ import com.gxldcptrick.mnote.FXView.enums.SpecialEffect;
 import javafx.geometry.Point2D;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.StrokeLineCap;
 
 public class CanvasLines implements Serializable {
 
@@ -38,10 +39,13 @@ public class CanvasLines implements Serializable {
 	}
 	
 	public void startNewLine(Color colorOfLine, double lineWidth, SpecialEffect specialEffect) {
-		currentLine = new CanvasLine(colorOfLine, lineWidth , specialEffect);
+		startNewLine(new Brush(lineWidth, StrokeLineCap.ROUND, false, specialEffect, colorOfLine));
+	}
+
+	public void startNewLine(Brush brush){
+		currentLine = new CanvasLine(brush);
 		lines.add(currentLine);
 	}
-	
 	public boolean removeLine(Point2D point) {
 		boolean foundLine = false;
 		CanvasLine line = null;
