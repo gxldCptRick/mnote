@@ -7,6 +7,7 @@ import com.gxldcptrick.mnote.FXView.enums.SpecialEffect;
 
 import com.gxldcptrick.mnote.commonLib.Delegate;
 import com.gxldcptrick.mnote.commonLib.Event;
+import com.gxldcptrick.mnote.commonLib.EventArgs;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.Group;
 import javafx.scene.canvas.*;
@@ -22,12 +23,17 @@ public class DrawingBoard extends ScrollPane {
     public final Event<MouseEventArgs> canvasMouseUp;
     public final Event<MouseEventArgs> canvasClicked;
     public final Event<MouseEventArgs> noteDoubleClicked;
+    public final Event<EventArgs> canvasCleared;
+    public final Event<EventArgs> notesCleared(){
+
+    }
     private final Delegate<MouseEventArgs> canvasMouseDragDelegate;
     private final Delegate<MouseEventArgs> canvasMouseDownDelegate;
     private final Delegate<MouseEventArgs> canvasMouseUpDelegate;
     private final Delegate<MouseEventArgs> canvasClickedDelegate;
     private final Delegate<MouseEventArgs> noteDoubleClickedDelegate;
-
+    public final Delegate<EventArgs> canvasClearedDelegate;
+    public final Delegate<EventArgs> notesClearedDelegate;
 
 
     public DrawingBoard(double width, double height) {
@@ -38,11 +44,15 @@ public class DrawingBoard extends ScrollPane {
         this.canvasMouseDragDelegate = new Delegate<>();
         this.canvasMouseUpDelegate = new Delegate<>();
         this.noteDoubleClickedDelegate = new Delegate<>();
+        this.canvasClearedDelegate = new Delegate<>();
+        this.notesClearedDelegate = new Delegate<>();
         this.canvasMouseDown = new Event<>(this.canvasMouseDownDelegate);
         this.canvasMouseDrag = new Event<>(this.canvasMouseDragDelegate);
         this.canvasMouseUp = new Event<>(this.canvasMouseUpDelegate);
         this.canvasClicked = new Event<>(this.canvasClickedDelegate);
         this.noteDoubleClicked = new Event<>(this.noteDoubleClickedDelegate);
+        this.canvasCleared = new Event<>(this.canvasClearedDelegate);
+        this.notesCleared = new Event<>(this.notesClearedDelegate);
     }
 
     public Canvas getDrawSurface(){
@@ -52,6 +62,7 @@ public class DrawingBoard extends ScrollPane {
     public Group getNoteSurface(){
         return this.noteSurface;
     }
+
     public RenderedImage captureImage() {
         WritableImage image = new WritableImage((int) drawSurface.getWidth(), (int) drawSurface.getHeight());
         this.snapshot(null, image);
@@ -61,6 +72,7 @@ public class DrawingBoard extends ScrollPane {
 
     public void clearGroup(){
         this.noteSurface.getChildren().clear();
+        this.notesClearedDelegate.invoke(this.noteSurface, EventArgs.EMPTY);
     }
 
     private void initialize(double width, double height) {
@@ -135,6 +147,7 @@ public class DrawingBoard extends ScrollPane {
         GraphicsContext gc = drawSurface.getGraphicsContext2D();
         gc.setEffect(SpecialEffect.None.lineEffect);
         gc.clearRect(0, 0, drawSurface.getWidth(), drawSurface.getHeight());
+        this.canvasClearedDelegate.invoke(this.drawSurface, EventArgs.EMPTY);
     }
 
     private double calculateJump(double currentSize, double sizeOfView, double sizeOfObject, double direction) {

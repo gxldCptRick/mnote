@@ -1,16 +1,19 @@
 package com.gxldcptrick.mnote.commonLib;
 
-public class Event<TEventArgs extends EventArgs> {
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Objects;
 
-    private final Delegate<TEventArgs> delegate;
-    public Event(Delegate<TEventArgs> delegate){
-        this.delegate = delegate;
+public abstract class Event<TArgs extends EventArgs> {
+    protected Collection<EventListener<TArgs>> listeners;
+    public Event(){
+        this.listeners = new ArrayList<>();
     }
-
-    public void subscribe(EventListener<TEventArgs> listener){
-        this.delegate.subscribe(listener);
+    public void subscribe(EventListener<TArgs> listener){
+        Objects.requireNonNull(listener, "listener Cannot Be Null");
+        listeners.add(listener);
     }
-    public void unsubscribe(EventListener<TEventArgs> listener){
-        this.delegate.unsubscribe(listener);
+    public void unsubscribe(EventListener<TArgs> listener){
+        listeners.remove(listener);
     }
 }
