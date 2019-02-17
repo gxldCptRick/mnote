@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+
+<MenuBar xmlns="http://javafx.com/javafx"
+         xmlns:fx="http://javafx.com/fxml"
+         fx:controller="com.gxldcptrick.mnote.controllers.MenuBarController">
+
+    <Menu text="File">
+        <MenuItem text="Save"/>
+        <MenuItem text="Save As"/>
+        <MenuItem text="Load Note"/>
+        <MenuItem text="New Note"/>
+        <MenuItem text="Export As Png"/>
+    </Menu>
+
+    <Menu text="Network">
+        <MenuItem text="Start Session"/>
+        <MenuItem text="Join Session"/>
+    </Menu>
+</MenuBar>
