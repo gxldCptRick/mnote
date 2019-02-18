@@ -17,7 +17,7 @@
         <fx:include fx:id="menuBar" source="MenuBar.fxml" />
         <fx:include fx:id="canvasToolBar" source="CanvasToolBar.fxml" prefWidth="1500"/>
         <ScrollPane fx:id="scrollPane" prefWidth="${screen.visualBounds.width}" prefHeight="${screen.visualBounds.height}">
-            <fx:include source="Canvas.fxml" width="${screen.visualBounds.width}" height="${screen.visualBounds.height}"/>
+            <fx:include source="Canvas.fxml" fx:id="canvas" width="${screen.visualBounds.width}" height="${screen.visualBounds.height}"/>
         </ScrollPane>
     </VBox>
 </AnchorPane>

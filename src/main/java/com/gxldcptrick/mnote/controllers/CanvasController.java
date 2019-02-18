@@ -1,11 +1,12 @@
 package com.gxldcptrick.mnote.controllers;
 
 import com.gxldcptrick.mnote.commonLib.JavaFXEvents;
-import io.reactivex.rxjavafx.observables.JavaFxObservable;
+import io.reactivex.disposables.Disposable;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.MouseEvent;
+import io.reactivex.rxjavafx.observables.JavaFxObservable;
 
 public class CanvasController {
     @FXML
@@ -16,25 +17,19 @@ public class CanvasController {
     @FXML
     public void initialize(){
         context = canvas.getGraphicsContext2D();
+
         JavaFxObservable.eventsOf(canvas, MouseEvent.MOUSE_PRESSED)
-                .subscribe(mouseEvent -> {
-                    startLine(mouseEvent);
-                    JavaFXEvents.getInstance().getMouseEvents();
-                });
+                .subscribe(JavaFXEvents.getInstance().getMouseDownEvents());
 
         JavaFxObservable.eventsOf(canvas, MouseEvent.MOUSE_DRAGGED)
-                .subscribe(mouseEvent ->{
-                    writeLine(mouseEvent);
-                    JavaFXEvents.getInstance().getMouseEvents();
-                });
+                .subscribe(JavaFXEvents.getInstance().getMouseDragEvents());
 
         JavaFxObservable.eventsOf(canvas, MouseEvent.MOUSE_RELEASED)
-                .subscribe(mouseEvent -> {
-                            endLine(mouseEvent);
-                            JavaFXEvents.getInstance().getMouseEvents();
-                        },
-                        System.out::println,
-                        System.out::println);
+                .subscribe(JavaFXEvents.getInstance().getMouseUpEvents());
+
+        JavaFXEvents.getInstance().getMouseDownEvents().subscribe(this::startLine);
+        JavaFXEvents.getInstance().getMouseDragEvents().subscribe(this::writeLine);
+        JavaFXEvents.getInstance().getMouseDragEvents().subscribe(this::endLine);
     }
 
     private void endLine(MouseEvent mouseEvent) {
