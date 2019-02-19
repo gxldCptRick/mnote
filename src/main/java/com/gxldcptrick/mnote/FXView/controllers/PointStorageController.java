@@ -19,10 +19,19 @@ public class PointStorageController extends DrawingBoardListener{
     @Override
     protected void attachToBoardEvents(DrawingBoard board) {
        board.canvasMouseDrag().subscribe(this::recordDrawingLine);
+       board.canvasMouseDown().subscribe(this::recordLineStart);
+       board.canvasMouseUp().subscribe(this::recordLineFinish);
     }
 
     @Override
     public void detachFromBoardEvents(DrawingBoard board) {
+        board.canvasMouseDrag().unsubscribe(this::recordDrawingLine);
+        board.canvasMouseDown().unsubscribe(this::recordLineStart);
+        board.canvasMouseUp().unsubscribe(this::recordLineFinish);
+    }
+
+    private void recordLineFinish(Object sender, MouseEventArgs eventArgs) {
+
     }
 
     private void recordDrawingLine(Object sender, MouseEventArgs e){
@@ -35,7 +44,8 @@ public class PointStorageController extends DrawingBoardListener{
     private void recordLineStart(Object sender, MouseEventArgs e){
         if(sender instanceof Canvas){
             var nativeEvent = e.event;
-            lines.startNewLine();
+            lines.startNewLine(brush);
+            lines.addNextPoint(new SavablePoint2D(nativeEvent.getX(), nativeEvent.getY()));
         }
     }
 }
