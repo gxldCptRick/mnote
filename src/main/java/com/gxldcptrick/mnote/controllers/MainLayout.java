@@ -1,10 +1,9 @@
 package com.gxldcptrick.mnote.controllers;
 
-import com.gxldcptrick.mnote.commonLib.JavaFXEvents;
-import io.reactivex.Observer;
-import io.reactivex.disposables.Disposable;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.input.MouseEvent;
@@ -16,18 +15,42 @@ public class MainLayout {
     @FXML
     public MenuBar menuBar;
     public HBox canvasToolBar;
-    public Canvas canvas;
     public ScrollPane scrollPane;
     public AnchorPane anchorPane;
     public VBox mainLayout;
 
+    private Canvas canvas;
+    GraphicsContext graphicsContext;
+
     @FXML
     public void initialize(){
+        canvas = new Canvas(1080, 1920);
+         graphicsContext = canvas.getGraphicsContext2D();
+        scrollPane.setContent(canvas);
 
-        JavaFXEvents.getInstance().getMouseDownEvents().subscribe(actionEvent -> {
-                    System.out.println(actionEvent.getEventType());
-                    System.out.println(actionEvent.getX() + " " + actionEvent.getY());
-                },
-                (e) -> System.out.println(e.getMessage()));
+        bla();
+    }
+
+    private void bla() {
+        canvas.addEventHandler(MouseEvent.MOUSE_PRESSED,
+                event -> {
+                    System.out.println("Starting line");
+                    graphicsContext.beginPath();
+                    graphicsContext.moveTo(event.getX(), event.getY());
+                    graphicsContext.stroke();
+                });
+
+        canvas.addEventHandler(MouseEvent.MOUSE_DRAGGED,
+                event -> {
+                    System.out.println("Dragging");
+                    graphicsContext.lineTo(event.getX(), event.getY());
+                    graphicsContext.stroke();
+                });
+
+        canvas.addEventHandler(MouseEvent.MOUSE_RELEASED,
+                event -> {
+                    System.out.println("Ending line");
+
+                });
     }
 }

@@ -2,10 +2,10 @@
     -fx-margin: 100px;
 }
 
-.scroll-pane > .viewport {
-    -fx-background-color: transparent;
-}
+/*.scroll-pane > .viewport {*/
+    /*-fx-background-color: transparent;*/
+/*}*/
 
-.scroll-pane {
-    -fx-background-color: blue;
-}
+/*.scroll-pane {*/
+    /*-fx-background-color: blue;*/
+/*}*/

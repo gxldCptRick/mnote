@@ -1,18 +1,16 @@
-package com.gxldcptrick.mnote.commonLib;
+package com.gxldcptrick.mnote.events;
 
-import io.reactivex.Observable;
-import io.reactivex.Observer;
 import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.Subject;
 import javafx.scene.input.MouseEvent;
 
-public class JavaFXEvents {
+public class CanvasEvents {
 
-    private JavaFXEvents() {}
+    private CanvasEvents() {}
 
-    private static final JavaFXEvents instance = new JavaFXEvents();
+    private static final CanvasEvents instance = new CanvasEvents();
 
-    public static JavaFXEvents getInstance() {
+    public static CanvasEvents getInstance() {
         return instance;
     }
 
