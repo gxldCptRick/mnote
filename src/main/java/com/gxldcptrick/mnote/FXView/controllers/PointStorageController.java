@@ -1,33 +1,34 @@
 package com.gxldcptrick.mnote.FXView.controllers;
 
 import com.gxldcptrick.mnote.FXView.components.DrawingBoard;
+import com.gxldcptrick.mnote.FXView.events.EventHolder;
 import com.gxldcptrick.mnote.FXView.models.Brush;
 import com.gxldcptrick.mnote.FXView.models.CanvasLines;
 import com.gxldcptrick.mnote.FXView.models.MouseEventArgs;
 import com.gxldcptrick.mnote.FXView.models.SavablePoint2D;
 import javafx.scene.canvas.Canvas;
 
-public class PointStorageController extends DrawingBoardListener{
+public class PointStorageController extends  EventWrapper{
    private CanvasLines lines;
    private final Brush brush;
-   public PointStorageController(final DrawingBoard board, final Brush brush){
-       super(board);
-       this.brush = brush;
+   public PointStorageController(final EventHolder holder){
+       super(holder);
+       this.brush = new Brush();
        lines = new CanvasLines();
    }
 
     @Override
-    protected void attachToBoardEvents(DrawingBoard board) {
-       board.canvasMouseDrag().subscribe(this::recordDrawingLine);
-       board.canvasMouseDown().subscribe(this::recordLineStart);
-       board.canvasMouseUp().subscribe(this::recordLineFinish);
+    protected void attachToEvents(final EventHolder holder) {
+       holder.getMouseEvents().subscribeToEvent(this::recordLineStart, "Canvas Mouse Down");
+       holder.getMouseEvents().subscribeToEvent(this::recordLineFinish, "Canvas Mouse Up");
+       holder.getMouseEvents().subscribeToEvent(this::recordDrawingLine, "Canvas Mouse Drag");
     }
 
     @Override
-    public void detachFromBoardEvents(DrawingBoard board) {
-        board.canvasMouseDrag().unsubscribe(this::recordDrawingLine);
-        board.canvasMouseDown().unsubscribe(this::recordLineStart);
-        board.canvasMouseUp().unsubscribe(this::recordLineFinish);
+    public void detachFromEvents(final EventHolder holder) {
+        holder.getMouseEvents().unsubscribeToEvent(this::recordLineStart, "Canvas Mouse Down");
+        holder.getMouseEvents().unsubscribeToEvent(this::recordLineFinish, "Canvas Mouse Up");
+        holder.getMouseEvents().unsubscribeToEvent(this::recordDrawingLine, "Canvas Mouse Drag");
     }
 
     private void recordLineFinish(Object sender, MouseEventArgs eventArgs) {

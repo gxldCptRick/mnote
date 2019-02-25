@@ -10,8 +10,7 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.Objects;
 
-public class Brush implements Serializable {
-    private static long serialVersionUID = -696969L;
+public class Brush {
     private double currentWidth;
     private StrokeLineCap brushCap;
     private boolean isDeleting;
@@ -28,6 +27,15 @@ public class Brush implements Serializable {
         this.setDeleting(isDeleting);
         this.setEffect(effect);
         this.setCurrentColor(new SavableColor(currentColor.getRed(), currentColor.getGreen(), currentColor.getBlue(), currentColor.getOpacity()));
+    }
+
+    public Brush(Brush brush) {
+        Objects.requireNonNull(brush, "brush cannot be null");
+        this.setBrushCap(brush.getBrushCap());
+        this.setCurrentWidth(brush.getCurrentWidth());
+        this.setCurrentColor(brush.getCurrentColor());
+        this.setDeleting(brush.isDeleting);
+        this.setEffect(brush.getEffect());
     }
 
     public boolean equals(Brush otherBrush){

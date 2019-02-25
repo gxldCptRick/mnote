@@ -1,30 +1,30 @@
 package com.gxldcptrick.mnote.FXView.controllers;
 
 import com.gxldcptrick.mnote.FXView.components.DrawingBoard;
+import com.gxldcptrick.mnote.FXView.events.EventHolder;
 import com.gxldcptrick.mnote.FXView.models.*;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 
 
-public class CanvasDrawingController extends  DrawingBoardListener{
+public class CanvasDrawingController extends EventWrapper{
     public final Brush brush;
-    public CanvasDrawingController(final DrawingBoard board){
-       super(board);
+    public CanvasDrawingController(final EventHolder holder){
+        super(holder);
        brush = new Brush();
     }
 
     @Override
-    public void attachToBoardEvents(final DrawingBoard board){
-        board.canvasMouseDrag().subscribe(this::drawingLines);
-        board.canvasMouseDown().subscribe(this::startLine);
-        board.canvasMouseUp().subscribe(this::endLine);
+    protected void attachToEvents(final EventHolder holder) {
+        holder.getMouseEvents().subscribeToEvent(this::startLine, "Canvas Mouse Down");
+        holder.getMouseEvents().subscribeToEvent(this::endLine, "Canvas Mouse Up");
+        holder.getMouseEvents().subscribeToEvent(this::drawingLines, "Canvas Mouse Drag");
     }
-
     @Override
-    public void detachFromBoardEvents(DrawingBoard board) {
-        board.canvasMouseDrag().unsubscribe(this::drawingLines);
-        board.canvasMouseDown().unsubscribe(this::startLine);
-        board.canvasMouseUp().unsubscribe(this::endLine);
+    public void detachFromEvents(final EventHolder holder) {
+        holder.getMouseEvents().unsubscribeToEvent(this::startLine, "Canvas Mouse Down");
+        holder.getMouseEvents().unsubscribeToEvent(this::endLine, "Canvas Mouse Up");
+        holder.getMouseEvents().unsubscribeToEvent(this::drawingLines, "Canvas Mouse Drag");
     }
 
     private void drawingLines(Object sender, MouseEventArgs e){

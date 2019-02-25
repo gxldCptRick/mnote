@@ -1,33 +1,28 @@
 package com.gxldcptrick.mnote.FXView.components;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
-
 import java.util.Arrays;
+import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 
+import com.gxldcptrick.mnote.FXView.events.EventHolder;
 import com.gxldcptrick.mnote.FXView.models.Brush;
 import com.gxldcptrick.mnote.FXView.enums.SpecialEffect;
 
+import com.gxldcptrick.mnote.FXView.models.BrushChangedEventArgs;
 import com.gxldcptrick.mnote.FXView.models.SavableColor;
+import com.gxldcptrick.mnote.commonLib.Delegate;
+import com.gxldcptrick.mnote.commonLib.EventArgs;
 import javafx.geometry.Side;
 
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.ColorPicker;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.Label;
+import javafx.scene.control.*;
 
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 
 import javafx.scene.paint.Color;
 
-public class CanvasToolbar implements Serializable {
-    private static final long serialVersionUID = 556677L;
+public class CanvasToolbar {
     private static final List<Double> increaseSizeValues;
 
     static {
@@ -35,97 +30,126 @@ public class CanvasToolbar implements Serializable {
     }
 
     private Brush userBrush;
-    private transient HBox layout;
-    private transient Label currentSize;
-    private transient ContextMenu contextMenu;
-    private transient Button eraseButton;
-    private transient ColorPicker colorPicker;
-    private transient ComboBox<Double> sizePicker;
-    private transient CheckBox deleting;
-    private transient ComboBox<SpecialEffect> specialEffects;
+    private HBox layout;
+    private Label currentSize;
+    private ContextMenu clearContextMenu;
+    private Button eraseButton;
+    private ColorPicker colorPicker;
+    private ComboBox<Double> sizePicker;
+    private CheckBox deleting;
+    private ComboBox<SpecialEffect> specialEffects;
+    private Map<String, Delegate<EventArgs>> emptyEvents;
+    private Delegate<BrushChangedEventArgs> brushChanged;
 
-    public CanvasToolbar(Brush userBrush) {
-        initializeToolbar(userBrush);
+
+    public CanvasToolbar(final EventHolder holder) {
+        this.userBrush = new Brush();
+        setupDelegateEvent(holder);
+        setupLayout();
+        setupEraseButton();
+        setupIsDeletingBox();
+        setupSpecialEffects();
+        setupCurrentSizeLabel();
+        setupColorPicker();
+        setupSizeComboBox();
+        createToolbarItemsAndSetupItems();
+
+    }
+
+    private void setupDelegateEvent(final EventHolder holder) {
+        brushChanged = new Delegate<>();
+        emptyEvents = new Hashtable<>();
+        emptyEvents.put("Canvas Cleared", new Delegate<>());
+        emptyEvents.put("Notes Cleared", new Delegate<>());
+        holder.getBrushEvents().addEventToRepo(brushChanged, "Brush Changed");
+        emptyEvents.forEach((eventName, event) -> holder.getEmptyEvents().addEventToRepo(event, eventName));
+    }
+
+    private void createToolbarItemsAndSetupItems() {
+        // creating menu items
+        var clearDrawings = new MenuItem("Clear Drawings");
+        var clearNotes = new MenuItem("Clear Notes");
+        var clearScreen = new MenuItem("Clear Everything");
+        //gather events
+        var clearDrawingEvent = emptyEvents.get("Canvas Cleared");
+        var clearNotesEvent = emptyEvents.get("Notes Cleared");
+        //setting up the action event handlers
+        clearDrawings.setOnAction((e) -> clearDrawingEvent.invoke(this, EventArgs.EMPTY));
+        clearNotes.setOnAction((e) -> clearNotesEvent.invoke(this, EventArgs.EMPTY));
+        clearScreen.setOnAction((e) -> {
+            clearDrawingEvent.invoke(this, EventArgs.EMPTY);
+            clearNotesEvent.invoke(this, EventArgs.EMPTY);
+        });
+        //add them to the context menu
+        clearContextMenu.getItems().addAll(clearDrawings, clearNotes, clearScreen);
     }
 
     public Pane getLayout() {
         return layout;
     }
 
-    public ContextMenu getContextMenu() {
-        return this.contextMenu;
-    }
 
-
-    private void initializeEraseButton() {
-        this.contextMenu = new ContextMenu();
+    private void setupEraseButton() {
+        this.clearContextMenu = new ContextMenu();
         this.eraseButton = new Button("Clear");
-        this.eraseButton.setContextMenu(contextMenu);
-        this.eraseButton.setOnAction(event -> this.contextMenu.show(eraseButton, Side.RIGHT, 0, 0));
+        this.eraseButton.setContextMenu(clearContextMenu);
+        this.eraseButton.setOnAction(event -> this.clearContextMenu.show(eraseButton, Side.RIGHT, 0, 0));
     }
 
-    private void writeObject(ObjectOutputStream out) throws IOException {
-        out.defaultWriteObject();
-    }
-
-    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-        in.defaultReadObject();
-        initializeToolbar(this.userBrush);
-    }
-
-    private void initializeToolbar(Brush userBrush) {
-        this.userBrush = userBrush;
-        initializeDeletingButton();
-        initializeSpecialEffects();
-        initializeCurrentSizeLabel();
-        initializeColorPicker();
-        initializeIncreaseSizeComboBox();
-        initializeLayout();
-    }
-
-    private void initializeDeletingButton() {
+    private void setupIsDeletingBox() {
         this.deleting = new CheckBox("Delete Line");
-        this.initializeEraseButton();
+        this.setupEraseButton();
         determineDeleting();
-        this.deleting.setOnAction(event -> determineDeleting());
+        this.deleting.setOnAction(event -> {
+            determineDeleting();
+            this.brushChanged.invoke(this, new BrushChangedEventArgs(this.userBrush));
+        });
     }
 
-    private void initializeCurrentSizeLabel() {
+    private void setupCurrentSizeLabel() {
         currentSize = new Label("Current Line Width : " + this.userBrush.getCurrentWidth());
     }
 
-    private void initializeLayout() {
+    private void setupLayout() {
         layout = new HBox();
         layout.setSpacing(10);
         layout.getChildren().addAll(currentSize, colorPicker, sizePicker, this.eraseButton, this.specialEffects, this.deleting);
     }
 
-    private void initializeSpecialEffects() {
+    private void setupSpecialEffects() {
         this.specialEffects = new ComboBox<>();
         this.specialEffects.getItems().addAll(SpecialEffect.values());
         this.specialEffects.setValue(SpecialEffect.None);
         this.userBrush.setEffect(this.specialEffects.getValue());
-        this.specialEffects.setOnAction(event -> this.userBrush.setEffect(this.specialEffects.getValue()));
+        this.specialEffects.setOnAction(event -> {
+            this.userBrush.setEffect(this.specialEffects.getValue());
+            this.brushChanged.invoke(this, new BrushChangedEventArgs(this.userBrush));
+        });
     }
 
     private void determineDeleting() {
         userBrush.setDeleting(deleting.isSelected());
     }
 
-    private void initializeColorPicker() {
+    private void setupColorPicker() {
         this.colorPicker = new ColorPicker();
         colorPicker.setValue(Color.BLACK);
         colorPicker.setOnAction((event) -> {
             var color = this.colorPicker.getValue();
             this.userBrush.setCurrentColor(new SavableColor(color.getRed(), color.getGreen(), color.getBlue(), color.getOpacity()));
+            this.brushChanged.invoke(this, new BrushChangedEventArgs(this.userBrush));
         });
     }
 
-    private void initializeIncreaseSizeComboBox() {
+    private void setupSizeComboBox() {
         this.sizePicker = new ComboBox<>();
         sizePicker.getItems().addAll(CanvasToolbar.increaseSizeValues);
         sizePicker.setValue(this.userBrush.getCurrentWidth());
-        sizePicker.setOnAction((event) -> this.userBrush.setCurrentWidth(this.sizePicker.getValue()));
+        sizePicker.setOnAction((event) -> {
+            this.userBrush.setCurrentWidth(this.sizePicker.getValue());
+            updateSize();
+            this.brushChanged.invoke(this, new BrushChangedEventArgs(this.userBrush));
+        });
     }
 
     private void updateSize() {
@@ -133,13 +157,13 @@ public class CanvasToolbar implements Serializable {
     }
 
     public boolean equals(CanvasToolbar other) {
-        return other.userBrush == this.userBrush;
+        return other.userBrush.equals(this.userBrush);
     }
 
     @Override
     public boolean equals(Object other) {
         boolean equal = false;
-        if (getClass().isInstance(other)) equal = equals(this.getClass().cast(other));
+        if (other instanceof CanvasToolbar) equal = equals((CanvasToolbar) other);
         return equal;
     }
 

@@ -2,11 +2,11 @@ package com.gxldcptrick.mnote.FXView.components;
 
 import java.awt.image.RenderedImage;
 
+import com.gxldcptrick.mnote.FXView.events.EventHolder;
 import com.gxldcptrick.mnote.FXView.models.*;
 import com.gxldcptrick.mnote.FXView.enums.SpecialEffect;
 
 import com.gxldcptrick.mnote.commonLib.Delegate;
-import com.gxldcptrick.mnote.commonLib.Event;
 import com.gxldcptrick.mnote.commonLib.EventArgs;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.Group;
@@ -24,14 +24,27 @@ public class DrawingBoard extends ScrollPane {
     private Delegate<MouseEventArgs> canvasMouseUpDelegate;
     private Delegate<MouseEventArgs> canvasClickedDelegate;
     private Delegate<MouseEventArgs> noteDoubleClickedDelegate;
-    private Delegate<EventArgs> canvasClearedDelegate;
-    private Delegate<EventArgs> notesClearedDelegate;
 
 
-    public DrawingBoard(double width, double height) {
+    public DrawingBoard(double width, double height, final EventHolder holder) {
         this.noteSurface = new Group();
         this.initialize(width, height);
         this.createInitialEvents();
+        this.addEventsToRepo(holder);
+        this.connectToClearEvents(holder);
+    }
+
+    private void connectToClearEvents(final EventHolder holder) {
+        holder.getEmptyEvents().subscribeToEvent(this::clearDrawings, "Canvas Cleared");
+        holder.getEmptyEvents().subscribeToEvent(this::clearGroup, "Notes Cleared");
+    }
+
+    private void addEventsToRepo(final EventHolder holder) {
+        holder.getMouseEvents().addEventToRepo(this.canvasClickedDelegate, "Canvas Mouse Clicked");
+        holder.getMouseEvents().addEventToRepo(this.canvasMouseDownDelegate, "Canvas Mouse Down");
+        holder.getMouseEvents().addEventToRepo(this.canvasMouseUpDelegate, "Canvas Mouse Up");
+        holder.getMouseEvents().addEventToRepo(this.canvasMouseDragDelegate, "Canvas Mouse Drag");
+        holder.getMouseEvents().addEventToRepo(this.noteDoubleClickedDelegate, "Note Clicked");
     }
 
     private void createInitialEvents(){
@@ -40,32 +53,7 @@ public class DrawingBoard extends ScrollPane {
         this.canvasMouseDragDelegate = new Delegate<>();
         this.canvasMouseUpDelegate = new Delegate<>();
         this.noteDoubleClickedDelegate = new Delegate<>();
-        this.canvasClearedDelegate = new Delegate<>();
-        this.notesClearedDelegate = new Delegate<>();
     }
-
-    public final Event<MouseEventArgs> canvasMouseDrag(){
-        return this.canvasMouseDragDelegate;
-    }
-    public final Event<MouseEventArgs> canvasMouseDown(){
-        return this.canvasMouseUpDelegate;
-    }
-    public final Event<MouseEventArgs> canvasMouseUp(){
-        return this.canvasMouseUpDelegate;
-    }
-    public final Event<MouseEventArgs> canvasClicked () {
-        return this.canvasClickedDelegate;
-    }
-    public final Event<MouseEventArgs> noteDoubleClicked(){
-        return this.noteDoubleClickedDelegate;
-    }
-    public final Event<EventArgs> canvasCleared () {
-        return this.canvasClearedDelegate;
-    }
-    public final Event<EventArgs> notesCleared(){
-        return this.notesClearedDelegate;
-    }
-
     public Canvas getDrawSurface(){
         return this.drawSurface;
     }
@@ -77,13 +65,15 @@ public class DrawingBoard extends ScrollPane {
     public RenderedImage captureImage() {
         WritableImage image = new WritableImage((int) drawSurface.getWidth(), (int) drawSurface.getHeight());
         this.snapshot(null, image);
-        RenderedImage img = SwingFXUtils.fromFXImage(image, null);
+        RenderedImage img;
+        img = SwingFXUtils.fromFXImage(image, null);
         return img;
     }
 
-    public void clearGroup(){
-        this.noteSurface.getChildren().clear();
-        this.notesClearedDelegate.invoke(this.noteSurface, EventArgs.EMPTY);
+    public void clearGroup(Object sender, EventArgs e){
+        if(e != null && sender != null){
+            this.noteSurface.getChildren().clear();
+        }
     }
 
     private void initialize(double width, double height) {
@@ -154,11 +144,12 @@ public class DrawingBoard extends ScrollPane {
         }
     }
 
-    public void clearDrawings() {
-        GraphicsContext gc = drawSurface.getGraphicsContext2D();
-        gc.setEffect(SpecialEffect.None.lineEffect);
-        gc.clearRect(0, 0, drawSurface.getWidth(), drawSurface.getHeight());
-        this.canvasClearedDelegate.invoke(this.drawSurface, EventArgs.EMPTY);
+    private void clearDrawings(Object sender, EventArgs e) {
+        if(e != null && sender != null){
+            GraphicsContext gc = drawSurface.getGraphicsContext2D();
+            gc.setEffect(SpecialEffect.None.lineEffect);
+            gc.clearRect(0, 0, drawSurface.getWidth(), drawSurface.getHeight());
+        }
     }
 
     private double calculateJump(double currentSize, double sizeOfView, double sizeOfObject, double direction) {

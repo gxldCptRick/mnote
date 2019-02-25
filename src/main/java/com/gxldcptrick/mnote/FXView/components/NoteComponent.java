@@ -1,12 +1,17 @@
 package com.gxldcptrick.mnote.FXView.components;
 
+import com.gxldcptrick.mnote.FXView.models.NoteData;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
+
+import java.util.Objects;
 
 
 public class NoteComponent {
+    private final NoteData data;
     private Label textDisplay;
     private TextField inputDisplay;
     private Node currentDisplay;
@@ -14,7 +19,7 @@ public class NoteComponent {
         return currentDisplay;
     }
 
-    public void SwapDisplay(Group group){
+    private void SwapDisplay(Group group){
         group.getChildren().remove(currentDisplay);
         if(currentDisplay == inputDisplay){
             currentDisplay = textDisplay;
@@ -24,15 +29,27 @@ public class NoteComponent {
         group.getChildren().add(currentDisplay);
     }
 
-    public NoteComponent(double xPos, double yPos){
+    public NoteComponent(NoteData data, Group group){
+        Objects.requireNonNull(data, "data cannot be null");
         textDisplay = new Label();
         inputDisplay = new TextField();
         currentDisplay = inputDisplay;
-        setLayoutX(xPos);
-        setLayoutY(yPos);
+        this.data = data;
+        setLayoutX(data.getxPosition());
+        setLayoutY(data.getyPosition());
+        setText(data.getContent());
+        setupEventsWithGroupWithData(group);
     }
 
-    public void updateText(String text){
+    private void setupEventsWithGroupWithData(Group group) {
+        this.inputDisplay.setOnKeyPressed((keyEvent) -> {
+            if(keyEvent.getCode() == KeyCode.ENTER){
+            }
+        });
+    }
+
+    public void setText(String text){
+        Objects.requireNonNull(text, "text cannot be null.");
         textDisplay.setText(text);
         inputDisplay.setText(text);
     }

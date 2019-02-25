@@ -6,11 +6,17 @@ import java.awt.Toolkit;
 import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.imageio.ImageIO;
 
+import com.gxldcptrick.mnote.FXView.events.EventHolder;
+import com.gxldcptrick.mnote.FXView.models.NoteBookData;
+import com.gxldcptrick.mnote.commonLib.Event;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.Pane;
@@ -42,16 +48,29 @@ public class Main extends Application {
 
     @Override
     public void stop() {
-        // TODO: Make a Stop Thing
+        for (var wrapper: wrappers) {
+            wrapper.detachFromEvents(EventHolder.instance);
+        }
     }
 
+    List<EventWrapper> wrappers;
     private void initializeStage() {
         initializeDrawSurface();
         initializeTools();
         initializeMainLayout();
+        attachControllers();
         Scene mainScene = new Scene(mainLayout, 1500, 500);
         this.mainStage.setScene(mainScene);
         this.mainStage.setTitle("MNote");
+    }
+
+    private void attachControllers() {
+        wrappers = new ArrayList<>();
+        wrappers.add(new NoteController(EventHolder.instance));
+        wrappers.add(new CanvasDrawingController(EventHolder.instance));
+        wrappers.add(new PointStorageController(EventHolder.instance));
+
+        wrappers.add(new FileController(EventHolder.instance));
     }
 
     private void initializeMainLayout() {
@@ -60,113 +79,21 @@ public class Main extends Application {
     }
 
     private void initializeDrawSurface() {
-        drawSurface = new CanvasContainer(Screen_Width, Screen_Height);
+        drawSurface = new CanvasContainer(Screen_Width, Screen_Height, EventHolder.instance);
         setUpCanvasBindings(drawSurface.getLayoutNode(), this.mainStage);
     }
 
-    private void saveAction(ActionEvent event) {
-        if (this.recentlyOpenedFile == null) {
-            this.tools.resetFileName();
-            File newSave = tools.getFileChooser().showSaveDialog(this.mainStage);
-            saveFile(newSave);
-        } else {
-            saveFile(this.recentlyOpenedFile);
-        }
-    }
-
-    private void saveAsAction(ActionEvent event) {
-        if (this.recentlyOpenedFile != null) {
-            tools.getFileChooser().setInitialFileName(this.recentlyOpenedFile.getName());
-        }
-        File overwriteSave = tools.getFileChooser().showSaveDialog(this.mainStage);
-        saveFile(overwriteSave);
-    }
-
-    private void loadAction(ActionEvent event) {
-        File oldSave = tools.getFileChooser().showOpenDialog(this.mainStage);
-        if (oldSave != null && oldSave.getName().endsWith(".co")) {
-            mainLayout.getChildren().remove(this.drawSurface.getLayoutNode());
-            this.drawSurface = (CanvasContainer) tools.loadFile(oldSave);
-            Pane canvas = drawSurface.getLayoutNode();
-            mainLayout.getChildren().add(canvas);
-            this.setUpCanvasBindings(canvas, this.mainStage);
-            updateToolBarText(oldSave);
-        }
-    }
-
-    private void updateToolBarText(File oldSave) {
-        tools.updateFileName(oldSave.getName());
-        tools.getFileChooser().setInitialFileName(oldSave.getName());
-        this.recentlyOpenedFile = oldSave;
-    }
-
-    private void newNoteAction(ActionEvent event) {
-        promptToSave();
-        initializeDrawSurface();
-        initializeMainLayout();
-        Scene mainScene = new Scene(mainLayout, 1500, 500);
-        this.mainStage.setScene(mainScene);
-    }
-
-    private void exportAsAction(ActionEvent event) {
-        File imageFile = tools.getFileChooser().showSaveDialog(this.mainStage);
-        if (!imageFile.getName().endsWith(".png")) {
-            imageFile = new File(imageFile.getAbsolutePath() + ".png");
-        }
-        RenderedImage canvas = this.drawSurface.getRenderedImage();
-        writeImageToFile(canvas, "png", imageFile);
-    }
 
     private void initializeTools() {
-        tools = new FileMenuToolbar();
-        setUpFile();
+        tools = new FileMenuToolbar(EventHolder.instance);
     }
 
-    private void setUpFile() {
-        tools.setSaveAction(this::saveAction);
-        tools.setSaveAsAction(this::saveAsAction);
-        tools.setLoadAction(this::loadAction);
-        tools.setNewNoteAction(this::newNoteAction);
-        tools.setExportAsAction(this::exportAsAction);
-    }
 
     private void setUpCanvasBindings(Pane canvas, Stage primaryStage) {
         canvas.prefWidthProperty().bind(primaryStage.widthProperty().multiply(.95));
         canvas.prefHeightProperty().bind(primaryStage.heightProperty());
     }
 
-    private void writeImageToFile(RenderedImage image, String formatName, File fileName) {
-        try {
-            ImageIO.write(image, formatName, fileName);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void promptToSave() {
-        Dialog<?> savePop = new Alert(Alert.AlertType.CONFIRMATION);
-        savePop.setContentText("Would You like to save your changes?");
-
-        savePop.showAndWait().ifPresent(response -> {
-            if (response == ButtonType.OK) {
-                File save = tools.getFileChooser().showSaveDialog(this.mainStage);
-                saveFile(save);
-            }
-        });
-    }
-
-    private void saveFile(File save) {
-        if (save != null) {
-            if (!save.getAbsolutePath().endsWith(".co"))
-                save = new File(save.getAbsolutePath() + ".co");
-
-            tools.saveFile(save, drawSurface);
-            if (save != this.recentlyOpenedFile) {
-                this.recentlyOpenedFile = save;
-                this.tools.updateFileName(recentlyOpenedFile.getName());
-            }
-        }
-    }
     public static void main(String[] args) {
         launch(args);
     }
