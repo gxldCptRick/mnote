@@ -19,11 +19,11 @@ public class ScrollableCanvas extends ScrollPane {
         context = canvas.getGraphicsContext2D();
 
         setUpMouseEvents();
-        setUpMenuToolbarEvents();
-        setUpCanvasToolbarEvents();
+        subscribeToCanvasToolbarEvents();
         setContent(canvas);
     }
 
+    @SuppressWarnings("Duplicates")
     private void setUpMouseEvents() {
         JavaFxObservable.eventsOf(canvas, MouseEvent.MOUSE_PRESSED)
                 .subscribe(CanvasEvents.getInstance().getMouseDownEvents());
@@ -59,11 +59,7 @@ public class ScrollableCanvas extends ScrollPane {
         context.stroke();
     }
 
-    private void setUpMenuToolbarEvents() {
-
-    }
-
-    private void setUpCanvasToolbarEvents() {
+    private void subscribeToCanvasToolbarEvents() {
         CanvasToolbarEvents.getInstance().getChangedColor().subscribe(context::setStroke);
         CanvasToolbarEvents.getInstance().getChangedLineSize().subscribe(context::setLineWidth);
         CanvasToolbarEvents.getInstance().getDeletingLine().subscribe(actionEvent -> System.out.println("Need to make this work!!!! "));

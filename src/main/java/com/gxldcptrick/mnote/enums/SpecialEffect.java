@@ -1,4 +1,4 @@
-package com.gxldcptrick.mnote.FXView.enums;
+package com.gxldcptrick.mnote.enums;
 
 import javafx.scene.effect.*;
 

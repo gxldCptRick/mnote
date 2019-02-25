@@ -1,13 +1,15 @@
 package com.gxldcptrick.mnote.events;
 
-import com.gxldcptrick.mnote.FXView.enums.SpecialEffect;
+import com.gxldcptrick.mnote.enums.SpecialEffect;
 import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.Subject;
 import javafx.event.ActionEvent;
 import javafx.scene.paint.Color;
 
 public class CanvasToolbarEvents {
-    private CanvasToolbarEvents() {}
+    private CanvasToolbarEvents() {
+
+    }
 
     private static final CanvasToolbarEvents instance = new CanvasToolbarEvents();
 

@@ -1,5 +1,8 @@
 package com.gxldcptrick.mnote.components;
 
+import com.gxldcptrick.mnote.events.ClientEvents;
+import com.gxldcptrick.mnote.events.MenuBarEvents;
+import io.reactivex.rxjavafx.observables.JavaFxObservable;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
@@ -38,17 +41,38 @@ public class MenuToolbar extends HBox {
         return items;
     }
 
-    private List<MenuItem> createNetworkMenuItems() {
-        var items = new ArrayList<MenuItem>();
-        items.add(new MenuItem("Start Sessino"));
-        items.add(new MenuItem("Join Session"));
-
-        return items;
-    }
-
     private void setUpNetworkMenu() {
         network = new Menu("Network");
         network.getItems().addAll(createNetworkMenuItems());
         menuBar.getMenus().add(network);
+    }
+
+    private List<MenuItem> createNetworkMenuItems() {
+        var items = new ArrayList<MenuItem>();
+        var startSession = new MenuItem("Start Session");
+        var endSession = new MenuItem("End Session");
+        var joinSession = new MenuItem(("Join Session"));
+        items.add(startSession);
+        items.add(endSession);
+        items.add(joinSession);
+        endSession.setDisable(true);
+
+        JavaFxObservable.actionEventsOf(startSession)
+                .subscribe(MenuBarEvents.getInstance().getStartSession());
+
+        JavaFxObservable.actionEventsOf(joinSession)
+                .subscribe(MenuBarEvents.getInstance().getJoinSession());
+
+        JavaFxObservable.actionEventsOf(endSession)
+                .subscribe(MenuBarEvents.getInstance().getEndSession());
+
+        ClientEvents.getInstance().getOnline()
+                .subscribe(online -> {
+                    startSession.setDisable(online);
+                    endSession.setDisable(!online);
+                });
+
+
+        return items;
     }
 }

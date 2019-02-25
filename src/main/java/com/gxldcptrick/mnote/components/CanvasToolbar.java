@@ -1,7 +1,8 @@
 package com.gxldcptrick.mnote.components;
 
-import com.gxldcptrick.mnote.FXView.enums.SpecialEffect;
+import com.gxldcptrick.mnote.enums.SpecialEffect;
 import com.gxldcptrick.mnote.events.CanvasToolbarEvents;
+import com.gxldcptrick.mnote.models.Brush;
 import io.reactivex.rxjavafx.observables.JavaFxObservable;
 import javafx.scene.Node;
 import javafx.scene.control.*;
@@ -29,6 +30,7 @@ public class CanvasToolbar extends HBox {
 
     public CanvasToolbar() {
         components = new ArrayList<>();
+        setUpBrush();
         initializeColorPicker();
         initializeLineWidth();
         initializeLineWidthComboBox();
@@ -36,10 +38,21 @@ public class CanvasToolbar extends HBox {
         initializeSpecialEffectsComboBox();
         initializeDeleting();
 
-        setUpEvents();
+        setUpToolBarEvents();
 
         setSpacing(10);
         getChildren().addAll(components);
+    }
+
+    private void setUpBrush() {
+        CanvasToolbarEvents.getInstance().getChangedLineSize()
+                .subscribe(lineWidth -> Brush.getInstance().setCurrentWidth(lineWidth));
+        //StrokeLineCap??
+
+        CanvasToolbarEvents.getInstance().getChangeSpecialEfects()
+                .subscribe(specialEffect -> Brush.getInstance().setEffect(specialEffect));
+        CanvasToolbarEvents.getInstance().getChangedColor()
+                .subscribe(color -> Brush.getInstance().setColor(color));
     }
 
     private void initializeLineWidth() {
@@ -77,7 +90,7 @@ public class CanvasToolbar extends HBox {
         components.add(this.deleting);
     }
 
-    private void setUpEvents() {
+    private void setUpToolBarEvents() {
         JavaFxObservable.valuesOf(colorPicker.valueProperty())
                 .subscribe(CanvasToolbarEvents.getInstance().getChangedColor());
 
@@ -92,6 +105,5 @@ public class CanvasToolbar extends HBox {
 
         JavaFxObservable.actionEventsOf(deleting)
                 .subscribe(CanvasToolbarEvents.getInstance().getDeletingLine());
-
     }
 }
