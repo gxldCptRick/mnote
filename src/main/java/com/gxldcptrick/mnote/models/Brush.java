@@ -1,32 +1,21 @@
 package com.gxldcptrick.mnote.models;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.gxldcptrick.mnote.enums.SpecialEffect;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.StrokeLineCap;
 
+@JsonDeserialize(using = BrushDeserializer.class)
 public class Brush {
-    private static double currentWidth;
-    private static StrokeLineCap brushCap;
-    private static SpecialEffect effect;
-    private static Color color;
+    private double currentWidth;
+    private StrokeLineCap brushCap;
+    private SpecialEffect effect;
+    private Color color;
 
-    private Brush(){
-    }
-
-    private static Brush brush;
-
-    public static Brush getInstance(){
-        if (brush == null){
-            brush = new Brush();
-            setUpBrushDefaults();
-        }
-        return brush;
-    }
-
-    private static void setUpBrushDefaults() {
-        currentWidth = 1.0;
-        effect = SpecialEffect.None;
-        color = Color.BLACK;
+    public Brush(){
+        this.currentWidth = 1.0;
+        this.effect = SpecialEffect.None;
+        this.color = Color.BLACK;
     }
 
     public double getCurrentWidth() {
@@ -59,5 +48,12 @@ public class Brush {
 
     public void setColor(Color color) {
         this.color = color;
+    }
+
+    @Override
+    public String toString() {
+        return "Width: " + currentWidth + "\n" +
+                "Effect: " + effect.lineEffect + "\n" +
+                "Color: " + color.toString() + "\n";
     }
 }

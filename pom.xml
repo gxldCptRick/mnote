@@ -44,11 +44,11 @@
             <version>12-ea+12</version>
         </dependency>
 
-        <dependency>
-            <groupId>org.openjfx</groupId>
-            <artifactId>javafx-fxml</artifactId>
-            <version>11</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.openjfx</groupId>-->
+            <!--<artifactId>javafx-fxml</artifactId>-->
+            <!--<version>11</version>-->
+        <!--</dependency>-->
 
         <dependency>
             <groupId>com.rethinkdb</groupId>

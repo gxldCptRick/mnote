@@ -1,8 +1,9 @@
 package com.gxldcptrick.mnote.components;
 
-import com.gxldcptrick.mnote.events.ClientEvents;
+import com.gxldcptrick.mnote.events.RethinkEvents;
 import com.gxldcptrick.mnote.events.MenuBarEvents;
 import io.reactivex.rxjavafx.observables.JavaFxObservable;
+import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
@@ -15,13 +16,16 @@ public class MenuToolbar extends HBox {
     private MenuBar menuBar;
     private Menu file;
     private Menu network;
+    private Label sessionId;
 
     public MenuToolbar(){
         menuBar = new MenuBar();
+        sessionId = new Label("Not online");
+        sessionId.setStyle("-fx-font: 14 arial;");
         setUpFileMenu();
         setUpNetworkMenu();
         setSpacing(5);
-        getChildren().add(menuBar);
+        getChildren().addAll(menuBar, sessionId);
     }
 
     private void setUpFileMenu() {
@@ -50,11 +54,11 @@ public class MenuToolbar extends HBox {
     private List<MenuItem> createNetworkMenuItems() {
         var items = new ArrayList<MenuItem>();
         var startSession = new MenuItem("Start Session");
-        var endSession = new MenuItem("End Session");
         var joinSession = new MenuItem(("Join Session"));
+        var endSession = new MenuItem("End Session");
         items.add(startSession);
-        items.add(endSession);
         items.add(joinSession);
+        items.add(endSession);
         endSession.setDisable(true);
 
         JavaFxObservable.actionEventsOf(startSession)
@@ -66,12 +70,21 @@ public class MenuToolbar extends HBox {
         JavaFxObservable.actionEventsOf(endSession)
                 .subscribe(MenuBarEvents.getInstance().getEndSession());
 
-        ClientEvents.getInstance().getOnline()
+        RethinkEvents.getInstance().getOnline()
                 .subscribe(online -> {
                     startSession.setDisable(online);
                     endSession.setDisable(!online);
+                    joinSession.setDisable(online);
                 });
 
+        RethinkEvents.getInstance().getSessionId()
+                .map(sessionId -> {
+                    if (sessionId.equals(""))
+                        return "Not online";
+                    else
+                        return "Session id: " + sessionId;
+                })
+                .subscribe(sessionId::setText);
 
         return items;
     }

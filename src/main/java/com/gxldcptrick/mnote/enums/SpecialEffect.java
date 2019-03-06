@@ -1,5 +1,6 @@
 package com.gxldcptrick.mnote.enums;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import javafx.scene.effect.*;
 
 ///@@@@ "An enum with custom data elements."

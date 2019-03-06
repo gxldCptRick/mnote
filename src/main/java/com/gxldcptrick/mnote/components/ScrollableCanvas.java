@@ -2,25 +2,43 @@ package com.gxldcptrick.mnote.components;
 
 import com.gxldcptrick.mnote.events.CanvasEvents;
 import com.gxldcptrick.mnote.events.CanvasToolbarEvents;
+import com.gxldcptrick.mnote.events.RethinkEvents;
 import io.reactivex.rxjavafx.observables.JavaFxObservable;
+import javafx.application.Platform;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.effect.Effect;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.Pane;
 
 public class ScrollableCanvas extends ScrollPane {
+    private Pane pane;
     private Canvas canvas;
     private GraphicsContext context;
     private Effect currentEffect;
 
     public ScrollableCanvas(){
         canvas = new Canvas(1500, 500);
+        pane = new Pane(canvas);
         context = canvas.getGraphicsContext2D();
 
         setUpMouseEvents();
         subscribeToCanvasToolbarEvents();
-        setContent(canvas);
+        subscribeToRethinkEvents();
+        setContent(pane);
+    }
+
+    private void subscribeToRethinkEvents() {
+        RethinkEvents.getInstance().getNewClientConnected().subscribe(this::addNewCanvas);
+    }
+
+    private void addNewCanvas(String clientId) {
+        Platform.runLater(() ->{
+            System.out.println("Added new Canvas");
+            System.out.println(clientId);
+            pane.getChildren().add(new ClientCanvas(clientId));
+        });
     }
 
     @SuppressWarnings("Duplicates")
@@ -59,11 +77,15 @@ public class ScrollableCanvas extends ScrollPane {
         context.stroke();
     }
 
+    @SuppressWarnings("Duplicates")
     private void subscribeToCanvasToolbarEvents() {
         CanvasToolbarEvents.getInstance().getChangedColor().subscribe(context::setStroke);
         CanvasToolbarEvents.getInstance().getChangedLineSize().subscribe(context::setLineWidth);
         CanvasToolbarEvents.getInstance().getDeletingLine().subscribe(actionEvent -> System.out.println("Need to make this work!!!! "));
         CanvasToolbarEvents.getInstance().getChangeSpecialEfects().subscribe(specialEffect ->{
+            System.out.println("-----------------------------");
+            System.out.println(specialEffect);
+            System.out.println("-----------------------------");
                     context.setEffect(specialEffect.lineEffect);
                     currentEffect = specialEffect.lineEffect;
                 }

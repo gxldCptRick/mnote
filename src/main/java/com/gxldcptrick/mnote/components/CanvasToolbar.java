@@ -2,7 +2,6 @@ package com.gxldcptrick.mnote.components;
 
 import com.gxldcptrick.mnote.enums.SpecialEffect;
 import com.gxldcptrick.mnote.events.CanvasToolbarEvents;
-import com.gxldcptrick.mnote.models.Brush;
 import io.reactivex.rxjavafx.observables.JavaFxObservable;
 import javafx.scene.Node;
 import javafx.scene.control.*;
@@ -30,7 +29,6 @@ public class CanvasToolbar extends HBox {
 
     public CanvasToolbar() {
         components = new ArrayList<>();
-        setUpBrush();
         initializeColorPicker();
         initializeLineWidth();
         initializeLineWidthComboBox();
@@ -44,16 +42,17 @@ public class CanvasToolbar extends HBox {
         getChildren().addAll(components);
     }
 
-    private void setUpBrush() {
-        CanvasToolbarEvents.getInstance().getChangedLineSize()
-                .subscribe(lineWidth -> Brush.getInstance().setCurrentWidth(lineWidth));
-        //StrokeLineCap??
-
-        CanvasToolbarEvents.getInstance().getChangeSpecialEfects()
-                .subscribe(specialEffect -> Brush.getInstance().setEffect(specialEffect));
-        CanvasToolbarEvents.getInstance().getChangedColor()
-                .subscribe(color -> Brush.getInstance().setColor(color));
-    }
+//    private void setUpBrush() {
+//        CanvasToolbarEvents.getInstance().getChangedLineSize()
+//                .subscribe(lineWidth -> Brush.getInstance().setCurrentWidth(lineWidth));
+//        //StrokeLineCap??
+//        CanvasToolbarEvents.getInstance().getChangedLineSize().onNext();
+//
+//        CanvasToolbarEvents.getInstance().getChangeSpecialEfects()
+//                .subscribe(specialEffect -> Brush.getInstance().setEffect(specialEffect));
+//        CanvasToolbarEvents.getInstance().getChangedColor()
+//                .subscribe(color -> Brush.getInstance().setColor(color));
+//    }
 
     private void initializeLineWidth() {
         this.lineWidth = new Label("Current Line Width: ");

@@ -1,9 +1,10 @@
 package com.gxldcptrick.mnote;
 
 import com.gxldcptrick.mnote.components.MnoteLayout;
-import com.gxldcptrick.mnote.events.ClientEvents;
+import com.gxldcptrick.mnote.events.RethinkEvents;
 import io.reactivex.rxjavafx.observables.JavaFxObservable;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
@@ -23,11 +24,18 @@ public class Mnote extends Application {
     @Override
     public void start(Stage stage) {
         JavaFxObservable.eventsOf(stage, WindowEvent.WINDOW_CLOSE_REQUEST)
-                .subscribe(ClientEvents.getInstance().getDisconnect());
+                .subscribe(RethinkEvents.getInstance().getDisconnect());
 
         Scene scene = new Scene(new MnoteLayout(), 1500, 500);
         stage.setScene(scene);
         stage.show();
+    }
+
+    @Override
+    public void stop(){
+        System.out.println("Called stop");
+        Platform.exit();
+        System.exit(0);
     }
 
     public static void main(String[] args) {
