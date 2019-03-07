@@ -14,7 +14,6 @@ import java.util.List;
 
 public class CanvasToolbar extends HBox {
     private List<Node> components;
-    private Label lineWidth;
     private ColorPicker colorPicker;
     private ComboBox<Double> lineWidthComboBox;
     private Button clearBtn;
@@ -42,21 +41,8 @@ public class CanvasToolbar extends HBox {
         getChildren().addAll(components);
     }
 
-//    private void setUpBrush() {
-//        CanvasToolbarEvents.getInstance().getChangedLineSize()
-//                .subscribe(lineWidth -> Brush.getInstance().setCurrentWidth(lineWidth));
-//        //StrokeLineCap??
-//        CanvasToolbarEvents.getInstance().getChangedLineSize().onNext();
-//
-//        CanvasToolbarEvents.getInstance().getChangeSpecialEfects()
-//                .subscribe(specialEffect -> Brush.getInstance().setEffect(specialEffect));
-//        CanvasToolbarEvents.getInstance().getChangedColor()
-//                .subscribe(color -> Brush.getInstance().setColor(color));
-//    }
-
     private void initializeLineWidth() {
-        this.lineWidth = new Label("Current Line Width: ");
-        components.add(this.lineWidth);
+        components.add(new Label("Current Line Width: "));
     }
 
     private void initializeColorPicker() {

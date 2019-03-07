@@ -21,6 +21,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Rethink extends Thread{
     private static final RethinkDB r = RethinkDB.r;
@@ -41,7 +43,7 @@ public class Rethink extends Thread{
     private Brush brush;
 
     private Rethink(){
-        this.host = "localhost";
+        this.host = "73.20.98.246";
         this.port = 28015;
         this.linesTable = "lines";
         this.sessionsTable = "sessions";
@@ -94,6 +96,7 @@ public class Rethink extends Thread{
         Long count = r.table(sessionsTable).getAll(this.sessionId)
                 .optArg("index", "sessionId").count().run(conn);
         if (count == 1){
+            GetCurrentlyConnectedClients();
             r.table(sessionsTable)
                     .getAll(this.sessionId)
                     .optArg("index", "sessionId")
@@ -107,6 +110,21 @@ public class Rethink extends Thread{
         }
         else{
             new Alert(Alert.AlertType.ERROR, "Session ID doesn't exists!", ButtonType.OK).showAndWait();
+        }
+    }
+
+    private void GetCurrentlyConnectedClients() {
+        Pattern pattern = Pattern.compile("(?!\")(\\b[0-9a-f]{8}\\b-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\\b[0-9a-f]{12}\\b)(?!\")");
+        Cursor<String> clients = r.table(sessionsTable)
+                .getAll(this.sessionId)
+                .optArg("index", "sessionId")
+                .g("listOfClients")
+                .run(conn);
+        for(Object client : clients){
+            Matcher matcher = pattern.matcher(client.toString());
+            while (matcher.find()){
+                RethinkEvents.getInstance().getNewClientConnected().onNext(matcher.group(1));
+            }
         }
     }
 
@@ -134,9 +152,7 @@ public class Rethink extends Thread{
 
             for (Object line : linesCursor) {
                 try {
-                    System.out.println("-------------------Before sending drawing package-----------------");
                     drawingPackage = mapper.readValue(toJson(line.toString()), DrawingPackage.class);
-                    System.out.println("-------------------After sending drawing package-----------------");
                     RethinkEvents.getInstance().getLinesBeingDrawn().onNext(drawingPackage);
                 } catch (IOException e) {
                     e.printStackTrace();

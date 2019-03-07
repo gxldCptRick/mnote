@@ -38,6 +38,7 @@ public class ScrollableCanvas extends ScrollPane {
             System.out.println("Added new Canvas");
             System.out.println(clientId);
             pane.getChildren().add(new ClientCanvas(clientId));
+            canvas.toFront();
         });
     }
 
@@ -83,9 +84,6 @@ public class ScrollableCanvas extends ScrollPane {
         CanvasToolbarEvents.getInstance().getChangedLineSize().subscribe(context::setLineWidth);
         CanvasToolbarEvents.getInstance().getDeletingLine().subscribe(actionEvent -> System.out.println("Need to make this work!!!! "));
         CanvasToolbarEvents.getInstance().getChangeSpecialEfects().subscribe(specialEffect ->{
-            System.out.println("-----------------------------");
-            System.out.println(specialEffect);
-            System.out.println("-----------------------------");
                     context.setEffect(specialEffect.lineEffect);
                     currentEffect = specialEffect.lineEffect;
                 }

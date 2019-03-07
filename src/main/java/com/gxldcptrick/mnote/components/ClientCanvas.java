@@ -6,67 +6,56 @@ import com.gxldcptrick.mnote.models.DrawingPackage;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 
-import java.util.List;
-
 public class ClientCanvas extends Canvas{
     private GraphicsContext context;
     private String clientId;
-    private DrawingPackage previouesDrawingPackage;
     private int lastCoordinateIndex;
-    private int drawingPackageCoordinateLength;
+    private boolean startingLine;
+    private String previousLineId;
 
     public ClientCanvas(String clientId) {
         super(1500, 500);
         this.clientId = clientId;
         context = this.getGraphicsContext2D();
         subscribeToNewPoints();
-        previouesDrawingPackage = new DrawingPackage();
+        previousLineId = "";
+        startingLine = false;
         lastCoordinateIndex = 0;
     }
 
     private void subscribeToNewPoints() {
-        RethinkEvents.getInstance().getLinesBeingDrawn().buffer(50).subscribe(
+        RethinkEvents.getInstance().getLinesBeingDrawn().subscribe(
                 this::drawLines
         );
-    }
-
-    private void drawLines(List<DrawingPackage> drawingPackages) {
-        context.beginPath();;
-        context.moveTo(drawingPackages.get(49).getCoordinates().get(0).getX(),
-                drawingPackages.get(49).getCoordinates().get(0).getY());
-        for(var bla : drawingPackages.get(49).getCoordinates()){
-            context.lineTo(bla.getX(), bla.getY());
-            context.stroke();
-        }
     }
 
     private void drawLines(DrawingPackage drawingPackage) {
         if (!drawingPackage.getClientId().equals(clientId))
             return;
 
-//        if (!previouesDrawingPackage.getId().equals(drawingPackage.getId())){
-//            setUpBrush(drawingPackage.getBrush());
-//        }
+        if (!drawingPackage.getId().equals(this.previousLineId)){
+            startingLine = true;
+            lastCoordinateIndex = 0;
+            System.out.println("Closing path");
+            context.closePath();
+        }
 
-        drawingPackageCoordinateLength = drawingPackage.getCoordinates().size();
-        for(int i = lastCoordinateIndex; i < drawingPackageCoordinateLength; i++){
-            if (i == 0){
-                context.beginPath();
-                context.moveTo(drawingPackage.getCoordinates().get(i).getX(),
-                        drawingPackage.getCoordinates().get(i).getY());
-            }
-            else {
-                context.lineTo(drawingPackage.getCoordinates().get(i).getX(),
-                        drawingPackage.getCoordinates().get(i).getY());
-            }
+        if (startingLine){
+            setUpBrush(drawingPackage.getBrush());
+            this.previousLineId = drawingPackage.getId();
+            startingLine = false;
+            context.beginPath();
+            context.moveTo(drawingPackage.getCoordinates().get(0).getX(),
+                    drawingPackage.getCoordinates().get(0).getY());
+            context.stroke();
+            startingLine = false;
+        }
+        else{
+            context.lineTo(drawingPackage.getCoordinates().get(lastCoordinateIndex).getX(),
+                    drawingPackage.getCoordinates().get(lastCoordinateIndex).getY());
             context.stroke();
         }
-        lastCoordinateIndex = drawingPackageCoordinateLength;
-
-        System.out.println("-----------------------------------------------------");
-        System.out.println("Last coordinate Index:" + lastCoordinateIndex);
-        System.out.println("-----------------------------------------------------");
-        context.closePath();
+        lastCoordinateIndex++;
     }
 
     private void setUpBrush(Brush brush) {
